@@ -12,3 +12,5 @@ export { MasterDetail } from "./MasterDetail";
 export { MasterList, MasterListItem } from "./MasterList";
 export { DetailPanel, DetailPanelHeader } from "./DetailPanel";
 export { DataTable } from "./DataTable";
+export { NavBar } from "./NavBar";
+export { Layout } from "./Layout";

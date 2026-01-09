@@ -157,7 +157,7 @@ export function OrderFormPage() {
 
     if (isEdit && isLoadingOrder) {
         return (
-            <div className="flex h-screen items-center justify-center">
+            <div className="flex h-full items-center justify-center">
                 <LoadingState message="Loading order..." />
             </div>
         );
@@ -165,6 +165,7 @@ export function OrderFormPage() {
 
     return (
         <>
+            <div className="h-full overflow-y-auto">
             <div className="mx-auto max-w-3xl px-4 py-8">
                 <div className="mb-6">
                     <Button
@@ -347,6 +348,7 @@ export function OrderFormPage() {
                         </div>
                     </form>
                 </div>
+            </div>
             </div>
 
             <ItemFormModal id={INLINE_ITEM_MODAL_ID} />
