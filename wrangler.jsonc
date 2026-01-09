@@ -18,7 +18,7 @@
     },
     "d1_databases": [
         {
-            "binding": "nonad1",
+            "binding": "DB",
             "database_name": "nonad1",
             "database_id": "13945410-c944-471d-80b8-7352430695a2",
             "remote": true,
@@ -34,7 +34,7 @@
     "r2_buckets": [
         {
             "bucket_name": "nonar2",
-            "binding": "nonar2",
+            "binding": "R2",
             "remote": true,
         },
     ],

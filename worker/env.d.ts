@@ -1,9 +1,8 @@
-import type { D1Database } from "@cloudflare/workers-types";
-
-export interface Env {
-    Bindings: {
-        DB: D1Database;
-        ASSETS: Fetcher;
-        TRUSTED_ORIGINS?: string;
-    };
+interface Env {
+    DB: D1Database;
+    ASSETS: Fetcher;
+    BROWSER: Fetcher;
+    NONA_KV_CACHE: KVNamespace;
+    R2: R2Bucket;
+    TRUSTED_ORIGIN?: string;
 }
