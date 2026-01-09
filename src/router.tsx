@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { CategoryPage } from "@/src/page/category";
+import { ItemPage } from "@/src/page/item";
 
 export const router = createBrowserRouter([
     {
@@ -9,5 +10,9 @@ export const router = createBrowserRouter([
     {
         path: "/category",
         element: <CategoryPage />,
+    },
+    {
+        path: "/item",
+        element: <ItemPage />,
     },
 ]);
