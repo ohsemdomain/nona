@@ -6,7 +6,11 @@
     "scripts": {
         "dev": "vite --host --port=5650",
         "build": "tsc -b && vite build",
-        "deploy": "bun run build && wrangler deploy"
+        "deploy": "bun run build && wrangler deploy",
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "wrangler d1 migrations apply DB --local",
+        "db:migrate:prod": "wrangler d1 migrations apply DB --remote",
+        "db:studio": "drizzle-kit studio"
     },
     "dependencies": {
         "@hono/zod-validator": "^0.4.1",
