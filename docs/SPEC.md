@@ -85,12 +85,77 @@ Category (1) ← (N) Item (1) ← (N) OrderLine (N) → (1) Order
 ### Modal Stacking Test
 
 ```
-Order form (unsaved)
+Order form page (unsaved)
   → [+ Add Item] → Item modal (saves to DB)
     → [+ New Category] → Category modal (saves to DB)
     ← Category saved, back-populates to Item dropdown
   ← Item saved, back-populates to Order lines
 → Save Order
+```
+
+---
+
+## Layout Patterns
+
+### Master-Detail Layout
+
+All list views use Master-Detail pattern:
+
+```
+┌─────────────────────┬───────────────────────────────┐
+│  MASTER (List)      │  DETAIL (Selected)            │
+├─────────────────────┼───────────────────────────────┤
+│  ▶ Selected item    │  Full details shown here      │
+│    Other item       │  [Edit] [Delete] buttons      │
+│    Other item       │                               │
+│                     │                               │
+│  [+ New]            │                               │
+└─────────────────────┴───────────────────────────────┘
+```
+
+Behaviors:
+
+- Auto-select first item on page load
+- URL sync: `?selected=abc123`
+- After create: auto-select new item
+- After delete: select next/previous item
+- Empty list: show EmptyState in detail panel
+
+### Feature Layout Matrix
+
+| Feature  | List          | Detail Panel            | Create | Edit  | Delete  |
+| -------- | ------------- | ----------------------- | ------ | ----- | ------- |
+| Category | Master-Detail | Right panel             | Modal  | Modal | Confirm |
+| Item     | Master-Detail | Right panel             | Modal  | Modal | Confirm |
+| Order    | Master-Detail | Right panel (read-only) | Page   | Page  | Confirm |
+
+### URL Structure
+
+| Route                       | Layout                            |
+| --------------------------- | --------------------------------- |
+| `/category`                 | Master-Detail (auto-select first) |
+| `/category?selected=abc123` | Master-Detail (specific selected) |
+| `/item`                     | Master-Detail (auto-select first) |
+| `/item?selected=abc123`     | Master-Detail (specific selected) |
+| `/order`                    | Master-Detail (auto-select first) |
+| `/order?selected=abc123`    | Master-Detail (specific selected) |
+| `/order/new`                | Full page form                    |
+| `/order/:id/edit`           | Full page form                    |
+
+### Centralized Hook
+
+Create `useMasterDetail(entity)` hook:
+
+```typescript
+const {
+    list, // Query result
+    selectedId, // Current selected
+    selectedItem, // Current selected data
+    setSelectedId, // Manual select
+    selectFirst, // Select first item
+    selectAfterCreate, // Auto-select after create
+    selectAfterDelete, // Select next after delete
+} = useMasterDetail<Item>("item");
 ```
 
 ---
@@ -111,17 +176,21 @@ All features use same factory. No duplicate CRUD code.
 
 ## Centralized Libs
 
-| File                       | Purpose                                       |
-| -------------------------- | --------------------------------------------- |
-| `/src/lib/api.ts`          | Fetch wrapper, error handling                 |
-| `/src/lib/queryKey.ts`     | Query key factory: `queryKey.{entity}.list()` |
-| `/src/lib/invalidation.ts` | `invalidateRelated(entity)`                   |
-| `/src/lib/date.ts`         | `getLocalDate()`, `toUTC()`, `formatDate()`   |
-| `/src/lib/format.ts`       | `formatMoney()`                               |
-| `/src/lib/toast.ts`        | `TOAST.created()`, `TOAST.deleted()`, etc.    |
-| `/src/lib/error.ts`        | `handleApiError()`                            |
-| `/src/lib/zIndex.ts`       | `Z_INDEX.modal`, `Z_INDEX.modalOverlay`, etc. |
-| `/src/lib/config.ts`       | `CONFIG.apiUrl`, etc.                         |
+| File                            | Purpose                                       |
+| ------------------------------- | --------------------------------------------- |
+| `/src/lib/api.ts`               | Fetch wrapper, error handling                 |
+| `/src/lib/queryKey.ts`          | Query key factory: `queryKey.{entity}.list()` |
+| `/src/lib/invalidation.ts`      | `invalidateRelated(entity)`                   |
+| `/src/lib/date.ts`              | `getLocalDate()`, `toUTC()`, `formatDate()`   |
+| `/src/lib/format.ts`            | `formatMoney()`                               |
+| `/src/lib/toast.ts`             | `TOAST.created()`, `TOAST.deleted()`, etc.    |
+| `/src/lib/error.ts`             | `handleApiError()`                            |
+| `/src/lib/zIndex.ts`            | `Z_INDEX.modal`, `Z_INDEX.modalOverlay`, etc. |
+| `/src/lib/config.ts`            | `CONFIG.apiUrl`, etc.                         |
+| `/src/hooks/useResource.ts`     | Generic CRUD factory hook                     |
+| `/src/hooks/useMasterDetail.ts` | Master-Detail state management                |
+| `/src/hooks/useFilter.ts`       | Search/filter with URL sync                   |
+| `/src/hooks/usePagination.ts`   | Pagination state                              |
 
 ---
 
@@ -139,6 +208,9 @@ All features use same factory. No duplicate CRUD code.
 | `<DataTable>`     | Generic table with sort                            |
 | `<Pagination>`    | Page controls                                      |
 | `<SearchInput>`   | Debounced search                                   |
+| `<MasterDetail>`  | Master-Detail layout wrapper                       |
+| `<MasterList>`    | Left panel list                                    |
+| `<DetailPanel>`   | Right panel detail                                 |
 
 ---
 
@@ -240,9 +312,15 @@ DELETE /api/{entity}/:id      ← Soft delete
 ## Success Criteria
 
 - [ ] All 3 features use `useResource` factory
+- [ ] All 3 features use Master-Detail layout
+- [ ] URL sync works (`?selected=abc123`)
+- [ ] Auto-select first item on page load
+- [ ] After create: new item auto-selected
+- [ ] After delete: next item auto-selected
 - [ ] Modal stacking works 3 levels deep
 - [ ] Creating Item can inline create Category
 - [ ] Creating Order can inline create Item (which can create Category)
+- [ ] Order create/edit uses full page (not modal)
 - [ ] All dates consistent (DB → API → UI)
 - [ ] All money displays correctly (number → formatted)
 - [ ] Cross-invalidation works (delete Category → Item list refreshes)
