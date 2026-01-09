@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { categoryRoute, itemRoute, orderRoute } from "./route";
+import { authRoute, categoryRoute, itemRoute, orderRoute } from "./route";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -7,6 +7,9 @@ const app = new Hono<{ Bindings: Env }>();
 app.get("/api/health", (c) => {
     return c.json({ status: "ok" });
 });
+
+// Auth route
+app.route("/api/auth", authRoute);
 
 // API routes
 app.route("/api/category", categoryRoute);
