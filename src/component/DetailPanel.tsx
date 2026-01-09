@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { clsx } from "clsx";
 
-interface DetailPanelProps {
+interface DetailPanelProp {
     header?: ReactNode;
     children: ReactNode;
     footer?: ReactNode;
@@ -13,7 +13,7 @@ export function DetailPanel({
     children,
     footer,
     className,
-}: DetailPanelProps) {
+}: DetailPanelProp) {
     return (
         <div
             className={clsx(
@@ -36,17 +36,17 @@ export function DetailPanel({
     );
 }
 
-interface DetailPanelHeaderProps {
+interface DetailPanelHeaderProp {
     title: string;
-    actions?: ReactNode;
+    action?: ReactNode;
     className?: string;
 }
 
 export function DetailPanelHeader({
     title,
-    actions,
+    action,
     className,
-}: DetailPanelHeaderProps) {
+}: DetailPanelHeaderProp) {
     return (
         <div
             className={clsx("flex items-center justify-between gap-4", className)}
@@ -54,7 +54,7 @@ export function DetailPanelHeader({
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {title}
             </h2>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {action && <div className="flex items-center gap-2">{action}</div>}
         </div>
     );
 }

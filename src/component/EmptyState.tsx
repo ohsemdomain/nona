@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Inbox } from "lucide-react";
 import { clsx } from "clsx";
 
-interface EmptyStateProps {
+interface EmptyStateProp {
     title?: string;
     message?: string;
     icon?: ReactNode;
@@ -16,7 +16,7 @@ export function EmptyState({
     icon,
     action,
     className,
-}: EmptyStateProps) {
+}: EmptyStateProp) {
     return (
         <div
             className={clsx(

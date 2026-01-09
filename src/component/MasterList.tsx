@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { clsx } from "clsx";
 
-interface MasterListProps {
+interface MasterListProp {
     header?: ReactNode;
     children: ReactNode;
     footer?: ReactNode;
@@ -13,7 +13,7 @@ export function MasterList({
     children,
     footer,
     className,
-}: MasterListProps) {
+}: MasterListProp) {
     return (
         <div
             className={clsx(
@@ -36,7 +36,7 @@ export function MasterList({
     );
 }
 
-interface MasterListItemProps {
+interface MasterListItemProp {
     isSelected?: boolean;
     onClick?: () => void;
     children: ReactNode;
@@ -48,7 +48,7 @@ export function MasterListItem({
     onClick,
     children,
     className,
-}: MasterListItemProps) {
+}: MasterListItemProp) {
     return (
         <button
             type="button"

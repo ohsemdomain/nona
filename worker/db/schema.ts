@@ -11,7 +11,7 @@ export const category = sqliteTable("category", {
     deletedAt: integer("deleted_at"),
 });
 
-export const categoryRelations = relations(category, ({ many }) => ({
+export const categoryRelation = relations(category, ({ many }) => ({
     itemList: many(item),
 }));
 
@@ -29,7 +29,7 @@ export const item = sqliteTable("item", {
     deletedAt: integer("deleted_at"),
 });
 
-export const itemRelations = relations(item, ({ one, many }) => ({
+export const itemRelation = relations(item, ({ one, many }) => ({
     category: one(category, {
         fields: [item.categoryId],
         references: [category.id],
@@ -48,7 +48,7 @@ export const order = sqliteTable("order", {
     deletedAt: integer("deleted_at"),
 });
 
-export const orderRelations = relations(order, ({ many }) => ({
+export const orderRelation = relations(order, ({ many }) => ({
     lineList: many(orderLine),
 }));
 
@@ -66,7 +66,7 @@ export const orderLine = sqliteTable("order_line", {
     lineTotal: integer("line_total").notNull(), // cents
 });
 
-export const orderLineRelations = relations(orderLine, ({ one }) => ({
+export const orderLineRelation = relations(orderLine, ({ one }) => ({
     order: one(order, {
         fields: [orderLine.orderId],
         references: [order.id],

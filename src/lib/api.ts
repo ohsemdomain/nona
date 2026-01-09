@@ -1,13 +1,13 @@
 import { CONFIG } from "./config";
 import { handleApiError } from "./error";
 
-type RequestOptions = Omit<RequestInit, "body"> & {
+type RequestOption = Omit<RequestInit, "body"> & {
     body?: unknown;
 };
 
 async function request<T>(
     endpoint: string,
-    options: RequestOptions = {},
+    options: RequestOption = {},
 ): Promise<T> {
     const { body, headers, ...rest } = options;
 

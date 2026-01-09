@@ -10,7 +10,7 @@ interface UIState {
     isLoading: boolean;
     openModal: (id: string, data?: unknown) => void;
     closeModal: (id?: string) => void;
-    closeAllModals: () => void;
+    closeAllModal: () => void;
     getModalData: <T>(id: string) => T | undefined;
     isModalOpen: (id: string) => boolean;
     getModalLevel: (id: string) => number;
@@ -40,7 +40,7 @@ export const useUIStore = create<UIState>((set, get) => ({
         });
     },
 
-    closeAllModals: () => {
+    closeAllModal: () => {
         set({ modalStack: [] });
     },
 

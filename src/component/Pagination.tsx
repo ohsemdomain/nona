@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { clsx } from "clsx";
 import { Button } from "./Button";
 
-interface PaginationProps {
+interface PaginationProp {
     page: number;
     pageSize: number;
     total: number;
@@ -16,7 +16,7 @@ export function Pagination({
     total,
     onPageChange,
     className,
-}: PaginationProps) {
+}: PaginationProp) {
     const totalPages = Math.ceil(total / pageSize);
     const start = (page - 1) * pageSize + 1;
     const end = Math.min(page * pageSize, total);

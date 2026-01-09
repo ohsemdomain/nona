@@ -12,9 +12,9 @@ interface Column<T> {
     className?: string;
 }
 
-interface DataTableProps<T> {
+interface DataTableProp<T> {
     data: T[];
-    columns: Column<T>[];
+    columnList: Column<T>[];
     keyExtractor: (item: T) => string;
     onSort?: (key: string, direction: SortDirection) => void;
     className?: string;
@@ -22,11 +22,11 @@ interface DataTableProps<T> {
 
 export function DataTable<T extends Record<string, unknown>>({
     data,
-    columns,
+    columnList,
     keyExtractor,
     onSort,
     className,
-}: DataTableProps<T>) {
+}: DataTableProp<T>) {
     const [sortKey, setSortKey] = useState<string | null>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -43,7 +43,7 @@ export function DataTable<T extends Record<string, unknown>>({
             <table className="w-full text-sm">
                 <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-700">
-                        {columns.map((column) => (
+                        {columnList.map((column) => (
                             <th
                                 key={column.key}
                                 className={clsx(
@@ -77,7 +77,7 @@ export function DataTable<T extends Record<string, unknown>>({
                             key={keyExtractor(item)}
                             className="hover:bg-zinc-50 dark:hover:bg-zinc-900"
                         >
-                            {columns.map((column) => (
+                            {columnList.map((column) => (
                                 <td
                                     key={column.key}
                                     className={clsx(

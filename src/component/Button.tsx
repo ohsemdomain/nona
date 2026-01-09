@@ -5,13 +5,13 @@ import { clsx } from "clsx";
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProp extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
     size?: ButtonSize;
     isLoading?: boolean;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
+const variantStyleMap: Record<ButtonVariant, string> = {
     primary:
         "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200",
     secondary:
@@ -22,13 +22,13 @@ const variantStyles: Record<ButtonVariant, string> = {
         "bg-transparent text-zinc-900 hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800",
 };
 
-const sizeStyles: Record<ButtonSize, string> = {
+const sizeStyleMap: Record<ButtonSize, string> = {
     sm: "px-3 py-1.5 text-sm",
     md: "px-4 py-2 text-sm",
     lg: "px-6 py-3 text-base",
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProp>(
     (
         {
             variant = "primary",
@@ -49,8 +49,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                     "inline-flex items-center justify-center gap-2 rounded font-medium transition-colors",
                     "focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2",
                     "disabled:cursor-not-allowed disabled:opacity-50",
-                    variantStyles[variant],
-                    sizeStyles[size],
+                    variantStyleMap[variant],
+                    sizeStyleMap[size],
                     className,
                 )}
                 {...props}

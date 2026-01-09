@@ -1,7 +1,7 @@
 import { Search, X } from "lucide-react";
 import { clsx } from "clsx";
 
-interface SearchInputProps {
+interface SearchInputProp {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
@@ -13,7 +13,7 @@ export function SearchInput({
     onChange,
     placeholder = "Search...",
     className,
-}: SearchInputProps) {
+}: SearchInputProp) {
     return (
         <div className={clsx("relative", className)}>
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />

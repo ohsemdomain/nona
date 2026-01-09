@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import { clsx } from "clsx";
 
-interface MasterDetailProps {
+interface MasterDetailProp {
     children: ReactNode;
     className?: string;
 }
 
-export function MasterDetail({ children, className }: MasterDetailProps) {
+export function MasterDetail({ children, className }: MasterDetailProp) {
     return (
         <div
             className={clsx(

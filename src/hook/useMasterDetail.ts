@@ -17,7 +17,7 @@ interface HasPublicId {
     publicId: string;
 }
 
-interface UseMasterDetailOptions {
+interface UseMasterDetailOption {
     autoSelectFirst?: boolean;
 }
 
@@ -34,9 +34,9 @@ interface UseMasterDetailReturn<T> {
     selectAfterDelete: () => void;
     search: string;
     setSearch: (value: string) => void;
-    filters: Record<string, string>;
+    filterMap: Record<string, string>;
     setFilter: (key: string, value: string) => void;
-    clearFilters: () => void;
+    clearFilter: () => void;
     page: number;
     pageSize: number;
     setPage: (page: number) => void;
@@ -44,20 +44,20 @@ interface UseMasterDetailReturn<T> {
 
 export function useMasterDetail<T extends HasPublicId>(
     entity: Entity,
-    options: UseMasterDetailOptions = {},
+    option: UseMasterDetailOption = {},
 ): UseMasterDetailReturn<T> {
-    const { autoSelectFirst = true } = options;
-    const [searchParams, setSearchParams] = useSearchParams();
+    const { autoSelectFirst = true } = option;
+    const [searchParam, setSearchParam] = useSearchParams();
 
-    const selectedId = searchParams.get("selected");
+    const selectedId = searchParam.get("selected");
 
     const {
         search,
         setSearch,
-        filters,
+        filterMap,
         setFilter,
-        clearFilters,
-        queryParams,
+        clearFilter,
+        queryParam,
     } = useFilter();
 
     const { page, pageSize, setPage, reset: resetPagination } = usePagination();
@@ -67,11 +67,11 @@ export function useMasterDetail<T extends HasPublicId>(
         isLoading,
         isError,
     } = useQuery({
-        queryKey: queryKey[entity].list({ ...queryParams, page, pageSize }),
+        queryKey: queryKey[entity].list({ ...queryParam, page, pageSize }),
         queryFn: () =>
             api.get<ListResponse<T>>(
                 `/${entity}?${new URLSearchParams({
-                    ...queryParams,
+                    ...queryParam,
                     page: String(page),
                     pageSize: String(pageSize),
                 })}`,
@@ -88,15 +88,15 @@ export function useMasterDetail<T extends HasPublicId>(
 
     const setSelectedId = useCallback(
         (id: string | null) => {
-            const newParams = new URLSearchParams(searchParams);
+            const newParam = new URLSearchParams(searchParam);
             if (id) {
-                newParams.set("selected", id);
+                newParam.set("selected", id);
             } else {
-                newParams.delete("selected");
+                newParam.delete("selected");
             }
-            setSearchParams(newParams, { replace: true });
+            setSearchParam(newParam, { replace: true });
         },
-        [searchParams, setSearchParams],
+        [searchParam, setSearchParam],
     );
 
     const selectFirst = useCallback(() => {
@@ -147,7 +147,7 @@ export function useMasterDetail<T extends HasPublicId>(
 
     useEffect(() => {
         resetPagination();
-    }, [queryParams, resetPagination]);
+    }, [queryParam, resetPagination]);
 
     return {
         list,
@@ -162,9 +162,9 @@ export function useMasterDetail<T extends HasPublicId>(
         selectAfterDelete,
         search,
         setSearch,
-        filters,
+        filterMap,
         setFilter,
-        clearFilters,
+        clearFilter,
         page,
         pageSize,
         setPage,

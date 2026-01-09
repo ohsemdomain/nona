@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 
-interface LoadingStateProps {
+interface LoadingStateProp {
     message?: string;
     className?: string;
 }
@@ -9,7 +9,7 @@ interface LoadingStateProps {
 export function LoadingState({
     message = "Loading...",
     className,
-}: LoadingStateProps) {
+}: LoadingStateProp) {
     return (
         <div
             className={clsx(

@@ -3,7 +3,7 @@ import { queryKey } from "./queryKey";
 
 type Entity = "category" | "item" | "order";
 
-const relatedEntities: Record<Entity, Entity[]> = {
+const relatedEntityMap: Record<Entity, Entity[]> = {
     category: ["item"],
     item: ["order"],
     order: [],
@@ -15,7 +15,7 @@ export function invalidateRelated(
 ): void {
     queryClient.invalidateQueries({ queryKey: queryKey[entity].all });
 
-    for (const related of relatedEntities[entity]) {
+    for (const related of relatedEntityMap[entity]) {
         queryClient.invalidateQueries({ queryKey: queryKey[related].all });
     }
 }

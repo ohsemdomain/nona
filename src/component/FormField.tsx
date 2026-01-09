@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { clsx } from "clsx";
 
-interface FormFieldProps {
+interface FormFieldProp {
     label: string;
     htmlFor?: string;
     error?: string;
@@ -17,7 +17,7 @@ export function FormField({
     required,
     children,
     className,
-}: FormFieldProps) {
+}: FormFieldProp) {
     return (
         <div className={clsx("space-y-1.5", className)}>
             <label

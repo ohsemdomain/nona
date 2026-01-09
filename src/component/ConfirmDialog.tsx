@@ -3,7 +3,7 @@ import { Modal } from "./Modal";
 import { Button } from "./Button";
 import { useUIStore } from "@/src/store/ui";
 
-interface ConfirmDialogProps {
+interface ConfirmDialogProp {
     id: string;
     title?: string;
     message: string;
@@ -25,7 +25,7 @@ export function ConfirmDialog({
     onConfirm,
     onCancel,
     isLoading = false,
-}: ConfirmDialogProps) {
+}: ConfirmDialogProp) {
     const { closeModal } = useUIStore();
 
     const handleCancel = () => {

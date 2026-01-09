@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 import { useUIStore } from "@/src/store/ui";
 import { Z_INDEX } from "@/src/lib/zIndex";
 
-interface ModalProps {
+interface ModalProp {
     id: string;
     title: string;
     children: ReactNode;
@@ -13,7 +13,7 @@ interface ModalProps {
     size?: "sm" | "md" | "lg" | "xl";
 }
 
-const sizeStyles = {
+const sizeStyleMap = {
     sm: "max-w-sm",
     md: "max-w-md",
     lg: "max-w-lg",
@@ -26,7 +26,7 @@ export function Modal({
     children,
     onClose,
     size = "md",
-}: ModalProps) {
+}: ModalProp) {
     const { isModalOpen, closeModal, getModalLevel } = useUIStore();
     const isOpen = isModalOpen(id);
     const level = getModalLevel(id);
@@ -76,7 +76,7 @@ export function Modal({
                 <div
                     className={clsx(
                         "w-full rounded-lg bg-white shadow-xl dark:bg-zinc-900",
-                        sizeStyles[size],
+                        sizeStyleMap[size],
                     )}
                     role="dialog"
                     aria-modal="true"

@@ -12,7 +12,7 @@ interface ListResponse<T> {
 }
 
 interface UseResourceReturn<T, CreateInput, UpdateInput> {
-    list: (params?: Record<string, unknown>) => {
+    list: (param?: Record<string, unknown>) => {
         data: T[] | undefined;
         total: number;
         isLoading: boolean;
@@ -29,8 +29,8 @@ interface UseResourceReturn<T, CreateInput, UpdateInput> {
         isPending: boolean;
     };
     update: {
-        mutate: (params: { id: string; data: UpdateInput }) => void;
-        mutateAsync: (params: { id: string; data: UpdateInput }) => Promise<T>;
+        mutate: (arg: { id: string; data: UpdateInput }) => void;
+        mutateAsync: (arg: { id: string; data: UpdateInput }) => Promise<T>;
         isPending: boolean;
     };
     remove: {
@@ -46,19 +46,19 @@ export function useResource<T, CreateInput = Partial<T>, UpdateInput = Partial<T
 ): UseResourceReturn<T, CreateInput, UpdateInput> {
     const queryClient = useQueryClient();
 
-    const list = (params?: Record<string, unknown>) => {
+    const list = (param?: Record<string, unknown>) => {
         const { data, isLoading, isError } = useQuery({
-            queryKey: queryKey[entity].list(params),
+            queryKey: queryKey[entity].list(param),
             queryFn: () => {
-                const searchParams = new URLSearchParams();
-                if (params) {
-                    for (const [key, value] of Object.entries(params)) {
+                const searchParam = new URLSearchParams();
+                if (param) {
+                    for (const [key, value] of Object.entries(param)) {
                         if (value !== undefined && value !== null) {
-                            searchParams.set(key, String(value));
+                            searchParam.set(key, String(value));
                         }
                     }
                 }
-                const query = searchParams.toString();
+                const query = searchParam.toString();
                 return api.get<ListResponse<T>>(
                     `/${entity}${query ? `?${query}` : ""}`,
                 );
