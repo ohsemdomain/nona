@@ -5,9 +5,10 @@ import type { Item } from "@/shared/type";
 
 interface ItemDeleteDialogProp {
 	id: string;
+	onSuccess?: () => void;
 }
 
-export function ItemDeleteDialog({ id }: ItemDeleteDialogProp) {
+export function ItemDeleteDialog({ id, onSuccess }: ItemDeleteDialogProp) {
 	const { getModalData, closeModal } = useUIStore();
 	const { remove } = useResource<Item>("item", "Item");
 
@@ -19,6 +20,7 @@ export function ItemDeleteDialog({ id }: ItemDeleteDialogProp) {
 		try {
 			await remove.mutateAsync(item.publicId);
 			closeModal(id);
+			onSuccess?.();
 		} catch {
 			// Error is handled by useResource
 		}

@@ -26,8 +26,14 @@ export function OrderPage() {
 	const navigate = useNavigate();
 	const { openModal } = useUIStore();
 
-	const { list, isLoading, selectedId, selectedItem, setSelectedId } =
-		useMasterDetail<Order>("order");
+	const {
+		list,
+		isLoading,
+		selectedId,
+		selectedItem,
+		setSelectedId,
+		selectAfterDelete,
+	} = useMasterDetail<Order>("order");
 
 	const handleCreate = () => {
 		navigate("/order/new");
@@ -124,7 +130,10 @@ export function OrderPage() {
 				</DetailPanel>
 			</MasterDetail>
 
-			<OrderDeleteDialog id={MODAL_ID.delete} />
+			<OrderDeleteDialog
+				id={MODAL_ID.delete}
+				onSuccess={selectAfterDelete}
+			/>
 		</>
 	);
 }

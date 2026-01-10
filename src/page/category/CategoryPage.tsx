@@ -33,6 +33,8 @@ export function CategoryPage() {
 		setSelectedId,
 		search,
 		setSearch,
+		selectAfterCreate,
+		selectAfterDelete,
 	} = useMasterDetail<Category>("category");
 
 	const handleCreate = () => {
@@ -118,9 +120,15 @@ export function CategoryPage() {
 				</DetailPanel>
 			</MasterDetail>
 
-			<CategoryFormModal id={MODAL_ID.create} />
+			<CategoryFormModal
+				id={MODAL_ID.create}
+				onSuccess={(category) => selectAfterCreate(category.publicId)}
+			/>
 			<CategoryFormModal id={MODAL_ID.edit} />
-			<CategoryDeleteDialog id={MODAL_ID.delete} />
+			<CategoryDeleteDialog
+				id={MODAL_ID.delete}
+				onSuccess={selectAfterDelete}
+			/>
 		</>
 	);
 }

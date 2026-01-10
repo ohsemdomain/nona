@@ -5,9 +5,10 @@ import type { Order } from "@/shared/type";
 
 interface OrderDeleteDialogProp {
 	id: string;
+	onSuccess?: () => void;
 }
 
-export function OrderDeleteDialog({ id }: OrderDeleteDialogProp) {
+export function OrderDeleteDialog({ id, onSuccess }: OrderDeleteDialogProp) {
 	const { getModalData, closeModal } = useUIStore();
 	const { remove } = useResource<Order>("order", "Order");
 
@@ -19,6 +20,7 @@ export function OrderDeleteDialog({ id }: OrderDeleteDialogProp) {
 		try {
 			await remove.mutateAsync(order.publicId);
 			closeModal(id);
+			onSuccess?.();
 		} catch {
 			// Error is handled by useResource
 		}

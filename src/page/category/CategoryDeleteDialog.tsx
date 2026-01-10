@@ -5,9 +5,10 @@ import type { Category } from "@/shared/type";
 
 interface CategoryDeleteDialogProp {
 	id: string;
+	onSuccess?: () => void;
 }
 
-export function CategoryDeleteDialog({ id }: CategoryDeleteDialogProp) {
+export function CategoryDeleteDialog({ id, onSuccess }: CategoryDeleteDialogProp) {
 	const { getModalData, closeModal } = useUIStore();
 	const { remove } = useResource<Category>("category", "Category");
 
@@ -19,6 +20,7 @@ export function CategoryDeleteDialog({ id }: CategoryDeleteDialogProp) {
 		try {
 			await remove.mutateAsync(category.publicId);
 			closeModal(id);
+			onSuccess?.();
 		} catch {
 			// Error is handled by useResource
 		}

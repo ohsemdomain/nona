@@ -34,6 +34,8 @@ export function ItemPage() {
 		setSelectedId,
 		search,
 		setSearch,
+		selectAfterCreate,
+		selectAfterDelete,
 	} = useMasterDetail<Item>("item");
 
 	const handleCreate = () => {
@@ -129,9 +131,15 @@ export function ItemPage() {
 				</DetailPanel>
 			</MasterDetail>
 
-			<ItemFormModal id={MODAL_ID.create} />
+			<ItemFormModal
+				id={MODAL_ID.create}
+				onSuccess={(item) => selectAfterCreate(item.publicId)}
+			/>
 			<ItemFormModal id={MODAL_ID.edit} />
-			<ItemDeleteDialog id={MODAL_ID.delete} />
+			<ItemDeleteDialog
+				id={MODAL_ID.delete}
+				onSuccess={selectAfterDelete}
+			/>
 		</>
 	);
 }
