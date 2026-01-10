@@ -1,13 +1,28 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Layout } from "@/src/component";
+import { Layout, ProtectedRoute } from "@/src/component";
 import { CategoryPage } from "@/src/page/category";
 import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
+import { LoginPage, RegisterPage } from "@/src/page/auth";
 
 export const router = createBrowserRouter([
+	// Public auth routes (no layout)
+	{
+		path: "/login",
+		element: <LoginPage />,
+	},
+	{
+		path: "/register",
+		element: <RegisterPage />,
+	},
+	// Protected routes (with layout)
 	{
 		path: "/",
-		element: <Layout />,
+		element: (
+			<ProtectedRoute>
+				<Layout />
+			</ProtectedRoute>
+		),
 		children: [
 			{
 				index: true,

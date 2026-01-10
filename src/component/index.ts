@@ -14,3 +14,4 @@ export { DetailPanel, DetailPanelHeader } from "./DetailPanel";
 export { DataTable } from "./DataTable";
 export { NavBar } from "./NavBar";
 export { Layout } from "./Layout";
+export { ProtectedRoute } from "./ProtectedRoute";
