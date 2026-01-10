@@ -9,6 +9,7 @@ import { CategoryFormModal } from "@/src/page/category/CategoryFormModal";
 interface ItemFormModalProp {
     id: string;
     onSuccess?: (item: Item) => void;
+    onClose?: () => void;
 }
 
 interface FormState {
@@ -25,7 +26,7 @@ const initialForm: FormState = {
 
 const INLINE_CATEGORY_MODAL_ID = "item-inline-category";
 
-export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
+export function ItemFormModal({ id, onSuccess, onClose }: ItemFormModalProp) {
     const categoryResource = useResource<Category>("category", "Category");
     const { data: categoryList = [] } = categoryResource.list();
 
@@ -74,12 +75,17 @@ export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
         },
     );
 
+    const handleClose = () => {
+        modal.handleClose();
+        onClose?.();
+    };
+
     return (
         <>
             <Modal
                 id={id}
                 title={modal.isEdit ? "Edit Item" : "Create Item"}
-                onClose={modal.handleClose}
+                onClose={handleClose}
             >
                 <form onSubmit={modal.handleSubmit} className="space-y-4">
                     <FormField
@@ -166,6 +172,7 @@ export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
             <CategoryFormModal
                 id={INLINE_CATEGORY_MODAL_ID}
                 onSuccess={categoryModal.handleSuccess}
+                onClose={categoryModal.clearPending}
             />
         </>
     );

@@ -5,6 +5,7 @@ import type { Category, CreateCategoryInput, UpdateCategoryInput } from "@/share
 interface CategoryFormModalProp {
     id: string;
     onSuccess?: (category: Category) => void;
+    onClose?: () => void;
 }
 
 interface FormState {
@@ -15,7 +16,7 @@ const initialForm: FormState = {
     name: "",
 };
 
-export function CategoryFormModal({ id, onSuccess }: CategoryFormModalProp) {
+export function CategoryFormModal({ id, onSuccess, onClose }: CategoryFormModalProp) {
     const modal = useFormModal<Category, FormState, CreateCategoryInput, UpdateCategoryInput>({
         id,
         resource: "category",
@@ -34,11 +35,16 @@ export function CategoryFormModal({ id, onSuccess }: CategoryFormModalProp) {
         onSuccess,
     });
 
+    const handleClose = () => {
+        modal.handleClose();
+        onClose?.();
+    };
+
     return (
         <Modal
             id={id}
             title={modal.isEdit ? "Edit Category" : "Create Category"}
-            onClose={modal.handleClose}
+            onClose={handleClose}
         >
             <form onSubmit={modal.handleSubmit} className="space-y-4">
                 <FormField

@@ -352,6 +352,7 @@ export function OrderFormPage() {
             <ItemFormModal
                 id={INLINE_ITEM_MODAL_ID}
                 onSuccess={itemModal.handleSuccess}
+                onClose={itemModal.clearPending}
             />
         </>
     );

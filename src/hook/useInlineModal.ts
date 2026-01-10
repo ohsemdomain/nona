@@ -36,5 +36,10 @@ export function useInlineModal<T>(
         }
     }, []);
 
-    return { openCreate, openEdit, handleSuccess };
+    // Clear pending key when modal closes without submission
+    const clearPending = useCallback(() => {
+        pendingKeyRef.current = null;
+    }, []);
+
+    return { openCreate, openEdit, handleSuccess, clearPending };
 }
