@@ -12,7 +12,7 @@ interface UseFormModalOption<TEntity, TForm, TCreate, TUpdate> {
 	initialForm: TForm;
 	toForm: (entity: TEntity) => TForm;
 	toCreateInput: (form: TForm) => TCreate;
-	toUpdateInput: (form: TForm) => TUpdate;
+	toUpdateInput: (form: TForm, entity: TEntity) => TUpdate; // Entity for optimistic locking
 	validate: (form: TForm) => Record<string, string>;
 	onSuccess?: (entity: TEntity) => void;
 }
@@ -144,7 +144,7 @@ export function useFormModal<
 				if (isEdit && entity) {
 					result = await update.mutateAsync({
 						id: entity.publicId,
-						data: toUpdateInput(form),
+						data: toUpdateInput(form, entity), // Pass entity for optimistic locking
 					});
 				} else {
 					result = await create.mutateAsync(toCreateInput(form));

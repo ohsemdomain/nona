@@ -14,6 +14,7 @@ import {
 	notFound,
 	conflict,
 	checkDependencies,
+	parsePagination,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -21,11 +22,9 @@ const app = new Hono<{ Bindings: Env }>();
 // GET /api/category - List (paginated, filterable)
 app.get("/", async (c) => {
 	const db = createDb(c.env.DB);
-	const { search, page = "1", pageSize = "20" } = c.req.query();
-
-	const pageNum = Math.max(1, parseInt(page));
-	const limit = Math.min(100, Math.max(1, parseInt(pageSize)));
-	const offset = (pageNum - 1) * limit;
+	const query = c.req.query();
+	const { search } = query;
+	const { offset, limit } = parsePagination(query);
 
 	const baseWhere = isNull(category.deletedAt);
 	const whereClause = search
@@ -84,35 +83,46 @@ app.post("/", zValidator("json", createCategorySchema), async (c) => {
 	return c.json(result[0], 201);
 });
 
-// PUT /api/category/:id - Update
+// PUT /api/category/:id - Update with optimistic locking
 app.put("/:id", zValidator("json", updateCategorySchema), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
 	const input = c.req.valid("json");
 
-	const existing = await db
-		.select()
-		.from(category)
-		.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
-		.limit(1);
-
-	if (existing.length === 0) {
-		return notFound(c, "Category not found");
-	}
-
+	// Update with optimistic locking - check updatedAt matches
 	const result = await db
 		.update(category)
 		.set({
-			...input,
+			name: input.name,
 			...updatedTimestamp(),
 		})
-		.where(eq(category.publicId, publicId))
+		.where(
+			and(
+				eq(category.publicId, publicId),
+				isNull(category.deletedAt),
+				eq(category.updatedAt, input.updatedAt),
+			),
+		)
 		.returning();
+
+	// If no rows updated, check if record exists or was modified
+	if (result.length === 0) {
+		const current = await db
+			.select()
+			.from(category)
+			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+			.limit(1);
+
+		if (current.length > 0) {
+			return conflict(c, "Category was modified. Please refresh and try again.");
+		}
+		return notFound(c, "Category not found");
+	}
 
 	return c.json(result[0]);
 });
 
-// DELETE /api/category/:id - Soft delete
+// DELETE /api/category/:id - Soft delete with TOCTOU protection
 app.delete("/:id", async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
@@ -127,24 +137,33 @@ app.delete("/:id", async (c) => {
 		return notFound(c, "Category not found");
 	}
 
-	// Check for dependent items
-	const { hasDependencies, message } = await checkDependencies(
-		db,
-		"category",
-		existing[0].id,
-	);
+	// Wrap dependency check and delete in transaction to prevent TOCTOU race
+	try {
+		await db.transaction(async (tx) => {
+			const { hasDependencies, message } = await checkDependencies(
+				tx,
+				"category",
+				existing[0].id,
+			);
 
-	if (hasDependencies) {
-		return conflict(c, message!);
+			if (hasDependencies) {
+				throw new Error(message!);
+			}
+
+			await tx
+				.update(category)
+				.set({
+					deletedAt: Date.now(),
+					...updatedTimestamp(),
+				})
+				.where(eq(category.publicId, publicId));
+		});
+	} catch (e) {
+		if (e instanceof Error && e.message.includes("Cannot delete")) {
+			return conflict(c, e.message);
+		}
+		throw e;
 	}
-
-	await db
-		.update(category)
-		.set({
-			deletedAt: Date.now(),
-			...updatedTimestamp(),
-		})
-		.where(eq(category.publicId, publicId));
 
 	return c.json({ success: true });
 });

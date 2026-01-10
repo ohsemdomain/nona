@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useUIStore } from "@/src/store/ui";
+import { deepEqual } from "@/src/lib/deepEqual";
 
 interface UseFormDirtyOption<TForm> {
 	form: TForm;
@@ -35,8 +36,11 @@ export function useFormDirty<TForm>({
 	const [originalForm, setOriginalForm] = useState<TForm>(form);
 	const pendingConfirmRef = useRef<(() => void) | null>(null);
 
-	// Deep comparison to avoid false positives
-	const isDirty = JSON.stringify(form) !== JSON.stringify(originalForm);
+	// Stable deep comparison with memoization
+	const isDirty = useMemo(
+		() => !deepEqual(form, originalForm),
+		[form, originalForm],
+	);
 
 	// Block browser navigation if dirty (page forms)
 	useEffect(() => {

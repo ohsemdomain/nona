@@ -1,8 +1,10 @@
 import { eq, and, isNull, count } from "drizzle-orm";
-import type { DrizzleD1Database } from "drizzle-orm/d1";
+import type { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
 import * as schema from "@/worker/db/schema";
 
-type Db = DrizzleD1Database<typeof schema>;
+// Both DrizzleD1Database and SQLiteTransaction extend BaseSQLiteDatabase
+// biome-ignore lint/suspicious/noExplicitAny: Both db and transaction use this same base interface
+type DbOrTransaction = BaseSQLiteDatabase<"async", any, typeof schema>;
 
 interface DependencyResult {
 	hasDependencies: boolean;
@@ -13,7 +15,7 @@ interface DependencyResult {
  * Check if a category has dependent items (non-deleted)
  */
 async function checkCategoryDependencies(
-	db: Db,
+	db: DbOrTransaction,
 	categoryId: number,
 ): Promise<DependencyResult> {
 	const [result] = await db
@@ -41,7 +43,7 @@ async function checkCategoryDependencies(
  * Check if an item has dependent order lines (in non-deleted orders)
  */
 async function checkItemDependencies(
-	db: Db,
+	db: DbOrTransaction,
 	itemId: number,
 ): Promise<DependencyResult> {
 	// OrderLine doesn't have deletedAt - check via parent order
@@ -68,17 +70,18 @@ type Entity = "category" | "item";
 
 const checkFnMap: Record<
 	Entity,
-	(db: Db, id: number) => Promise<DependencyResult>
+	(db: DbOrTransaction, id: number) => Promise<DependencyResult>
 > = {
 	category: checkCategoryDependencies,
 	item: checkItemDependencies,
 };
 
 /**
- * Check if an entity has dependencies that would prevent deletion
+ * Check if an entity has dependencies that would prevent deletion.
+ * Can be called inside a transaction for TOCTOU-safe delete operations.
  */
 export async function checkDependencies(
-	db: Db,
+	db: DbOrTransaction,
 	entity: string,
 	id: number,
 ): Promise<DependencyResult> {

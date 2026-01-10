@@ -22,9 +22,15 @@ export const useUIStore = create<UIState>((set, get) => ({
 	isLoading: false,
 
 	openModal: (id, data) => {
-		set((state) => ({
-			modalStack: [...state.modalStack, { id, data }],
-		}));
+		set((state) => {
+			// Prevent duplicate modals
+			if (state.modalStack.some((m) => m.id === id)) {
+				return state;
+			}
+			return {
+				modalStack: [...state.modalStack, { id, data }],
+			};
+		});
 	},
 
 	closeModal: (id) => {

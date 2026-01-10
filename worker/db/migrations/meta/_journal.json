@@ -1,20 +1,13 @@
 {
-	"version": "7",
-	"dialect": "sqlite",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "6",
-			"when": 1767982864244,
-			"tag": "0000_misty_purple_man",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "6",
-			"when": 1767984737511,
-			"tag": "0001_icy_malice",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1768045756758,
+      "tag": "0000_steep_mojo",
+      "breakpoints": true
+    }
+  ]
 }

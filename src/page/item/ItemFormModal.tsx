@@ -60,10 +60,11 @@ export function ItemFormModal({ id, onSuccess, onClose }: ItemFormModalProp) {
 				categoryId: parseInt(form.categoryId),
 				price: Math.round(parseFloat(form.price) * 100),
 			}),
-			toUpdateInput: (form) => ({
+			toUpdateInput: (form, entity) => ({
 				name: form.name.trim(),
 				categoryId: parseInt(form.categoryId),
 				price: Math.round(parseFloat(form.price) * 100),
+				updatedAt: entity.updatedAt, // For optimistic locking
 			}),
 			validate: (form) => {
 				const error: Record<string, string> = {};

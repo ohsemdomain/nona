@@ -63,4 +63,5 @@ export interface CreateOrderInput {
 export interface UpdateOrderInput {
 	status?: OrderStatus;
 	lineList?: CreateOrderLineInput[];
+	updatedAt: number; // Required for optimistic locking
 }

@@ -45,6 +45,7 @@ export const updateOrderLineSchema = z.object({
 export const updateOrderSchema = z.object({
 	status: orderStatus.optional(),
 	lineList: z.array(updateOrderLineSchema).optional(),
+	updatedAt: z.number().int(), // Required for optimistic locking
 });
 
 export type OrderStatus = z.infer<typeof orderStatus>;

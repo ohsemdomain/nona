@@ -15,6 +15,7 @@ export const createCategorySchema = z.object({
 
 export const updateCategorySchema = z.object({
 	name: z.string().min(1, "Name is required").optional(),
+	updatedAt: z.number().int(), // Required for optimistic locking
 });
 
 export type CategorySchema = z.infer<typeof categorySchema>;

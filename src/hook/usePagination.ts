@@ -1,10 +1,6 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CONFIG } from "@/src/lib/config";
-
-interface PaginationState {
-	page: number;
-	pageSize: number;
-}
 
 interface UsePaginationReturn {
 	page: number;
@@ -19,31 +15,66 @@ interface UsePaginationReturn {
 export function usePagination(
 	initialPageSize: number = CONFIG.pageSize,
 ): UsePaginationReturn {
-	const [state, setState] = useState<PaginationState>({
-		page: 1,
-		pageSize: initialPageSize,
-	});
+	const [searchParams, setSearchParams] = useSearchParams();
 
-	const setPage = useCallback((page: number) => {
-		setState((prev) => ({ ...prev, page: Math.max(1, page) }));
-	}, []);
+	// Read from URL, fallback to defaults (handle invalid values)
+	const page = Math.max(
+		1,
+		parseInt(searchParams.get("page") || "1", 10) || 1,
+	);
+	const pageSize = Math.max(
+		1,
+		parseInt(searchParams.get("pageSize") || String(initialPageSize), 10) ||
+			initialPageSize,
+	);
+
+	const setPage = useCallback(
+		(newPage: number) => {
+			setSearchParams((prev) => {
+				const validated = Math.max(1, newPage);
+				if (validated === 1) {
+					prev.delete("page"); // Clean URL for page 1
+				} else {
+					prev.set("page", String(validated));
+				}
+				return prev;
+			});
+		},
+		[setSearchParams],
+	);
 
 	const nextPage = useCallback(() => {
-		setState((prev) => ({ ...prev, page: prev.page + 1 }));
-	}, []);
+		setSearchParams((prev) => {
+			const currentPage = parseInt(prev.get("page") || "1", 10) || 1;
+			prev.set("page", String(currentPage + 1));
+			return prev;
+		});
+	}, [setSearchParams]);
 
 	const prevPage = useCallback(() => {
-		setState((prev) => ({ ...prev, page: Math.max(1, prev.page - 1) }));
-	}, []);
+		setSearchParams((prev) => {
+			const currentPage = parseInt(prev.get("page") || "1", 10) || 1;
+			const newPage = Math.max(1, currentPage - 1);
+			if (newPage === 1) {
+				prev.delete("page"); // Clean URL for page 1
+			} else {
+				prev.set("page", String(newPage));
+			}
+			return prev;
+		});
+	}, [setSearchParams]);
 
 	const reset = useCallback(() => {
-		setState((prev) => ({ ...prev, page: 1 }));
-	}, []);
+		setSearchParams((prev) => {
+			prev.delete("page");
+			return prev;
+		});
+	}, [setSearchParams]);
 
 	return {
-		page: state.page,
-		pageSize: state.pageSize,
-		offset: (state.page - 1) * state.pageSize,
+		page,
+		pageSize,
+		offset: (page - 1) * pageSize,
 		setPage,
 		nextPage,
 		prevPage,

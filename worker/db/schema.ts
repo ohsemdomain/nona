@@ -64,6 +64,7 @@ export const orderLine = sqliteTable("order_line", {
 	quantity: integer("quantity").notNull(),
 	unitPrice: integer("unit_price").notNull(), // cents (snapshot at order time)
 	lineTotal: integer("line_total").notNull(), // cents
+	deletedAt: integer("deleted_at"), // Soft delete with parent order
 });
 
 export const orderLineRelation = relations(orderLine, ({ one }) => ({

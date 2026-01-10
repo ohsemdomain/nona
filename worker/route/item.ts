@@ -12,6 +12,7 @@ import {
 	badRequest,
 	conflict,
 	checkDependencies,
+	parsePagination,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -19,11 +20,9 @@ const app = new Hono<{ Bindings: Env }>();
 // GET /api/item - List (paginated, filterable)
 app.get("/", async (c) => {
 	const db = createDb(c.env.DB);
-	const { search, categoryId, page = "1", pageSize = "20" } = c.req.query();
-
-	const pageNum = Math.max(1, parseInt(page));
-	const limit = Math.min(100, Math.max(1, parseInt(pageSize)));
-	const offset = (pageNum - 1) * limit;
+	const query = c.req.query();
+	const { search, categoryId } = query;
+	const { offset, limit } = parsePagination(query);
 
 	let whereClause = isNull(item.deletedAt);
 
@@ -127,21 +126,11 @@ app.post("/", zValidator("json", createItemSchema), async (c) => {
 	return c.json(result[0], 201);
 });
 
-// PUT /api/item/:id - Update
+// PUT /api/item/:id - Update with optimistic locking
 app.put("/:id", zValidator("json", updateItemSchema), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
 	const input = c.req.valid("json");
-
-	const existing = await db
-		.select()
-		.from(item)
-		.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
-		.limit(1);
-
-	if (existing.length === 0) {
-		return notFound(c, "Item not found");
-	}
 
 	// Verify category if changing
 	if (input.categoryId) {
@@ -156,19 +145,41 @@ app.put("/:id", zValidator("json", updateItemSchema), async (c) => {
 		}
 	}
 
+	// Update with optimistic locking - check updatedAt matches
+	const { updatedAt, ...updateData } = input;
 	const result = await db
 		.update(item)
 		.set({
-			...input,
+			...updateData,
 			...updatedTimestamp(),
 		})
-		.where(eq(item.publicId, publicId))
+		.where(
+			and(
+				eq(item.publicId, publicId),
+				isNull(item.deletedAt),
+				eq(item.updatedAt, updatedAt),
+			),
+		)
 		.returning();
+
+	// If no rows updated, check if record exists or was modified
+	if (result.length === 0) {
+		const current = await db
+			.select()
+			.from(item)
+			.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+			.limit(1);
+
+		if (current.length > 0) {
+			return conflict(c, "Item was modified. Please refresh and try again.");
+		}
+		return notFound(c, "Item not found");
+	}
 
 	return c.json(result[0]);
 });
 
-// DELETE /api/item/:id - Soft delete
+// DELETE /api/item/:id - Soft delete with TOCTOU protection
 app.delete("/:id", async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
@@ -183,24 +194,33 @@ app.delete("/:id", async (c) => {
 		return notFound(c, "Item not found");
 	}
 
-	// Check for dependent order lines
-	const { hasDependencies, message } = await checkDependencies(
-		db,
-		"item",
-		existing[0].id,
-	);
+	// Wrap dependency check and delete in transaction to prevent TOCTOU race
+	try {
+		await db.transaction(async (tx) => {
+			const { hasDependencies, message } = await checkDependencies(
+				tx,
+				"item",
+				existing[0].id,
+			);
 
-	if (hasDependencies) {
-		return conflict(c, message!);
+			if (hasDependencies) {
+				throw new Error(message!);
+			}
+
+			await tx
+				.update(item)
+				.set({
+					deletedAt: Date.now(),
+					...updatedTimestamp(),
+				})
+				.where(eq(item.publicId, publicId));
+		});
+	} catch (e) {
+		if (e instanceof Error && e.message.includes("Cannot delete")) {
+			return conflict(c, e.message);
+		}
+		throw e;
 	}
-
-	await db
-		.update(item)
-		.set({
-			deletedAt: Date.now(),
-			...updatedTimestamp(),
-		})
-		.where(eq(item.publicId, publicId));
 
 	return c.json({ success: true });
 });

@@ -161,10 +161,14 @@ export function OrderFormPage() {
 		}));
 
 		try {
-			if (isEdit && id) {
+			if (isEdit && id && existingOrder) {
 				await update.mutateAsync({
 					id,
-					data: { status, lineList: lineData },
+					data: {
+						status,
+						lineList: lineData,
+						updatedAt: existingOrder.updatedAt, // For optimistic locking
+					},
 				});
 			} else {
 				await create.mutateAsync({ lineList: lineData });

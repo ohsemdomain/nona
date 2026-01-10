@@ -13,6 +13,8 @@ import {
 	listResponse,
 	notFound,
 	badRequest,
+	conflict,
+	parsePagination,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -20,11 +22,9 @@ const app = new Hono<{ Bindings: Env }>();
 // GET /api/order - List (paginated, filterable)
 app.get("/", async (c) => {
 	const db = createDb(c.env.DB);
-	const { status, page = "1", pageSize = "20" } = c.req.query();
-
-	const pageNum = Math.max(1, parseInt(page));
-	const limit = Math.min(100, Math.max(1, parseInt(pageSize)));
-	const offset = (pageNum - 1) * limit;
+	const query = c.req.query();
+	const { status } = query;
+	const { offset, limit } = parsePagination(query);
 
 	let whereClause = isNull(order.deletedAt);
 
@@ -80,7 +80,7 @@ app.get("/:id", async (c) => {
 		})
 		.from(orderLine)
 		.leftJoin(item, eq(orderLine.itemId, item.id))
-		.where(eq(orderLine.orderId, orderData.id));
+		.where(and(eq(orderLine.orderId, orderData.id), isNull(orderLine.deletedAt)));
 
 	return c.json({ ...orderData, lineList });
 });
@@ -117,39 +117,41 @@ app.post("/", zValidator("json", createOrderSchema), async (c) => {
 		};
 	});
 
-	// Create order
-	const orderResult = await db
-		.insert(order)
-		.values({
-			publicId: generatePublicId(),
-			status: "draft",
-			total: orderTotal,
-			...timestamps(),
-		})
-		.returning();
+	// Create order with lines in a single transaction
+	const newOrder = await db.transaction(async (tx) => {
+		const orderResult = await tx
+			.insert(order)
+			.values({
+				publicId: generatePublicId(),
+				status: "draft",
+				total: orderTotal,
+				...timestamps(),
+			})
+			.returning();
 
-	const newOrder = orderResult[0];
+		const created = orderResult[0];
 
-	// Create order lines
-	if (lineData.length > 0) {
-		await db.insert(orderLine).values(
-			lineData.map((line) => ({
-				orderId: newOrder.id,
-				...line,
-			})),
-		);
-	}
+		if (lineData.length > 0) {
+			await tx.insert(orderLine).values(
+				lineData.map((line) => ({
+					orderId: created.id,
+					...line,
+				})),
+			);
+		}
 
-	// Fetch complete order with lines
-	const lineList = await db
-		.select()
-		.from(orderLine)
-		.where(eq(orderLine.orderId, newOrder.id));
+		const lineList = await tx
+			.select()
+			.from(orderLine)
+			.where(and(eq(orderLine.orderId, created.id), isNull(orderLine.deletedAt)));
 
-	return c.json({ ...newOrder, lineList }, 201);
+		return { ...created, lineList };
+	});
+
+	return c.json(newOrder, 201);
 });
 
-// PUT /api/order/:id - Update
+// PUT /api/order/:id - Update with optimistic locking
 app.put("/:id", zValidator("json", updateOrderSchema), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
@@ -167,10 +169,16 @@ app.put("/:id", zValidator("json", updateOrderSchema), async (c) => {
 
 	const existingOrder = existing[0];
 	let orderTotal = existingOrder.total;
+	let lineData: {
+		orderId: number;
+		itemId: number;
+		quantity: number;
+		unitPrice: number;
+		lineTotal: number;
+	}[] = [];
 
-	// Update lines if provided
+	// Validate items and calculate totals BEFORE transaction
 	if (input.lineList) {
-		// Get item prices
 		const itemIdList = input.lineList.map((line) => line.itemId);
 		const itemList = await db
 			.select({ id: item.id, price: item.price })
@@ -183,12 +191,8 @@ app.put("/:id", zValidator("json", updateOrderSchema), async (c) => {
 
 		const itemPriceMap = new Map(itemList.map((i) => [i.id, i.price]));
 
-		// Delete existing lines
-		await db.delete(orderLine).where(eq(orderLine.orderId, existingOrder.id));
-
-		// Calculate new totals
 		orderTotal = 0;
-		const lineData = input.lineList.map((line) => {
+		lineData = input.lineList.map((line) => {
 			const unitPrice = itemPriceMap.get(line.itemId) ?? 0;
 			const lineTotal = unitPrice * line.quantity;
 			orderTotal += lineTotal;
@@ -200,31 +204,61 @@ app.put("/:id", zValidator("json", updateOrderSchema), async (c) => {
 				lineTotal,
 			};
 		});
-
-		// Insert new lines
-		if (lineData.length > 0) {
-			await db.insert(orderLine).values(lineData);
-		}
 	}
 
-	// Update order
-	const result = await db
-		.update(order)
-		.set({
-			status: input.status ?? existingOrder.status,
-			total: orderTotal,
-			...updatedTimestamp(),
-		})
-		.where(eq(order.publicId, publicId))
-		.returning();
+	// Update order and lines in a single transaction with optimistic locking
+	try {
+		const updatedOrder = await db.transaction(async (tx) => {
+			// Replace lines if provided
+			if (input.lineList) {
+				// Soft delete existing lines
+				await tx
+					.update(orderLine)
+					.set({ deletedAt: Date.now() })
+					.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
 
-	// Fetch lines
-	const lineList = await db
-		.select()
-		.from(orderLine)
-		.where(eq(orderLine.orderId, existingOrder.id));
+				if (lineData.length > 0) {
+					await tx.insert(orderLine).values(lineData);
+				}
+			}
 
-	return c.json({ ...result[0], lineList });
+			// Update order with optimistic locking - check updatedAt matches
+			const result = await tx
+				.update(order)
+				.set({
+					status: input.status ?? existingOrder.status,
+					total: orderTotal,
+					...updatedTimestamp(),
+				})
+				.where(
+					and(
+						eq(order.publicId, publicId),
+						eq(order.updatedAt, input.updatedAt),
+					),
+				)
+				.returning();
+
+			// If no rows updated, order was modified by another user
+			if (result.length === 0) {
+				throw new Error("CONFLICT");
+			}
+
+			// Fetch lines
+			const lineList = await tx
+				.select()
+				.from(orderLine)
+				.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
+
+			return { ...result[0], lineList };
+		});
+
+		return c.json(updatedOrder);
+	} catch (e) {
+		if (e instanceof Error && e.message === "CONFLICT") {
+			return conflict(c, "Order was modified. Please refresh and try again.");
+		}
+		throw e;
+	}
 });
 
 // DELETE /api/order/:id - Soft delete (cascades to order lines)
@@ -242,17 +276,24 @@ app.delete("/:id", async (c) => {
 		return notFound(c, "Order not found");
 	}
 
-	// Delete order lines (hard delete - they have no meaning without parent)
-	await db.delete(orderLine).where(eq(orderLine.orderId, existing[0].id));
+	// Soft delete order and lines in a single transaction
+	const now = Date.now();
+	await db.transaction(async (tx) => {
+		// Soft delete order lines
+		await tx
+			.update(orderLine)
+			.set({ deletedAt: now })
+			.where(and(eq(orderLine.orderId, existing[0].id), isNull(orderLine.deletedAt)));
 
-	// Soft delete order
-	await db
-		.update(order)
-		.set({
-			deletedAt: Date.now(),
-			...updatedTimestamp(),
-		})
-		.where(eq(order.publicId, publicId));
+		// Soft delete order
+		await tx
+			.update(order)
+			.set({
+				deletedAt: now,
+				...updatedTimestamp(),
+			})
+			.where(eq(order.publicId, publicId));
+	});
 
 	return c.json({ success: true });
 });

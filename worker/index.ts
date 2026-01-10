@@ -16,6 +16,11 @@ app.route("/api/category", categoryRoute);
 app.route("/api/item", itemRoute);
 app.route("/api/order", orderRoute);
 
+// API 404 handler - must be before static asset catch-all
+app.all("/api/*", (c) => {
+	return c.json({ error: "Not found" }, 404);
+});
+
 // Serve static assets
 app.all("*", (c) => {
 	return c.env.ASSETS.fetch(c.req.raw);

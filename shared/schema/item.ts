@@ -21,6 +21,7 @@ export const updateItemSchema = z.object({
 	name: z.string().min(1, "Name is required").optional(),
 	categoryId: z.number().positive("Category is required").optional(),
 	price: z.number().min(0, "Price must be positive").optional(),
+	updatedAt: z.number().int(), // Required for optimistic locking
 });
 
 export type ItemSchema = z.infer<typeof itemSchema>;

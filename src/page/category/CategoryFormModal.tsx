@@ -43,7 +43,10 @@ export function CategoryFormModal({
 		initialForm,
 		toForm: (category) => ({ name: category.name }),
 		toCreateInput: (form) => ({ name: form.name.trim() }),
-		toUpdateInput: (form) => ({ name: form.name.trim() }),
+		toUpdateInput: (form, entity) => ({
+			name: form.name.trim(),
+			updatedAt: entity.updatedAt, // For optimistic locking
+		}),
 		validate: (form) => {
 			const error: Record<string, string> = {};
 			if (!form.name.trim()) {
