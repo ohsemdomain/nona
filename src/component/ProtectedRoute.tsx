@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useSession } from "@/src/lib/auth";
+import { useAuth } from "@/src/lib/AuthProvider";
 import { LoadingState } from "./LoadingState";
 
 interface ProtectedRouteProp {
@@ -7,10 +7,10 @@ interface ProtectedRouteProp {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProp) {
-	const { data: session, isPending } = useSession();
+	const { session, isLoading } = useAuth();
 	const location = useLocation();
 
-	if (isPending) {
+	if (isLoading) {
 		return (
 			<div className="flex h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
 				<LoadingState message="Checking authentication..." />

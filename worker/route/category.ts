@@ -137,33 +137,25 @@ app.delete("/:id", async (c) => {
 		return notFound(c, "Category not found");
 	}
 
-	// Wrap dependency check and delete in transaction to prevent TOCTOU race
-	try {
-		await db.transaction(async (tx) => {
-			const { hasDependencies, message } = await checkDependencies(
-				tx,
-				"category",
-				existing[0].id,
-			);
+	// Check dependencies before delete
+	const { hasDependencies, message } = await checkDependencies(
+		db,
+		"category",
+		existing[0].id,
+	);
 
-			if (hasDependencies) {
-				throw new Error(message!);
-			}
-
-			await tx
-				.update(category)
-				.set({
-					deletedAt: Date.now(),
-					...updatedTimestamp(),
-				})
-				.where(eq(category.publicId, publicId));
-		});
-	} catch (e) {
-		if (e instanceof Error && e.message.includes("Cannot delete")) {
-			return conflict(c, e.message);
-		}
-		throw e;
+	if (hasDependencies) {
+		return conflict(c, message!);
 	}
+
+	// Soft delete
+	await db
+		.update(category)
+		.set({
+			deletedAt: Date.now(),
+			...updatedTimestamp(),
+		})
+		.where(eq(category.publicId, publicId));
 
 	return c.json({ success: true });
 });

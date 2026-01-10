@@ -9,8 +9,11 @@ app.get("/api/health", (c) => {
 	return c.json({ status: "ok" });
 });
 
-// Auth route (public, strict rate limit for brute force protection)
-app.use("/api/auth/*", authRateLimit);
+// Auth routes with selective rate limiting
+// Session check - no rate limit (read-only, cookie-based)
+// Login/signup - strict rate limit (brute force protection)
+app.use("/api/auth/sign-in/*", authRateLimit);
+app.use("/api/auth/sign-up/*", authRateLimit);
 app.route("/api/auth", authRoute);
 
 // Protected routes - rate limit + authentication

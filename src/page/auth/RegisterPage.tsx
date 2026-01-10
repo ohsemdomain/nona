@@ -1,7 +1,8 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FormField, Input, Button } from "@/src/component";
-import { signUp, useSession } from "@/src/lib/auth";
+import { signUp } from "@/src/lib/auth";
+import { useAuth } from "@/src/lib/AuthProvider";
 import toast from "react-hot-toast";
 
 interface FormState {
@@ -21,7 +22,7 @@ interface FormError {
 
 export function RegisterPage() {
 	const navigate = useNavigate();
-	const { data: session } = useSession();
+	const { session, refresh } = useAuth();
 	const [form, setForm] = useState<FormState>({
 		name: "",
 		email: "",
@@ -31,7 +32,7 @@ export function RegisterPage() {
 	const [error, setError] = useState<FormError>({});
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Redirect if already authenticated (handles post-signup session update)
+	// Redirect if already authenticated
 	useEffect(() => {
 		if (session) {
 			navigate("/", { replace: true });
@@ -73,15 +74,15 @@ export function RegisterPage() {
 			password: form.password,
 		});
 
-		setIsLoading(false);
-
 		if (result.error) {
 			setError({ general: result.error.message || "Registration failed" });
+			setIsLoading(false);
 			return;
 		}
 
 		toast.success("Account created successfully");
-		// Navigation handled by useEffect when session updates
+		await refresh();
+		navigate("/", { replace: true });
 	};
 
 	return (

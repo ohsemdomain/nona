@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { Layers, Package, ShoppingCart, LogOut, User } from "lucide-react";
 import { clsx } from "clsx";
-import { logout, useSession } from "@/src/lib/auth";
+import { useAuth } from "@/src/lib/AuthProvider";
 import { Button } from "./Button";
 import toast from "react-hot-toast";
 
@@ -13,7 +13,7 @@ const navItemList = [
 
 export function NavBar() {
 	const navigate = useNavigate();
-	const { data: session } = useSession();
+	const { session, logout } = useAuth();
 
 	const handleLogout = async () => {
 		await logout();

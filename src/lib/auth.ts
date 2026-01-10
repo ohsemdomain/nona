@@ -5,23 +5,14 @@ export const authClient = createAuthClient({
 	baseURL: window.location.origin,
 });
 
-export const { signIn, signUp, useSession, getSession } = authClient;
-
-const { signOut: authSignOut } = authClient;
+export const { signIn, signUp, getSession } = authClient;
 
 /**
- * Logout and clear all cached data
- */
-export async function logout() {
-	queryClient.clear();
-	await authSignOut();
-}
-
-/**
- * Handle 401 errors - force logout and redirect
+ * Handle 401 errors from API - force logout and redirect
+ * Used by api.ts for handling expired sessions
  */
 export async function handleUnauthorized() {
 	queryClient.clear();
-	await authSignOut();
+	await authClient.signOut();
 	window.location.href = "/login";
 }

@@ -117,38 +117,36 @@ app.post("/", zValidator("json", createOrderSchema), async (c) => {
 		};
 	});
 
-	// Create order with lines in a single transaction
-	const newOrder = await db.transaction(async (tx) => {
-		const orderResult = await tx
-			.insert(order)
-			.values({
-				publicId: generatePublicId(),
-				status: "draft",
-				total: orderTotal,
-				...timestamps(),
-			})
-			.returning();
+	// Create order
+	const orderResult = await db
+		.insert(order)
+		.values({
+			publicId: generatePublicId(),
+			status: "draft",
+			total: orderTotal,
+			...timestamps(),
+		})
+		.returning();
 
-		const created = orderResult[0];
+	const created = orderResult[0];
 
-		if (lineData.length > 0) {
-			await tx.insert(orderLine).values(
-				lineData.map((line) => ({
-					orderId: created.id,
-					...line,
-				})),
-			);
-		}
+	// Insert order lines
+	if (lineData.length > 0) {
+		await db.insert(orderLine).values(
+			lineData.map((line) => ({
+				orderId: created.id,
+				...line,
+			})),
+		);
+	}
 
-		const lineList = await tx
-			.select()
-			.from(orderLine)
-			.where(and(eq(orderLine.orderId, created.id), isNull(orderLine.deletedAt)));
+	// Fetch lines for response
+	const lineList = await db
+		.select()
+		.from(orderLine)
+		.where(and(eq(orderLine.orderId, created.id), isNull(orderLine.deletedAt)));
 
-		return { ...created, lineList };
-	});
-
-	return c.json(newOrder, 201);
+	return c.json({ ...created, lineList }, 201);
 });
 
 // PUT /api/order/:id - Update with optimistic locking
@@ -206,59 +204,47 @@ app.put("/:id", zValidator("json", updateOrderSchema), async (c) => {
 		});
 	}
 
-	// Update order and lines in a single transaction with optimistic locking
-	try {
-		const updatedOrder = await db.transaction(async (tx) => {
-			// Replace lines if provided
-			if (input.lineList) {
-				// Soft delete existing lines
-				await tx
-					.update(orderLine)
-					.set({ deletedAt: Date.now() })
-					.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
+	// Update order with optimistic locking - check updatedAt matches
+	const result = await db
+		.update(order)
+		.set({
+			status: input.status ?? existingOrder.status,
+			total: orderTotal,
+			...updatedTimestamp(),
+		})
+		.where(
+			and(
+				eq(order.publicId, publicId),
+				eq(order.updatedAt, input.updatedAt),
+			),
+		)
+		.returning();
 
-				if (lineData.length > 0) {
-					await tx.insert(orderLine).values(lineData);
-				}
-			}
-
-			// Update order with optimistic locking - check updatedAt matches
-			const result = await tx
-				.update(order)
-				.set({
-					status: input.status ?? existingOrder.status,
-					total: orderTotal,
-					...updatedTimestamp(),
-				})
-				.where(
-					and(
-						eq(order.publicId, publicId),
-						eq(order.updatedAt, input.updatedAt),
-					),
-				)
-				.returning();
-
-			// If no rows updated, order was modified by another user
-			if (result.length === 0) {
-				throw new Error("CONFLICT");
-			}
-
-			// Fetch lines
-			const lineList = await tx
-				.select()
-				.from(orderLine)
-				.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
-
-			return { ...result[0], lineList };
-		});
-
-		return c.json(updatedOrder);
-	} catch (e) {
-		if (e instanceof Error && e.message === "CONFLICT") {
-			return conflict(c, "Order was modified. Please refresh and try again.");
-		}
-		throw e;
+	// If no rows updated, order was modified by another user
+	if (result.length === 0) {
+		return conflict(c, "Order was modified. Please refresh and try again.");
 	}
+
+	// Replace lines if provided
+	if (input.lineList) {
+		// Soft delete existing lines
+		await db
+			.update(orderLine)
+			.set({ deletedAt: Date.now() })
+			.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
+
+		if (lineData.length > 0) {
+			await db.insert(orderLine).values(lineData);
+		}
+	}
+
+	// Fetch lines for response
+	const lineList = await db
+		.select()
+		.from(orderLine)
+		.where(and(eq(orderLine.orderId, existingOrder.id), isNull(orderLine.deletedAt)));
+
+	return c.json({ ...result[0], lineList });
 });
 
 // DELETE /api/order/:id - Soft delete (cascades to order lines)
@@ -276,24 +262,23 @@ app.delete("/:id", async (c) => {
 		return notFound(c, "Order not found");
 	}
 
-	// Soft delete order and lines in a single transaction
+	// Soft delete order and lines
 	const now = Date.now();
-	await db.transaction(async (tx) => {
-		// Soft delete order lines
-		await tx
-			.update(orderLine)
-			.set({ deletedAt: now })
-			.where(and(eq(orderLine.orderId, existing[0].id), isNull(orderLine.deletedAt)));
 
-		// Soft delete order
-		await tx
-			.update(order)
-			.set({
-				deletedAt: now,
-				...updatedTimestamp(),
-			})
-			.where(eq(order.publicId, publicId));
-	});
+	// Soft delete order lines
+	await db
+		.update(orderLine)
+		.set({ deletedAt: now })
+		.where(and(eq(orderLine.orderId, existing[0].id), isNull(orderLine.deletedAt)));
+
+	// Soft delete order
+	await db
+		.update(order)
+		.set({
+			deletedAt: now,
+			...updatedTimestamp(),
+		})
+		.where(eq(order.publicId, publicId));
 
 	return c.json({ success: true });
 });

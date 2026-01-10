@@ -5,12 +5,15 @@ import { Toaster } from "react-hot-toast";
 import { router } from "./router";
 import { RootErrorBoundary } from "./component";
 import { queryClient } from "./lib/queryClient";
+import { AuthProvider } from "./lib/AuthProvider";
 
 function App() {
 	return (
 		<RootErrorBoundary>
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
+				<AuthProvider>
+					<RouterProvider router={router} />
+				</AuthProvider>
 				<Toaster
 					position="bottom-right"
 					toastOptions={{

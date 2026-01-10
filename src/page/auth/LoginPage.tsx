@@ -1,7 +1,8 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FormField, Input, Button } from "@/src/component";
-import { signIn, useSession } from "@/src/lib/auth";
+import { signIn } from "@/src/lib/auth";
+import { useAuth } from "@/src/lib/AuthProvider";
 import toast from "react-hot-toast";
 
 interface FormState {
@@ -17,12 +18,12 @@ interface FormError {
 
 export function LoginPage() {
 	const navigate = useNavigate();
-	const { data: session } = useSession();
+	const { session, refresh } = useAuth();
 	const [form, setForm] = useState<FormState>({ email: "", password: "" });
 	const [error, setError] = useState<FormError>({});
 	const [isLoading, setIsLoading] = useState(false);
 
-	// Redirect if already authenticated (handles post-login session update)
+	// Redirect if already authenticated
 	useEffect(() => {
 		if (session) {
 			navigate("/", { replace: true });
@@ -62,7 +63,8 @@ export function LoginPage() {
 		}
 
 		toast.success("Login successful");
-		// Navigation handled by useEffect when session updates
+		await refresh();
+		navigate("/", { replace: true });
 	};
 
 	return (
