@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useUIStore } from "@/src/store/ui";
 import { useResource } from "@/src/hook/useResource";
 
@@ -54,26 +54,38 @@ export function useFormModal<TEntity extends { publicId: string }, TForm, TCreat
     const [form, setForm] = useState<TForm>(initialForm);
     const [error, setError] = useState<Record<string, string>>({});
 
-    // Auto-reset form when modal opens
+    // Store functions in refs to avoid dependency issues
+    const toFormRef = useRef(toForm);
+    const initialFormRef = useRef(initialForm);
+    toFormRef.current = toForm;
+    initialFormRef.current = initialForm;
+
+    // Track previous isOpen to detect open transition
+    const wasOpenRef = useRef(false);
+
+    // Auto-reset form when modal opens (isOpen: false -> true)
     useEffect(() => {
-        if (!isOpen) return;
+        const justOpened = isOpen && !wasOpenRef.current;
+        wasOpenRef.current = isOpen;
+
+        if (!justOpened) return;
 
         if (entity) {
-            setForm(toForm(entity));
+            setForm(toFormRef.current(entity));
         } else {
-            setForm(initialForm);
+            setForm(initialFormRef.current);
         }
         setError({});
-    }, [isOpen, entity, toForm, initialForm]);
+    }, [isOpen, entity]);
 
     const setField = useCallback(<K extends keyof TForm>(field: K, value: TForm[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     }, []);
 
     const handleClose = useCallback(() => {
-        setForm(initialForm);
+        setForm(initialFormRef.current);
         setError({});
-    }, [initialForm]);
+    }, []);
 
     const closeModal = useCallback(() => {
         closeModalStore(id);
