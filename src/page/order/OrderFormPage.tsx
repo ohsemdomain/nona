@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
@@ -40,7 +40,9 @@ export function OrderFormPage() {
     const [lineList, setLineList] = useState<FormLine[]>([]);
     const [status, setStatus] = useState<OrderStatus>("draft");
     const [error, setError] = useState<Record<string, string>>({});
-    const [pendingItemSelect, setPendingItemSelect] = useState<string | null>(null);
+
+    // Track which line is waiting for item creation
+    const pendingLineKeyRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (existingOrder) {
@@ -55,22 +57,18 @@ export function OrderFormPage() {
         }
     }, [existingOrder]);
 
-    // Auto-select newly created item
-    useEffect(() => {
-        if (pendingItemSelect && itemList.length > 0) {
-            const newestItem = itemList.reduce((a, b) =>
-                a.createdAt > b.createdAt ? a : b,
-            );
+    const handleItemCreated = (item: Item) => {
+        if (pendingLineKeyRef.current) {
             setLineList((prev) =>
                 prev.map((line) =>
-                    line.key === pendingItemSelect
-                        ? { ...line, itemId: String(newestItem.id) }
+                    line.key === pendingLineKeyRef.current
+                        ? { ...line, itemId: String(item.id) }
                         : line,
                 ),
             );
-            setPendingItemSelect(null);
+            pendingLineKeyRef.current = null;
         }
-    }, [itemList, pendingItemSelect]);
+    };
 
     const handleAddLine = () => {
         setLineList((prev) => [
@@ -96,7 +94,7 @@ export function OrderFormPage() {
     };
 
     const handleCreateItem = (lineKey: string) => {
-        setPendingItemSelect(lineKey);
+        pendingLineKeyRef.current = lineKey;
         openModal(INLINE_ITEM_MODAL_ID);
     };
 
@@ -351,7 +349,10 @@ export function OrderFormPage() {
             </div>
             </div>
 
-            <ItemFormModal id={INLINE_ITEM_MODAL_ID} />
+            <ItemFormModal
+                id={INLINE_ITEM_MODAL_ID}
+                onSuccess={handleItemCreated}
+            />
         </>
     );
 }

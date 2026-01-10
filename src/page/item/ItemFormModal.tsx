@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Modal, FormField, Input, Select, Button } from "@/src/component";
 import { useUIStore } from "@/src/store/ui";
+import { useFormModal } from "@/src/hook/useFormModal";
 import { useResource } from "@/src/hook/useResource";
-import type { Item, Category } from "@/shared/type";
+import type { Item, Category, CreateItemInput, UpdateItemInput } from "@/shared/type";
 import { CategoryFormModal } from "@/src/page/category/CategoryFormModal";
 
 interface ItemFormModalProp {
     id: string;
+    onSuccess?: (item: Item) => void;
 }
 
 interface FormState {
@@ -16,7 +17,7 @@ interface FormState {
     price: string;
 }
 
-const initialFormState: FormState = {
+const initialForm: FormState = {
     name: "",
     categoryId: "",
     price: "",
@@ -24,147 +25,91 @@ const initialFormState: FormState = {
 
 const INLINE_CATEGORY_MODAL_ID = "item-inline-category-create";
 
-export function ItemFormModal({ id }: ItemFormModalProp) {
-    const { getModalData, closeModal, openModal } = useUIStore();
-    const { create, update } = useResource<Item>("item", "Item");
+export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
+    const { openModal } = useUIStore();
     const categoryResource = useResource<Category>("category", "Category");
     const { data: categoryList = [] } = categoryResource.list();
 
-    const item = getModalData<Item>(id);
-    const isEdit = !!item;
-
-    const [form, setForm] = useState<FormState>(initialFormState);
-    const [error, setError] = useState<Record<string, string>>({});
-    const [pendingCategorySelect, setPendingCategorySelect] = useState(false);
-
-    useEffect(() => {
-        if (item) {
-            setForm({
-                name: item.name,
-                categoryId: String(item.categoryId),
-                price: String(item.price / 100),
-            });
-        } else {
-            setForm(initialFormState);
-        }
-        setError({});
-    }, [item]);
-
-    // Auto-select newly created category
-    useEffect(() => {
-        if (pendingCategorySelect && categoryList.length > 0) {
-            const newestCategory = categoryList.reduce((a, b) =>
-                a.createdAt > b.createdAt ? a : b,
-            );
-            setForm((prev) => ({ ...prev, categoryId: String(newestCategory.id) }));
-            setPendingCategorySelect(false);
-        }
-    }, [categoryList, pendingCategorySelect]);
-
-    const validate = (): boolean => {
-        const newError: Record<string, string> = {};
-
-        if (!form.name.trim()) {
-            newError.name = "Name is required";
-        }
-
-        if (!form.categoryId) {
-            newError.categoryId = "Category is required";
-        }
-
-        const priceNum = parseFloat(form.price);
-        if (isNaN(priceNum) || priceNum < 0) {
-            newError.price = "Price must be a valid positive number";
-        }
-
-        setError(newError);
-        return Object.keys(newError).length === 0;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!validate()) return;
-
-        const priceInCents = Math.round(parseFloat(form.price) * 100);
-
-        try {
-            if (isEdit && item) {
-                await update.mutateAsync({
-                    id: item.publicId,
-                    data: {
-                        name: form.name.trim(),
-                        categoryId: parseInt(form.categoryId),
-                        price: priceInCents,
-                    },
-                });
-            } else {
-                await create.mutateAsync({
-                    name: form.name.trim(),
-                    categoryId: parseInt(form.categoryId),
-                    price: priceInCents,
-                });
+    const modal = useFormModal<Item, FormState, CreateItemInput, UpdateItemInput>({
+        id,
+        resource: "item",
+        resourceLabel: "Item",
+        initialForm,
+        toForm: (item) => ({
+            name: item.name,
+            categoryId: String(item.categoryId),
+            price: String(item.price / 100),
+        }),
+        toCreateInput: (form) => ({
+            name: form.name.trim(),
+            categoryId: parseInt(form.categoryId),
+            price: Math.round(parseFloat(form.price) * 100),
+        }),
+        toUpdateInput: (form) => ({
+            name: form.name.trim(),
+            categoryId: parseInt(form.categoryId),
+            price: Math.round(parseFloat(form.price) * 100),
+        }),
+        validate: (form) => {
+            const error: Record<string, string> = {};
+            if (!form.name.trim()) {
+                error.name = "Name is required";
             }
-            closeModal(id);
-        } catch {
-            // Error is handled by useResource
-        }
-    };
+            if (!form.categoryId) {
+                error.categoryId = "Category is required";
+            }
+            const priceNum = parseFloat(form.price);
+            if (isNaN(priceNum) || priceNum < 0) {
+                error.price = "Price must be a valid positive number";
+            }
+            return error;
+        },
+        onSuccess,
+    });
 
-    const handleClose = () => {
-        setForm(initialFormState);
-        setError({});
+    const handleCategoryCreated = (category: Category) => {
+        modal.setField("categoryId", String(category.id));
     };
 
     const handleCreateCategory = () => {
-        setPendingCategorySelect(true);
         openModal(INLINE_CATEGORY_MODAL_ID);
     };
-
-    const isPending = create.isPending || update.isPending;
 
     return (
         <>
             <Modal
                 id={id}
-                title={isEdit ? "Edit Item" : "Create Item"}
-                onClose={handleClose}
+                title={modal.isEdit ? "Edit Item" : "Create Item"}
+                onClose={modal.handleClose}
             >
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={modal.handleSubmit} className="space-y-4">
                     <FormField
                         label="Name"
                         htmlFor={`${id}-name`}
-                        error={error.name}
+                        error={modal.error.name}
                         required
                     >
                         <Input
                             id={`${id}-name`}
-                            value={form.name}
-                            onChange={(e) =>
-                                setForm((prev) => ({ ...prev, name: e.target.value }))
-                            }
+                            value={modal.form.name}
+                            onChange={(e) => modal.setField("name", e.target.value)}
                             placeholder="Enter item name"
-                            disabled={isPending}
+                            disabled={modal.isPending}
                         />
                     </FormField>
 
                     <FormField
                         label="Category"
                         htmlFor={`${id}-category`}
-                        error={error.categoryId}
+                        error={modal.error.categoryId}
                         required
                     >
                         <div className="flex gap-2">
                             <Select
                                 id={`${id}-category`}
-                                value={form.categoryId}
-                                onChange={(e) =>
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        categoryId: e.target.value,
-                                    }))
-                                }
-                                disabled={isPending}
+                                value={modal.form.categoryId}
+                                onChange={(e) => modal.setField("categoryId", e.target.value)}
+                                disabled={modal.isPending}
                             >
                                 <option value="">Select category...</option>
                                 {categoryList.map((cat) => (
@@ -178,7 +123,7 @@ export function ItemFormModal({ id }: ItemFormModalProp) {
                                 variant="secondary"
                                 size="sm"
                                 onClick={handleCreateCategory}
-                                disabled={isPending}
+                                disabled={modal.isPending}
                             >
                                 <Plus className="h-4 w-4" />
                             </Button>
@@ -188,7 +133,7 @@ export function ItemFormModal({ id }: ItemFormModalProp) {
                     <FormField
                         label="Price"
                         htmlFor={`${id}-price`}
-                        error={error.price}
+                        error={modal.error.price}
                         required
                     >
                         <Input
@@ -196,12 +141,10 @@ export function ItemFormModal({ id }: ItemFormModalProp) {
                             type="number"
                             step="0.01"
                             min="0"
-                            value={form.price}
-                            onChange={(e) =>
-                                setForm((prev) => ({ ...prev, price: e.target.value }))
-                            }
+                            value={modal.form.price}
+                            onChange={(e) => modal.setField("price", e.target.value)}
                             placeholder="0.00"
-                            disabled={isPending}
+                            disabled={modal.isPending}
                         />
                     </FormField>
 
@@ -209,19 +152,22 @@ export function ItemFormModal({ id }: ItemFormModalProp) {
                         <Button
                             type="button"
                             variant="secondary"
-                            onClick={() => closeModal(id)}
-                            disabled={isPending}
+                            onClick={modal.closeModal}
+                            disabled={modal.isPending}
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" isLoading={isPending}>
-                            {isEdit ? "Save Changes" : "Create"}
+                        <Button type="submit" isLoading={modal.isPending}>
+                            {modal.isEdit ? "Save Changes" : "Create"}
                         </Button>
                     </div>
                 </form>
             </Modal>
 
-            <CategoryFormModal id={INLINE_CATEGORY_MODAL_ID} />
+            <CategoryFormModal
+                id={INLINE_CATEGORY_MODAL_ID}
+                onSuccess={handleCategoryCreated}
+            />
         </>
     );
 }

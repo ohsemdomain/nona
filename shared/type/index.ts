@@ -1,5 +1,5 @@
-export type { Category } from "./category";
-export type { Item, ItemCategory } from "./item";
+export type { Category, CreateCategoryInput, UpdateCategoryInput } from "./category";
+export type { Item, ItemCategory, CreateItemInput, UpdateItemInput } from "./item";
 export type {
     Order,
     OrderLine,

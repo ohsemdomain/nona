@@ -6,3 +6,11 @@ export interface Category {
     updatedAt: number;
     deletedAt: number | null;
 }
+
+export interface CreateCategoryInput {
+    name: string;
+}
+
+export interface UpdateCategoryInput {
+    name: string;
+}
