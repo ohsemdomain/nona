@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import { Modal, FormField, Input, Select, Button } from "@/src/component";
-import { useUIStore } from "@/src/store/ui";
 import { useFormModal } from "@/src/hook/useFormModal";
+import { useInlineModal } from "@/src/hook/useInlineModal";
 import { useResource } from "@/src/hook/useResource";
 import type { Item, Category, CreateItemInput, UpdateItemInput } from "@/shared/type";
 import { CategoryFormModal } from "@/src/page/category/CategoryFormModal";
@@ -23,10 +23,9 @@ const initialForm: FormState = {
     price: "",
 };
 
-const INLINE_CATEGORY_MODAL_ID = "item-inline-category-create";
+const INLINE_CATEGORY_MODAL_ID = "item-inline-category";
 
 export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
-    const { openModal } = useUIStore();
     const categoryResource = useResource<Category>("category", "Category");
     const { data: categoryList = [] } = categoryResource.list();
 
@@ -67,13 +66,13 @@ export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
         onSuccess,
     });
 
-    const handleCategoryCreated = (category: Category) => {
-        modal.setField("categoryId", String(category.id));
-    };
-
-    const handleCreateCategory = () => {
-        openModal(INLINE_CATEGORY_MODAL_ID);
-    };
+    // Inline modal hook for category - handleSuccess is stable
+    const categoryModal = useInlineModal<Category>(
+        INLINE_CATEGORY_MODAL_ID,
+        (_key, category) => {
+            modal.setField("categoryId", String(category.id));
+        },
+    );
 
     return (
         <>
@@ -122,7 +121,7 @@ export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
                                 type="button"
                                 variant="secondary"
                                 size="sm"
-                                onClick={handleCreateCategory}
+                                onClick={() => categoryModal.openCreate("category")}
                                 disabled={modal.isPending}
                             >
                                 <Plus className="h-4 w-4" />
@@ -166,7 +165,7 @@ export function ItemFormModal({ id, onSuccess }: ItemFormModalProp) {
 
             <CategoryFormModal
                 id={INLINE_CATEGORY_MODAL_ID}
-                onSuccess={handleCategoryCreated}
+                onSuccess={categoryModal.handleSuccess}
             />
         </>
     );

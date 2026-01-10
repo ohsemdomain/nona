@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Pencil } from "lucide-react";
 import { Button, Select, FormField, LoadingState } from "@/src/component";
-import { useUIStore } from "@/src/store/ui";
 import { useResource } from "@/src/hook/useResource";
+import { useInlineModal } from "@/src/hook/useInlineModal";
 import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
 import { formatMoney } from "@/src/lib/format";
@@ -18,12 +18,11 @@ interface FormLine {
     quantity: number;
 }
 
-const INLINE_ITEM_MODAL_ID = "order-inline-item-create";
+const INLINE_ITEM_MODAL_ID = "order-inline-item";
 
 export function OrderFormPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { openModal } = useUIStore();
 
     const isEdit = !!id;
 
@@ -41,8 +40,14 @@ export function OrderFormPage() {
     const [status, setStatus] = useState<OrderStatus>("draft");
     const [error, setError] = useState<Record<string, string>>({});
 
-    // Track which line is waiting for item creation
-    const pendingLineKeyRef = useRef<string | null>(null);
+    // Inline modal hook - callback passed upfront, handleSuccess is stable
+    const itemModal = useInlineModal<Item>(INLINE_ITEM_MODAL_ID, (key, item) => {
+        setLineList((prev) =>
+            prev.map((line) =>
+                line.key === key ? { ...line, itemId: String(item.id) } : line,
+            ),
+        );
+    });
 
     useEffect(() => {
         if (existingOrder) {
@@ -56,19 +61,6 @@ export function OrderFormPage() {
             );
         }
     }, [existingOrder]);
-
-    const handleItemCreated = (item: Item) => {
-        if (pendingLineKeyRef.current) {
-            setLineList((prev) =>
-                prev.map((line) =>
-                    line.key === pendingLineKeyRef.current
-                        ? { ...line, itemId: String(item.id) }
-                        : line,
-                ),
-            );
-            pendingLineKeyRef.current = null;
-        }
-    };
 
     const handleAddLine = () => {
         setLineList((prev) => [
@@ -91,11 +83,6 @@ export function OrderFormPage() {
                 line.key === key ? { ...line, [field]: value } : line,
             ),
         );
-    };
-
-    const handleCreateItem = (lineKey: string) => {
-        pendingLineKeyRef.current = lineKey;
-        openModal(INLINE_ITEM_MODAL_ID);
     };
 
     const calculateTotal = () => {
@@ -269,11 +256,24 @@ export function OrderFormPage() {
                                                                 ))}
                                                             </Select>
                                                         </div>
+                                                        {/* Edit selected item */}
+                                                        {selectedItem && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                onClick={() => itemModal.openEdit(line.key, selectedItem)}
+                                                                disabled={isPending}
+                                                            >
+                                                                <Pencil className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                        {/* Create new item */}
                                                         <Button
                                                             type="button"
                                                             variant="secondary"
                                                             size="sm"
-                                                            onClick={() => handleCreateItem(line.key)}
+                                                            onClick={() => itemModal.openCreate(line.key)}
                                                             disabled={isPending}
                                                         >
                                                             <Plus className="h-4 w-4" />
@@ -351,7 +351,7 @@ export function OrderFormPage() {
 
             <ItemFormModal
                 id={INLINE_ITEM_MODAL_ID}
-                onSuccess={handleItemCreated}
+                onSuccess={itemModal.handleSuccess}
             />
         </>
     );
