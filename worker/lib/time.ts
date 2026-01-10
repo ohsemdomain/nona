@@ -1,17 +1,17 @@
 export function nowUnix(): number {
-    return Date.now();
+	return Date.now();
 }
 
 export function timestamps() {
-    const now = nowUnix();
-    return {
-        createdAt: now,
-        updatedAt: now,
-    };
+	const now = nowUnix();
+	return {
+		createdAt: now,
+		updatedAt: now,
+	};
 }
 
 export function updatedTimestamp() {
-    return {
-        updatedAt: nowUnix(),
-    };
+	return {
+		updatedAt: nowUnix(),
+	};
 }

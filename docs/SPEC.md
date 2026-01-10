@@ -93,6 +93,8 @@ Order form page (unsaved)
 → Save Order
 ```
 
+**Important:** When using `useInlineModal` in reusable components (like modals that can be opened from multiple places), the inline modal ID must be derived from the parent's ID. See **RULE.md > Inline Modal Pattern** for details.
+
 ---
 
 ## Layout Patterns

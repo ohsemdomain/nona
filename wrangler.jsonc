@@ -1,54 +1,51 @@
 {
-    "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "nona",
-    "main": "worker/index.ts",
-    "compatibility_date": "2024-12-18",
-    "compatibility_flags": ["nodejs_compat"],
-    "assets": {
-        "directory": "dist/client",
-        "binding": "ASSETS",
-        "not_found_handling": "none",
-        "run_worker_first": true,
-    },
-    "observability": {
-        "enabled": true,
-    },
-    "browser": {
-        "binding": "BROWSER",
-    },
-    "d1_databases": [
-        {
-            "binding": "DB",
-            "database_name": "nonad1",
-            "database_id": "13945410-c944-471d-80b8-7352430695a2",
-            "migrations_dir": "worker/db/migrations",
-            "remote": true,
-        },
-    ],
-    "kv_namespaces": [
-        {
-            "binding": "NONA_KV_CACHE",
-            "id": "bf93e934c31f4eebb394954e87910ae7",
-            "remote": true,
-        },
-    ],
-    "r2_buckets": [
-        {
-            "bucket_name": "nonar2",
-            "binding": "R2",
-            "remote": true,
-        },
-    ],
-    "env": {
-        "dev": {
-            "vars": {
-                "TRUSTED_ORIGIN": "http://localhost:5650,http://192.168.2.154:5650",
-            },
-        },
-        "production": {
-            "vars": {
-                "TRUSTED_ORIGIN": "https://nona.weez.workers.dev",
-            },
-        },
-    },
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "nona",
+	"main": "worker/index.ts",
+	"compatibility_date": "2024-12-18",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"directory": "dist/client",
+		"binding": "ASSETS",
+		"not_found_handling": "none",
+		"run_worker_first": true
+	},
+	"observability": {
+		"enabled": true
+	},
+	"browser": {
+		"binding": "BROWSER"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "nonad1",
+			"database_id": "13945410-c944-471d-80b8-7352430695a2",
+			"migrations_dir": "worker/db/migrations"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "NONA_KV_CACHE",
+			"id": "bf93e934c31f4eebb394954e87910ae7"
+		}
+	],
+	"r2_buckets": [
+		{
+			"bucket_name": "nonar2",
+			"binding": "R2"
+		}
+	],
+	"env": {
+		"dev": {
+			"vars": {
+				"TRUSTED_ORIGIN": "http://localhost:5650,http://192.168.2.154:5650"
+			}
+		},
+		"production": {
+			"vars": {
+				"TRUSTED_ORIGIN": "https://nona.weez.workers.dev"
+			}
+		}
+	}
 }

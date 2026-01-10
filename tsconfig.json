@@ -1,28 +1,28 @@
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "lib": ["ES2022", "DOM", "DOM.Iterable"],
-        "module": "ESNext",
-        "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
-        "verbatimModuleSyntax": true,
-        "moduleDetection": "force",
-        "jsx": "react-jsx",
-        "useDefineForClassFields": true,
-        "noEmit": true,
-        "baseUrl": ".",
-        "paths": {
-            "@/shared/*": ["./shared/*"],
-            "@/src/*": ["./src/*"],
-            "@/worker/*": ["./worker/*"]
-        },
-        "types": ["vite/client", "@cloudflare/workers-types"],
-        "skipLibCheck": true,
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true
-    },
-    "include": ["shared", "src", "worker", "scripts", "vite.config.ts"]
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"moduleDetection": "force",
+		"jsx": "react-jsx",
+		"useDefineForClassFields": true,
+		"noEmit": true,
+		"baseUrl": ".",
+		"paths": {
+			"@/shared/*": ["./shared/*"],
+			"@/src/*": ["./src/*"],
+			"@/worker/*": ["./worker/*"]
+		},
+		"types": ["vite/client", "@cloudflare/workers-types"],
+		"skipLibCheck": true,
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+	},
+	"include": ["shared", "src", "worker", "scripts", "vite.config.ts"]
 }

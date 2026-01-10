@@ -5,30 +5,30 @@ import { Toaster } from "react-hot-toast";
 import { router } from "./router";
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            staleTime: 1000 * 60 * 5,
-            retry: 1,
-        },
-    },
+	defaultOptions: {
+		queries: {
+			staleTime: 1000 * 60 * 5,
+			retry: 1,
+		},
+	},
 });
 
 function App() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-            <Toaster
-                position="bottom-right"
-                toastOptions={{
-                    duration: 3000,
-                    style: {
-                        background: "#18181b",
-                        color: "#fafafa",
-                    },
-                }}
-            />
-        </QueryClientProvider>
-    );
+	return (
+		<QueryClientProvider client={queryClient}>
+			<RouterProvider router={router} />
+			<Toaster
+				position="bottom-right"
+				toastOptions={{
+					duration: 3000,
+					style: {
+						background: "#18181b",
+						color: "#fafafa",
+					},
+				}}
+			/>
+		</QueryClientProvider>
+	);
 }
 
 export default App;

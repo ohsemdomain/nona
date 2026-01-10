@@ -5,7 +5,7 @@ import * as authSchema from "./auth-schema";
 const allSchema = { ...schema, ...authSchema };
 
 export function createDb(d1: D1Database) {
-    return drizzle(d1, { schema: allSchema });
+	return drizzle(d1, { schema: allSchema });
 }
 
 export type Database = ReturnType<typeof createDb>;

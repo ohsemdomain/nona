@@ -4,30 +4,30 @@
 @custom-variant hover (&:hover);
 
 @font-face {
-    font-family: "Inter";
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url("/fonts/InterVariable.woff2") format("woff2");
+	font-family: "Inter";
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url("/fonts/InterVariable.woff2") format("woff2");
 }
 
 @font-face {
-    font-family: "Space Grotesk";
-    font-style: normal;
-    font-weight: 300 700;
-    font-display: swap;
-    src: url("https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2")
-        format("woff2");
+	font-family: "Space Grotesk";
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url("https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2")
+		format("woff2");
 }
 
 body {
-    @apply font-sans;
+	@apply font-sans;
 }
 
 button:hover {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 th {
-    font-weight: normal;
+	font-weight: normal;
 }
