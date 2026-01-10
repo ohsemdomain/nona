@@ -1,5 +1,6 @@
 import { CONFIG } from "./config";
 import { handleApiError } from "./error";
+import { handleUnauthorized } from "./auth";
 
 type RequestOption = Omit<RequestInit, "body"> & {
 	body?: unknown;
@@ -21,6 +22,11 @@ async function request<T>(
 	});
 
 	if (!response.ok) {
+		// Handle 401 - session expired or invalid
+		if (response.status === 401) {
+			await handleUnauthorized();
+			throw response;
+		}
 		throw response;
 	}
 
