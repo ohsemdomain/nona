@@ -69,6 +69,77 @@ export function ItemFormModal({ id }: { id: string }) {
 
 ---
 
+## Form Modal Pattern
+
+Use `useFormModal` hook for CRUD modals with consistent behavior:
+
+- Auto-reset form when modal opens
+- Dirty state tracking (unsaved changes warning)
+- Validation with error display
+- Loading states during submission
+
+```typescript
+const modal = useFormModal<Entity, FormState, CreateInput, UpdateInput>({
+    id: "entity-modal",
+    resource: "entity",
+    resourceLabel: "Entity",
+    initialForm: { name: "" },
+    toForm: (entity) => ({ name: entity.name }),
+    toCreateInput: (form) => ({ name: form.name.trim() }),
+    toUpdateInput: (form) => ({ name: form.name.trim() }),
+    validate: (form) => {
+        const error: Record<string, string> = {};
+        if (!form.name.trim()) error.name = "Name is required";
+        return error;
+    },
+    onSuccess,
+});
+
+// Returns: form, setField, handleSubmit, handleClose, isDirty, confirmDialogProps
+```
+
+---
+
+## Dirty Form Pattern
+
+Use `useFormDirty` hook to track unsaved changes:
+
+- Compares current form state to original
+- Shows confirmation dialog before closing with changes
+- Optionally blocks browser navigation
+- Provides `confirmClose()` for safe close operations
+
+```typescript
+const dirty = useFormDirty({
+    form: formState,
+    confirmId: "form-confirm-discard",
+    blockNavigation: true, // Optional: block browser back/refresh
+});
+
+// Use dirty.confirmClose() before closing:
+<Button onClick={() => dirty.confirmClose(() => navigate("/list"))}>
+    Cancel
+</Button>
+
+// Add ConfirmDialog for unsaved changes warning:
+<ConfirmDialog {...dirty.confirmDialogProps} />
+```
+
+---
+
+## SPA Routing Configuration
+
+**Critical:** The `wrangler.jsonc` must have `not_found_handling: "single-page-application"` for React Router to work correctly.
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `not_found_handling` | `"single-page-application"` | Serves index.html for non-file paths |
+| `run_worker_first` | `true` | API routes handled before static assets |
+
+**Never set `not_found_handling` to `"none"`** — this causes 404 errors on page refresh.
+
+---
+
 ## Data & API Patterns
 
 | Instead of...               | Use...                          |

@@ -19,6 +19,45 @@ Build a reusable foundation with 3 test features that prove all patterns work to
 
 ---
 
+## Development Setup
+
+### Commands
+
+| Command | Purpose |
+|---------|---------|
+| `bun install` | Install dependencies |
+| `bun run dev` | Start dev server (Vite + Worker) |
+| `bun run build` | Build for production |
+| `bun run preview` | Preview production build |
+| `bun run db:generate` | Generate Drizzle migrations |
+| `bun run db:migrate` | Apply migrations (local) |
+| `bun run db:migrate:prod` | Apply migrations (production) |
+
+### Ports
+
+- Dev server: `http://localhost:5650`
+- Network: `http://<ip>:5650`
+
+---
+
+## Wrangler Configuration
+
+Key settings in `wrangler.jsonc`:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `assets.not_found_handling` | `"single-page-application"` | SPA routing support |
+| `assets.run_worker_first` | `true` | API routes before static assets |
+| `compatibility_flags` | `["nodejs_compat"]` | Node.js API compatibility |
+
+### Environment Variables
+
+| Variable | Dev | Production |
+|----------|-----|------------|
+| `TRUSTED_ORIGIN` | `http://localhost:5650,http://<ip>:5650` | `https://<app>.workers.dev` |
+
+---
+
 ## Folder Structure
 
 ```
@@ -193,6 +232,22 @@ All features use same factory. No duplicate CRUD code.
 | `/src/hooks/useMasterDetail.ts` | Master-Detail state management                |
 | `/src/hooks/useFilter.ts`       | Search/filter with URL sync                   |
 | `/src/hooks/usePagination.ts`   | Pagination state                              |
+
+---
+
+## Hooks Reference
+
+| Hook | Purpose |
+|------|---------|
+| `useResource` | Generic CRUD factory (list, create, update, remove) |
+| `useMasterDetail` | Master-Detail state management with URL sync |
+| `useFormModal` | Modal form with validation and dirty tracking |
+| `useFormDirty` | Unsaved changes detection and confirmation |
+| `useInlineModal` | Inline create/edit flow in nested modals |
+| `useFilter` | Search/filter with URL sync |
+| `usePagination` | Pagination state |
+
+See **RULE.md** for detailed usage patterns of `useFormModal`, `useFormDirty`, and `useInlineModal`.
 
 ---
 
