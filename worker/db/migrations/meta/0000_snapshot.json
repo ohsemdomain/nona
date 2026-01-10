@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b3cd2d35-5d27-4454-a889-bb227dd6a7ad",
+  "id": "a8042002-b46a-4eb6-88fb-c4fd2cff0025",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "category": {
@@ -131,6 +131,13 @@
             "public_id"
           ],
           "isUnique": true
+        },
+        "item_category_id_idx": {
+          "name": "item_category_id_idx",
+          "columns": [
+            "category_id"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -214,6 +221,13 @@
             "public_id"
           ],
           "isUnique": true
+        },
+        "order_status_idx": {
+          "name": "order_status_idx",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -274,7 +288,22 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "order_line_order_id_idx": {
+          "name": "order_line_order_id_idx",
+          "columns": [
+            "order_id"
+          ],
+          "isUnique": false
+        },
+        "order_line_item_id_idx": {
+          "name": "order_line_item_id_idx",
+          "columns": [
+            "item_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "order_line_order_id_order_id_fk": {
           "name": "order_line_order_id_order_id_fk",

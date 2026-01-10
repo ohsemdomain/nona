@@ -21,6 +21,7 @@ CREATE TABLE `item` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `item_public_id_unique` ON `item` (`public_id`);--> statement-breakpoint
+CREATE INDEX `item_category_id_idx` ON `item` (`category_id`);--> statement-breakpoint
 CREATE TABLE `order` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`public_id` text NOT NULL,
@@ -32,6 +33,7 @@ CREATE TABLE `order` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `order_public_id_unique` ON `order` (`public_id`);--> statement-breakpoint
+CREATE INDEX `order_status_idx` ON `order` (`status`);--> statement-breakpoint
 CREATE TABLE `order_line` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`order_id` integer NOT NULL,
@@ -44,6 +46,8 @@ CREATE TABLE `order_line` (
 	FOREIGN KEY (`item_id`) REFERENCES `item`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE INDEX `order_line_order_id_idx` ON `order_line` (`order_id`);--> statement-breakpoint
+CREATE INDEX `order_line_item_id_idx` ON `order_line` (`item_id`);--> statement-breakpoint
 CREATE TABLE `account` (
 	`id` text PRIMARY KEY NOT NULL,
 	`account_id` text NOT NULL,

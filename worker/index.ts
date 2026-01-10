@@ -1,20 +1,26 @@
 import { Hono } from "hono";
 import { authRoute, categoryRoute, itemRoute, orderRoute } from "./route";
-import { requireAuth } from "./lib";
+import { requireAuth, authRateLimit, apiRateLimit } from "./lib";
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Health check (public)
+// Health check (public, no rate limit)
 app.get("/api/health", (c) => {
 	return c.json({ status: "ok" });
 });
 
-// Auth route (public)
+// Auth route (public, strict rate limit for brute force protection)
+app.use("/api/auth/*", authRateLimit);
 app.route("/api/auth", authRoute);
 
-// Protected routes - authentication required
+// Protected routes - rate limit + authentication
+app.use("/api/category/*", apiRateLimit);
 app.use("/api/category/*", requireAuth);
+
+app.use("/api/item/*", apiRateLimit);
 app.use("/api/item/*", requireAuth);
+
+app.use("/api/order/*", apiRateLimit);
 app.use("/api/order/*", requireAuth);
 
 app.route("/api/category", categoryRoute);
