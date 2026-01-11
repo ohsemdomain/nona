@@ -8,8 +8,10 @@ import {
 	DetailPanel,
 	SearchInput,
 	Button,
-	LoadingState,
+	LoadingBoundary,
 	EmptyState,
+	SkeletonList,
+	SkeletonDetailPanel,
 } from "@/src/component";
 import type { Category } from "@/shared/type";
 import { CategoryDetail } from "./CategoryDetail";
@@ -28,6 +30,8 @@ export function CategoryPage() {
 	const {
 		list,
 		isLoading,
+		isError,
+		refetch,
 		selectedId,
 		selectedItem,
 		setSelectedId,
@@ -76,32 +80,37 @@ export function CategoryPage() {
 						</div>
 					}
 				>
-					{isLoading ? (
-						<LoadingState message="Loading category..." />
-					) : list.length === 0 ? (
-						<EmptyState
-							title="No category"
-							message="Create your first category to get started."
-							action={
-								<Button size="sm" onClick={handleCreate}>
-									<Plus className="h-4 w-4" />
-									Create Category
-								</Button>
-							}
-						/>
-					) : (
-						list.map((category) => (
-							<MasterListItem
-								key={category.publicId}
-								isSelected={selectedId === category.publicId}
-								onClick={() => setSelectedId(category.publicId)}
-							>
-								<p className="font-medium text-zinc-900 dark:text-zinc-100">
-									{category.name}
-								</p>
-							</MasterListItem>
-						))
-					)}
+					<LoadingBoundary
+						isLoading={isLoading}
+						isError={isError}
+						onRetry={refetch}
+						loadingFallback={<SkeletonList count={8} variant="simple" />}
+					>
+						{list.length === 0 ? (
+							<EmptyState
+								title="No category"
+								message="Create your first category to get started."
+								action={
+									<Button size="sm" onClick={handleCreate}>
+										<Plus className="h-4 w-4" />
+										Create Category
+									</Button>
+								}
+							/>
+						) : (
+							list.map((category) => (
+								<MasterListItem
+									key={category.publicId}
+									isSelected={selectedId === category.publicId}
+									onClick={() => setSelectedId(category.publicId)}
+								>
+									<p className="font-medium text-zinc-900 dark:text-zinc-100">
+										{category.name}
+									</p>
+								</MasterListItem>
+							))
+						)}
+					</LoadingBoundary>
 				</MasterList>
 
 				<DetailPanel>
@@ -111,6 +120,8 @@ export function CategoryPage() {
 							onEdit={handleEdit}
 							onDelete={handleDelete}
 						/>
+					) : isLoading ? (
+						<SkeletonDetailPanel fieldCount={3} />
 					) : (
 						<EmptyState
 							title="No category selected"

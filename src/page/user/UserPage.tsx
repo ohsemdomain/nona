@@ -4,10 +4,11 @@ import { useSearchParams } from "react-router-dom";
 import { useUIStore } from "@/src/store/ui";
 import {
 	Button,
-	LoadingState,
+	LoadingBoundary,
 	EmptyState,
 	SearchInput,
 	PermissionGuard,
+	SkeletonTable,
 } from "@/src/component";
 import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
@@ -45,7 +46,7 @@ export function UserPage() {
 		setSearchParam(newParam, { replace: true });
 	};
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: queryKey.user.list({ search }),
 		queryFn: () =>
 			api.get<ListResponse>(`/user${search ? `?search=${search}` : ""}`),
@@ -90,97 +91,102 @@ export function UserPage() {
 				</div>
 
 				<div className="flex-1 overflow-auto p-4">
-					{isLoading ? (
-						<LoadingState message="Loading users..." />
-					) : list.length === 0 ? (
-						<EmptyState
-							title="No users found"
-							message={
-								search
-									? "Try a different search term."
-									: "Create your first user to get started."
-							}
-							action={
-								!search && (
-									<PermissionGuard permission={PERMISSION.USER_CREATE}>
-										<Button size="sm" onClick={handleCreate}>
-											<Plus className="h-4 w-4" />
-											Create User
-										</Button>
-									</PermissionGuard>
-								)
-							}
-						/>
-					) : (
-						<div className="overflow-x-auto">
-							<table className="w-full text-sm">
-								<thead>
-									<tr className="border-b border-zinc-200 dark:border-zinc-700">
-										<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
-											Name
-										</th>
-										<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
-											Email
-										</th>
-										<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
-											Role
-										</th>
-										<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
-											Actions
-										</th>
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
-									{list.map((user) => (
-										<tr
-											key={user.publicId}
-											className="hover:bg-zinc-50 dark:hover:bg-zinc-900"
-										>
-											<td className="px-4 py-3">
-												<span className="font-medium text-zinc-900 dark:text-zinc-100">
-													{user.name}
-												</span>
-											</td>
-											<td className="px-4 py-3">
-												<span className="text-zinc-600 dark:text-zinc-400">
-													{user.email}
-												</span>
-											</td>
-											<td className="px-4 py-3">
-												<span
-													className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getRoleColorClasses(user.roleName)}`}
-												>
-													{user.roleName || "No role"}
-												</span>
-											</td>
-											<td className="px-4 py-3">
-												<div className="flex gap-2">
-													<PermissionGuard permission={PERMISSION.USER_UPDATE}>
-														<Button
-															variant="secondary"
-															size="sm"
-															onClick={() => handleEdit(user)}
-														>
-															Edit
-														</Button>
-													</PermissionGuard>
-													<PermissionGuard permission={PERMISSION.USER_DELETE}>
-														<Button
-															variant="danger"
-															size="sm"
-															onClick={() => handleDelete(user)}
-														>
-															Delete
-														</Button>
-													</PermissionGuard>
-												</div>
-											</td>
+					<LoadingBoundary
+						isLoading={isLoading}
+						isError={isError}
+						onRetry={refetch}
+						loadingFallback={<SkeletonTable rows={8} showHeader={false} />}
+					>
+						{list.length === 0 ? (
+							<EmptyState
+								title="No users found"
+								message={
+									search
+										? "Try a different search term."
+										: "Create your first user to get started."
+								}
+								action={
+									!search && (
+										<PermissionGuard permission={PERMISSION.USER_CREATE}>
+											<Button size="sm" onClick={handleCreate}>
+												<Plus className="h-4 w-4" />
+												Create User
+											</Button>
+										</PermissionGuard>
+									)
+								}
+							/>
+						) : (
+							<div className="overflow-x-auto">
+								<table className="w-full text-sm">
+									<thead>
+										<tr className="border-b border-zinc-200 dark:border-zinc-700">
+											<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
+												Name
+											</th>
+											<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
+												Email
+											</th>
+											<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
+												Role
+											</th>
+											<th className="px-4 py-3 text-left font-medium text-zinc-500 dark:text-zinc-400">
+												Actions
+											</th>
 										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					)}
+									</thead>
+									<tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
+										{list.map((user) => (
+											<tr
+												key={user.publicId}
+												className="hover:bg-zinc-50 dark:hover:bg-zinc-900"
+											>
+												<td className="px-4 py-3">
+													<span className="font-medium text-zinc-900 dark:text-zinc-100">
+														{user.name}
+													</span>
+												</td>
+												<td className="px-4 py-3">
+													<span className="text-zinc-600 dark:text-zinc-400">
+														{user.email}
+													</span>
+												</td>
+												<td className="px-4 py-3">
+													<span
+														className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getRoleColorClasses(user.roleName)}`}
+													>
+														{user.roleName || "No role"}
+													</span>
+												</td>
+												<td className="px-4 py-3">
+													<div className="flex gap-2">
+														<PermissionGuard permission={PERMISSION.USER_UPDATE}>
+															<Button
+																variant="secondary"
+																size="sm"
+																onClick={() => handleEdit(user)}
+															>
+																Edit
+															</Button>
+														</PermissionGuard>
+														<PermissionGuard permission={PERMISSION.USER_DELETE}>
+															<Button
+																variant="danger"
+																size="sm"
+																onClick={() => handleDelete(user)}
+															>
+																Delete
+															</Button>
+														</PermissionGuard>
+													</div>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						)}
+					</LoadingBoundary>
 				</div>
 			</div>
 

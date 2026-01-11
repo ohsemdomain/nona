@@ -26,6 +26,7 @@ interface UseMasterDetailReturn<T> {
 	total: number;
 	isLoading: boolean;
 	isError: boolean;
+	refetch: () => void;
 	selectedId: string | null;
 	selectedItem: T | undefined;
 	setSelectedId: (id: string | null) => void;
@@ -56,7 +57,7 @@ export function useMasterDetail<T extends HasPublicId>(
 
 	const { page, pageSize, setPage, reset: resetPagination } = usePagination();
 
-	const { data, isLoading, isError } = useQuery({
+	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: queryKey[entity].list({ ...queryParam, page, pageSize }),
 		queryFn: () =>
 			api.get<ListResponse<T>>(
@@ -142,6 +143,7 @@ export function useMasterDetail<T extends HasPublicId>(
 		total,
 		isLoading,
 		isError,
+		refetch,
 		selectedId,
 		selectedItem,
 		setSelectedId,

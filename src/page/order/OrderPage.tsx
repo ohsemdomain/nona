@@ -8,8 +8,10 @@ import {
 	MasterListItem,
 	DetailPanel,
 	Button,
-	LoadingState,
+	LoadingBoundary,
 	EmptyState,
+	SkeletonList,
+	SkeletonOrderDetail,
 } from "@/src/component";
 import { formatMoney } from "@/src/lib/format";
 import { formatDate } from "@/src/lib/date";
@@ -29,6 +31,8 @@ export function OrderPage() {
 	const {
 		list,
 		isLoading,
+		isError,
+		refetch,
 		selectedId,
 		selectedItem,
 		setSelectedId,
@@ -69,49 +73,54 @@ export function OrderPage() {
 						</div>
 					}
 				>
-					{isLoading ? (
-						<LoadingState message="Loading order..." />
-					) : list.length === 0 ? (
-						<EmptyState
-							title="No order"
-							message="Create your first order to get started."
-							action={
-								<Button size="sm" onClick={handleCreate}>
-									<Plus className="h-4 w-4" />
-									Create Order
-								</Button>
-							}
-						/>
-					) : (
-						list.map((order) => (
-							<MasterListItem
-								key={order.publicId}
-								isSelected={selectedId === order.publicId}
-								onClick={() => setSelectedId(order.publicId)}
-							>
-								<div className="flex items-center justify-between gap-2">
-									<div className="min-w-0 flex-1">
-										<p className="font-medium text-zinc-900 dark:text-zinc-100">
-											#{order.publicId}
-										</p>
-										<p className="text-sm text-zinc-500 dark:text-zinc-400">
-											{formatDate(order.createdAt)}
-										</p>
+					<LoadingBoundary
+						isLoading={isLoading}
+						isError={isError}
+						onRetry={refetch}
+						loadingFallback={<SkeletonList count={8} variant="order" />}
+					>
+						{list.length === 0 ? (
+							<EmptyState
+								title="No order"
+								message="Create your first order to get started."
+								action={
+									<Button size="sm" onClick={handleCreate}>
+										<Plus className="h-4 w-4" />
+										Create Order
+									</Button>
+								}
+							/>
+						) : (
+							list.map((order) => (
+								<MasterListItem
+									key={order.publicId}
+									isSelected={selectedId === order.publicId}
+									onClick={() => setSelectedId(order.publicId)}
+								>
+									<div className="flex items-center justify-between gap-2">
+										<div className="min-w-0 flex-1">
+											<p className="font-medium text-zinc-900 dark:text-zinc-100">
+												#{order.publicId}
+											</p>
+											<p className="text-sm text-zinc-500 dark:text-zinc-400">
+												{formatDate(order.createdAt)}
+											</p>
+										</div>
+										<div className="flex shrink-0 flex-col items-end gap-1">
+											<span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+												{formatMoney(order.total)}
+											</span>
+											<span
+												className={`rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STATUS_COLOR[order.status]}`}
+											>
+												{ORDER_STATUS_LABEL[order.status]}
+											</span>
+										</div>
 									</div>
-									<div className="flex shrink-0 flex-col items-end gap-1">
-										<span className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-											{formatMoney(order.total)}
-										</span>
-										<span
-											className={`rounded-full px-2 py-0.5 text-xs font-medium ${ORDER_STATUS_COLOR[order.status]}`}
-										>
-											{ORDER_STATUS_LABEL[order.status]}
-										</span>
-									</div>
-								</div>
-							</MasterListItem>
-						))
-					)}
+								</MasterListItem>
+							))
+						)}
+					</LoadingBoundary>
 				</MasterList>
 
 				<DetailPanel>
@@ -121,6 +130,8 @@ export function OrderPage() {
 							onEdit={handleEdit}
 							onDelete={handleDelete}
 						/>
+					) : isLoading ? (
+						<SkeletonOrderDetail lineCount={3} />
 					) : (
 						<EmptyState
 							title="No order selected"
