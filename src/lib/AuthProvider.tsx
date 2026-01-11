@@ -4,6 +4,7 @@ import {
 	useState,
 	useEffect,
 	useCallback,
+	useRef,
 	type ReactNode,
 } from "react";
 import { getSession } from "./auth";
@@ -11,6 +12,14 @@ import { queryClient } from "./queryClient";
 import { authClient } from "./auth";
 import { api } from "./api";
 import { TOAST } from "./toast";
+import {
+	readSessionCache,
+	writeSessionCache,
+	clearSessionCache,
+	isSessionExpired,
+	shouldRefreshSession,
+	type CachedSession,
+} from "./sessionCache";
 
 interface User {
 	id: string;
@@ -31,18 +40,6 @@ interface Session {
 	};
 }
 
-interface MeResponse {
-	id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	image: string | null;
-	role: string | null;
-	permissions: string[];
-	createdAt: number;
-	updatedAt: number;
-}
-
 interface AuthContextValue {
 	session: Session | null;
 	role: string | null;
@@ -55,66 +52,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// Session storage keys for permission caching
-const PERMISSION_CACHE_KEY = "auth_permissions";
-const ROLE_CACHE_KEY = "auth_role";
-const CACHE_USER_ID_KEY = "auth_cache_user_id";
-
-interface CachedPermissions {
-	role: string | null;
-	permissions: string[];
-	userId: string;
-}
-
-function getCachedPermissions(userId: string): CachedPermissions | null {
-	try {
-		const cachedUserId = sessionStorage.getItem(CACHE_USER_ID_KEY);
-		if (cachedUserId !== userId) {
-			// Cache is for a different user, clear it
-			clearPermissionCache();
-			return null;
-		}
-
-		const permissions = sessionStorage.getItem(PERMISSION_CACHE_KEY);
-		const role = sessionStorage.getItem(ROLE_CACHE_KEY);
-
-		if (permissions) {
-			return {
-				role: role || null,
-				permissions: JSON.parse(permissions),
-				userId,
-			};
-		}
-	} catch {
-		// Ignore storage errors
-	}
-	return null;
-}
-
-function setCachedPermissions(
-	userId: string,
-	role: string | null,
-	permissions: string[],
-): void {
-	try {
-		sessionStorage.setItem(CACHE_USER_ID_KEY, userId);
-		sessionStorage.setItem(ROLE_CACHE_KEY, role || "");
-		sessionStorage.setItem(PERMISSION_CACHE_KEY, JSON.stringify(permissions));
-	} catch {
-		// Ignore storage errors (e.g., quota exceeded)
-	}
-}
-
-function clearPermissionCache(): void {
-	try {
-		sessionStorage.removeItem(CACHE_USER_ID_KEY);
-		sessionStorage.removeItem(ROLE_CACHE_KEY);
-		sessionStorage.removeItem(PERMISSION_CACHE_KEY);
-	} catch {
-		// Ignore storage errors
-	}
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [session, setSession] = useState<Session | null>(null);
 	const [role, setRole] = useState<string | null>(null);
@@ -122,67 +59,155 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [permissionError, setPermissionError] = useState(false);
 
+	// Track if we've done initial cache check
+	const initializedRef = useRef(false);
+	// Track if validation is in progress
+	const validatingRef = useRef(false);
+
+	// Fetch fresh session token from server
+	const fetchSessionToken = useCallback(async (): Promise<CachedSession | null> => {
+		try {
+			const token = await api.get<CachedSession>("/session/token");
+			writeSessionCache(token);
+			return token;
+		} catch {
+			return null;
+		}
+	}, []);
+
+	// Validate session in background (non-blocking)
+	const validateSessionInBackground = useCallback(async () => {
+		if (validatingRef.current) return;
+		validatingRef.current = true;
+
+		try {
+			const cached = readSessionCache();
+			const response = await api.post<{ valid: boolean; needsRefresh?: boolean; reason?: string }>(
+				"/session/validate",
+				{ token: cached },
+			);
+
+			if (!response.valid) {
+				// Session invalid - clear cache and logout
+				clearSessionCache();
+				queryClient.clear();
+				await authClient.signOut();
+				setSession(null);
+				setRole(null);
+				setPermissions([]);
+				return;
+			}
+
+			if (response.needsRefresh) {
+				// Token needs refresh - fetch new one in background
+				await fetchSessionToken();
+			}
+		} catch {
+			// Network error - keep using cached session
+			// Don't logout on network failures
+		} finally {
+			validatingRef.current = false;
+		}
+	}, [fetchSessionToken]);
+
+	// Convert cached session to Session object for compatibility
+	const applyCache = useCallback((cached: CachedSession) => {
+		const { payload } = cached;
+
+		// Create a minimal Session object from cache
+		const sessionData: Session = {
+			user: {
+				id: payload.userId,
+				name: payload.name,
+				email: payload.email,
+				emailVerified: true, // Assume verified if cached
+				image: null,
+				createdAt: new Date(payload.issuedAt),
+				updatedAt: new Date(payload.issuedAt),
+			},
+			session: {
+				id: payload.userId, // Use userId as session id placeholder
+				userId: payload.userId,
+				expiresAt: new Date(payload.expiresAt),
+			},
+		};
+
+		setSession(sessionData);
+		setRole(payload.role);
+		setPermissions(payload.permissions);
+		setPermissionError(false);
+		setIsLoading(false);
+	}, []);
+
+	// Full session fetch (used when no cache or cache expired)
 	const fetchSession = useCallback(async () => {
 		try {
 			const result = await getSession();
 			const sessionData = result.data as Session | null;
-			setSession(sessionData);
 
-			// If we have a session, fetch role and permissions
 			if (sessionData) {
-				const userId = sessionData.user.id;
+				// Fetch signed session token (includes role + permissions)
+				const token = await fetchSessionToken();
 
-				// Check cache first
-				const cached = getCachedPermissions(userId);
-				if (cached) {
-					setRole(cached.role);
-					setPermissions(cached.permissions);
-					setPermissionError(false);
-					return;
-				}
-
-				// Fetch from API
-				try {
-					const meData = await api.get<MeResponse>("/me");
-					setRole(meData.role);
-					setPermissions(meData.permissions);
-					setPermissionError(false);
-
-					// Cache the result
-					setCachedPermissions(userId, meData.role, meData.permissions);
-				} catch {
-					// If /me fails, show error but keep session
+				if (token) {
+					applyCache(token);
+				} else {
+					// Fallback: set session without permissions
+					setSession(sessionData);
 					setRole(null);
 					setPermissions([]);
 					setPermissionError(true);
-					TOAST.error(
-						"Failed to load permissions. Some features may be unavailable.",
-					);
+					setIsLoading(false);
+					TOAST.error("Failed to load permissions. Some features may be unavailable.");
 				}
 			} else {
+				// No session
+				setSession(null);
 				setRole(null);
 				setPermissions([]);
 				setPermissionError(false);
-				clearPermissionCache();
+				setIsLoading(false);
+				clearSessionCache();
 			}
 		} catch {
 			setSession(null);
 			setRole(null);
 			setPermissions([]);
 			setPermissionError(false);
-			clearPermissionCache();
-		} finally {
 			setIsLoading(false);
+			clearSessionCache();
 		}
-	}, []);
+	}, [fetchSessionToken, applyCache]);
 
+	// Initial mount - optimistic loading
 	useEffect(() => {
-		fetchSession();
-	}, [fetchSession]);
+		if (initializedRef.current) return;
+		initializedRef.current = true;
+
+		// Step 1: Check localStorage cache (sync, instant)
+		const cached = readSessionCache();
+
+		if (cached && !isSessionExpired(cached)) {
+			// Cache hit - apply immediately (no loading screen!)
+			applyCache(cached);
+
+			// Background validation
+			validateSessionInBackground();
+
+			// Check if refresh needed
+			if (shouldRefreshSession(cached)) {
+				fetchSessionToken();
+			}
+		} else {
+			// No cache or expired - full fetch
+			clearSessionCache();
+			fetchSession();
+		}
+	}, [applyCache, fetchSession, fetchSessionToken, validateSessionInBackground]);
 
 	const logout = useCallback(async () => {
 		queryClient.clear();
-		clearPermissionCache();
+		clearSessionCache();
 		await authClient.signOut();
 		setSession(null);
 		setRole(null);
@@ -192,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const refresh = useCallback(async () => {
 		setIsLoading(true);
-		clearPermissionCache(); // Force fresh fetch on refresh
+		clearSessionCache();
 		await fetchSession();
 	}, [fetchSession]);
 

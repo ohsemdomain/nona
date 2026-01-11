@@ -5,4 +5,5 @@ interface Env {
 	NONA_KV_CACHE: KVNamespace;
 	R2: R2Bucket;
 	TRUSTED_ORIGIN?: string;
+	SESSION_TOKEN_SECRET?: string;
 }

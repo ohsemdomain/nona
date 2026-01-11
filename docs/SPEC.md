@@ -35,8 +35,8 @@ Build a reusable foundation with 3 test features that prove all patterns work to
 
 ### Ports
 
-- Dev server: `http://localhost:5650`
-- Network: `http://<ip>:5650`
+- Dev server: `http://localhost:5655`
+- Network: `http://<ip>:5655`
 
 ---
 
@@ -54,7 +54,7 @@ Key settings in `wrangler.jsonc`:
 
 | Variable | Dev | Production |
 |----------|-----|------------|
-| `TRUSTED_ORIGIN` | `http://localhost:5650,http://<ip>:5650` | `https://<app>.workers.dev` |
+| `TRUSTED_ORIGIN` | `http://localhost:5655,http://<ip>:5655` | `https://<app>.workers.dev` |
 
 ---
 

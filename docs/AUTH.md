@@ -8,23 +8,22 @@
 - **Admin creates all users** and sets their passwords
 - **Admin resets passwords** — no self-service password reset
 - Shared data (all users access all records, filtered by permission)
+- **Fast session caching** — localStorage with signed tokens for instant auth
 
 ---
 
 ## Database Schema
 
-```typescript
-// worker/db/schema/role.ts
-role: (id, name, description, createdAt);
-
-// worker/db/schema/permission.ts
-permission: (id, name, description);
-
-// worker/db/schema/rolePermission.ts
-rolePermission: (id, roleId(FK), permissionId(FK));
-
-// user table
-user: (id, email, password, name, roleId(FK), createdAt, updatedAt, deletedAt);
+```
+Tables:
+├── role (id, name, description, created_at)
+├── permission (id, name, description)
+├── role_permission (id, role_id→role, permission_id→permission)
+├── user (id, public_id, name, email, email_verified, image, role_id→role, created_at, updated_at, deleted_at)
+├── session (id, expires_at, token, user_id→user, ip_address, user_agent, created_at, updated_at)
+├── account (id, account_id, provider_id, user_id→user, password, access_token, ..., created_at, updated_at)
+├── verification (id, identifier, value, expires_at, created_at, updated_at)
+└── audit_log (id, actor_id, action, resource, resource_id, changes, metadata, created_at)
 ```
 
 ---
@@ -34,22 +33,28 @@ user: (id, email, password, name, roleId(FK), createdAt, updatedAt, deletedAt);
 Pattern: `{resource}:{action}`
 
 ```typescript
-// shared/constants/permission.ts
+// shared/constant/permission.ts
 export const PERMISSION = {
+    // Category
     CATEGORY_CREATE: "category:create",
     CATEGORY_READ: "category:read",
     CATEGORY_UPDATE: "category:update",
     CATEGORY_DELETE: "category:delete",
+    // Item
     ITEM_CREATE: "item:create",
     ITEM_READ: "item:read",
     ITEM_UPDATE: "item:update",
     ITEM_DELETE: "item:delete",
+    // Order
     ORDER_CREATE: "order:create",
     ORDER_READ: "order:read",
     ORDER_UPDATE: "order:update",
     ORDER_DELETE: "order:delete",
+    // User (admin only)
+    USER_CREATE: "user:create",
     USER_READ: "user:read",
     USER_UPDATE: "user:update",
+    USER_DELETE: "user:delete",
 } as const;
 
 export const ROLE = {
@@ -63,85 +68,97 @@ export const ROLE = {
 
 ## Default Roles
 
-| Role   | Permissions                  |
-| ------ | ---------------------------- |
-| admin  | ALL                          |
-| user   | category:_, item:_, order:\* |
-| viewer | \*:read only                 |
+| Role   | Permissions                         |
+| ------ | ----------------------------------- |
+| admin  | ALL (16 permissions)                |
+| user   | category:*, item:*, order:* (12)    |
+| viewer | *:read only (4)                     |
 
 ---
 
-## Seed Admin Script
+## Session Token Flow (Fast Auth)
 
-No registration route. Admin created via seed script only.
-
-```typescript
-// scripts/seed-admin.ts
-import { hashPassword } from "better-auth";
-
-const adminEmail = process.env.ADMIN_EMAIL;
-const adminPassword = process.env.ADMIN_PASSWORD;
-
-if (!adminEmail || !adminPassword) {
-    console.error("❌ Set ADMIN_EMAIL and ADMIN_PASSWORD env variables");
-    process.exit(1);
-}
-
-// Check if admin exists
-const existing = await db.select().from(user).where(eq(user.email, adminEmail));
-if (existing.length > 0) {
-    console.log("⏭️ Admin already exists, skipping");
-    process.exit(0);
-}
-
-// Get admin role
-const adminRole = await db.select().from(role).where(eq(role.name, "admin"));
-
-// Create admin
-await db.insert(user).values({
-    email: adminEmail,
-    password: await hashPassword(adminPassword),
-    name: "Admin",
-    roleId: adminRole[0].id,
-    createdAt: Date.now(),
-});
-
-console.log("✅ Admin created");
 ```
+Login:
+┌─────────────────────────────────────────────────────────────┐
+│ 1. User logs in via /api/auth/sign-in                       │
+│ 2. better-auth creates session (httpOnly cookie)            │
+│ 3. Frontend fetches /api/session/token                      │
+│ 4. Backend returns signed token (user + role + permissions) │
+│ 5. Frontend stores in localStorage                          │
+└─────────────────────────────────────────────────────────────┘
 
-### Usage
+Page Load (Fast):
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Read localStorage (instant, no network)                  │
+│ 2. If valid & not expired → render immediately              │
+│ 3. Background: POST /api/session/validate                   │
+│ 4. If invalid → logout; If needs refresh → fetch new token  │
+└─────────────────────────────────────────────────────────────┘
 
-```bash
-# Set environment variables
-export ADMIN_EMAIL="admin@company.com"
-export ADMIN_PASSWORD="your-secure-password"
-
-# Run seed
-bun run db:seed-admin
+Token Structure:
+{
+  payload: {
+    userId, publicId, email, name, role, permissions[],
+    issuedAt, expiresAt (7 days)
+  },
+  signature: "HMAC-SHA256 signature"
+}
 ```
-
-After seed, admin logs in and changes password via User Management (edit own profile).
 
 ---
 
-## Backend
+## API Endpoints
 
-### Middleware
+### Auth (better-auth)
+
+```
+POST /api/auth/sign-in/*     - Login (rate limited)
+POST /api/auth/sign-out      - Logout
+GET  /api/auth/session       - Get current session
+```
+
+### Session Token (fast caching)
+
+```
+GET  /api/session/token      - Get signed session token
+POST /api/session/validate   - Validate session (background)
+```
+
+### Current User
+
+```
+GET  /api/me                 - Get current user with role/permissions
+```
+
+### User Management (admin only)
+
+```
+GET    /api/user             - List users (paginated, searchable)
+GET    /api/user/:id         - User detail (by publicId)
+POST   /api/user             - Create user
+PUT    /api/user/:id         - Update user (including password reset)
+DELETE /api/user/:id         - Soft delete user
+```
+
+---
+
+## Backend Middleware
 
 ```typescript
 // worker/lib/middleware.ts
+
+// Require authentication
+export const requireAuth = async (c, next) => { ... }
+
+// Require specific permission(s)
 export const requirePermission = (...permissions: string[]) => {
     return async (c: Context, next: Next) => {
-        const session = await getSession(c);
+        const session = await getSessionFromContext(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-        const userPermissions = await getUserPermission(
-            c.env.DB,
-            session.user.id,
-        );
-        const hasPermission = permissions.some((p) =>
-            userPermissions.includes(p),
-        );
+        const userPermissions = await getUserPermission(c.env.DB, session.user.id);
+        const hasPermission = permissions.some((p) => userPermissions.includes(p));
 
         if (!hasPermission) return c.json({ error: "Forbidden" }, 403);
         return next();
@@ -152,11 +169,11 @@ export const requirePermission = (...permissions: string[]) => {
 ### Apply to Routes
 
 ```typescript
-// worker/routes/category.ts
-app.get('/api/category', requirePermission(PERMISSION.CATEGORY_READ), ...)
-app.post('/api/category', requirePermission(PERMISSION.CATEGORY_CREATE), ...)
-app.put('/api/category/:id', requirePermission(PERMISSION.CATEGORY_UPDATE), ...)
-app.delete('/api/category/:id', requirePermission(PERMISSION.CATEGORY_DELETE), ...)
+// worker/route/category.ts
+app.get("/", requirePermission(PERMISSION.CATEGORY_READ), ...)
+app.post("/", requirePermission(PERMISSION.CATEGORY_CREATE), ...)
+app.put("/:id", requirePermission(PERMISSION.CATEGORY_UPDATE), ...)
+app.delete("/:id", requirePermission(PERMISSION.CATEGORY_DELETE), ...)
 ```
 
 ---
@@ -166,127 +183,41 @@ app.delete('/api/category/:id', requirePermission(PERMISSION.CATEGORY_DELETE), .
 ### Permission Hook
 
 ```typescript
-// src/hooks/usePermission.ts
-export const usePermission = () => {
-    const { session } = useAuth();
+// src/hook/usePermission.ts
+export function usePermission() {
+    const { permissions, role } = useAuth();
 
-    const hasPermission = (permission: string) => {
-        return session?.permissions?.includes(permission) ?? false;
-    };
+    const can = useCallback((permission: string) => {
+        return permissions.includes(permission);
+    }, [permissions]);
 
-    const isAdmin = session?.role?.name === ROLE.ADMIN;
+    const isAdmin = role === ROLE.ADMIN;
 
-    return { hasPermission, isAdmin };
-};
+    return { can, isAdmin, role };
+}
 ```
 
 ### Permission Guard Component
 
 ```typescript
-// src/components/PermissionGuard.tsx
-export const PermissionGuard = ({
-    permission,
-    children,
-    fallback = null,
-}: {
-    permission: string;
-    children: React.ReactNode;
-    fallback?: React.ReactNode;
-}) => {
-    const { hasPermission } = usePermission();
-    return hasPermission(permission) ? children : fallback;
-};
+// src/component/PermissionGuard.tsx
+export function PermissionGuard({ permission, children, fallback = null }) {
+    const { can } = usePermission();
+    return can(permission) ? children : fallback;
+}
 ```
 
 ### Usage
 
 ```tsx
-// Hide delete button for users without permission
+// Hide button for users without permission
 <PermissionGuard permission={PERMISSION.CATEGORY_DELETE}>
-  <Button variant="danger" onClick={handleDelete}>Delete</Button>
+  <Button onClick={handleDelete}>Delete</Button>
 </PermissionGuard>
 
-// In hooks/logic
-const { hasPermission, isAdmin } = usePermission()
-if (hasPermission(PERMISSION.ORDER_CREATE)) { ... }
-```
-
----
-
-## Fetch Permissions
-
-On app load, fetch user with permissions:
-
-```typescript
-// API response shape
-interface AuthUser {
-    id: string;
-    name: string;
-    email: string;
-    role: {
-        id: number;
-        name: string;
-    };
-    permissions: string[]; // ['category:read', 'category:create', ...]
-}
-```
-
-Store in Zustand auth store. If API returns 403, refetch permissions.
-
----
-
-## API Endpoints
-
-### Auth (better-auth handles)
-
-```
-POST /api/auth/sign-in        - Login
-POST /api/auth/sign-out       - Logout
-GET  /api/auth/session        - Get current session
-```
-
-No sign-up route. No forgot password. No self-service password change.
-
-### User Management (admin only)
-
-```
-GET    /api/user              - List user
-GET    /api/user/:id          - User detail
-POST   /api/user              - Create user
-PUT    /api/user/:id          - Update user (including password reset)
-DELETE /api/user/:id          - Soft delete user
-```
-
-### Admin Creates User
-
-```typescript
-// POST /api/user
-{
-  email: "staff@company.com",
-  name: "Staff Name",
-  password: "password-given-by-boss",
-  roleId: 2
-}
-```
-
-### Admin Resets Password
-
-```typescript
-// PUT /api/user/:id
-{
-    password: "new-password-given-by-boss"; // Optional, only if resetting
-}
-```
-
-### Password Flow
-
-```
-Forgot password?
-  → Staff tells boss
-  → Boss goes to User Management
-  → Boss edits user, sets new password
-  → Boss gives new password on paper
-  → Staff logs in with new password
+// In logic
+const { can, isAdmin } = usePermission();
+if (can(PERMISSION.ORDER_CREATE)) { ... }
 ```
 
 ---
@@ -295,81 +226,126 @@ Forgot password?
 
 ```
 /scripts
-  seed-admin.ts               ← Create first admin
-  seed-rbac.ts                ← Seed roles & permissions
+  db-reset.ts              ← Full database reset script
+  drop-tables.sql          ← FK-safe table drop order
+  seed-admin.ts            ← Create first admin user
+  seed-rbac.sql            ← Seed roles & permissions
 
 /shared
-  /constants
-    permission.ts             ← PERMISSION, ROLE constants
+  /constant
+    permission.ts          ← PERMISSION, ROLE, ROLE_PERMISSIONS
+    auth.ts                ← AUTH_PROVIDER, ROLE_COLORS
 
 /worker
-  /db/schema
-    role.ts                   ← role table
-    permission.ts             ← permission table
-    rolePermission.ts         ← mapping table
-    user.ts                   ← user table
+  /db
+    schema.ts              ← Business tables (category, item, order, role, permission)
+    auth-schema.ts         ← Auth tables (user, session, account, verification)
+    audit-schema.ts        ← Audit log table
   /lib
-    middleware.ts             ← requirePermission(), requireAuth()
-    rbac.ts                   ← getUserPermission()
-  /routes
-    auth.ts                   ← better-auth routes (sign-in, sign-out, session only)
-    user.ts                   ← user CRUD (admin only)
+    middleware.ts          ← requireAuth(), requirePermission()
+    rbac.ts                ← getUserPermission() with caching
+    session-token.ts       ← HMAC signing for fast auth
+    audit.ts               ← Audit logging utilities
+  /route
+    auth.ts                ← better-auth routes
+    session-token.ts       ← Session token endpoints
+    me.ts                  ← Current user endpoint
+    user.ts                ← User CRUD (admin only)
 
 /src
-  /hooks
-    usePermission.ts          ← hasPermission(), isAdmin
-  /components
-    PermissionGuard.tsx       ← UI guard component
-  /store
-    auth.ts                   ← useAuthStore (session + permissions)
-  /pages
-    Login.tsx                 ← Login only (no register, no forgot password)
-    admin/
-      User.tsx                ← User management (create, edit, reset password)
+  /hook
+    usePermission.ts       ← can(), isAdmin
+  /component
+    PermissionGuard.tsx    ← UI guard component
+  /lib
+    AuthProvider.tsx       ← Auth context with optimistic loading
+    sessionCache.ts        ← localStorage cache utilities
+  /page
+    auth/LoginPage.tsx     ← Login only (no register)
+    user/UserPage.tsx      ← User management (admin)
+```
+
+---
+
+## Adding New Features
+
+### 1. Add New Permission
+
+```typescript
+// 1. shared/constant/permission.ts
+export const PERMISSION = {
+    // ... existing
+    REPORT_CREATE: "report:create",
+    REPORT_READ: "report:read",
+    // ...
+};
+
+// 2. Update ROLE_PERMISSIONS if needed
+export const ROLE_PERMISSIONS = {
+    [ROLE.ADMIN]: ALL_PERMISSIONS,
+    [ROLE.USER]: [...existing, PERMISSION.REPORT_CREATE, PERMISSION.REPORT_READ],
+    // ...
+};
+```
+
+### 2. Update seed-rbac.sql
+
+```sql
+-- Add new permissions
+INSERT OR IGNORE INTO permission (name, description) VALUES
+  ('report:create', 'Create reports'),
+  ('report:read', 'View reports');
+
+-- Update role mappings as needed
+```
+
+### 3. Run db:reset or manually seed
+
+```bash
+# Full reset (drops everything)
+bun run db:reset --local-only
+
+# Or just seed RBAC (if tables exist)
+bun run db:seed-rbac
+```
+
+---
+
+## Environment Variables
+
+```bash
+# Required for production
+SESSION_TOKEN_SECRET     # HMAC secret for signing tokens (set via wrangler secret)
+
+# For seeding admin
+ADMIN_EMAIL              # Admin email (default: admin@test.com)
+ADMIN_PASSWORD           # Admin password (default: random)
+ADMIN_NAME               # Admin name (default: Admin)
 ```
 
 ---
 
 ## Strict Rules
 
-1. **Use PERMISSION constants** — No hardcoded strings like `'category:delete'`
+1. **Use PERMISSION constants** — No hardcoded strings
 2. **Named exports** — No default exports
 3. **Singular naming** — `permission.ts` not `permissions.ts`
 4. **Check permission via hook** — No direct session access in components
-5. **Backend always validates** — Never trust frontend permission check alone
-6. **403 handling** — Frontend handles 403 gracefully (show message or refetch)
-
----
-
-## Build Order
-
-1. Database schema + migration
-2. Seed roles & permissions script
-3. Seed admin script
-4. Backend middleware `requirePermission()`, `requireAuth()`
-5. Auth routes (sign-in, sign-out, session only)
-6. User CRUD routes (admin only)
-7. Apply permissions to all routes
-8. Frontend login page (no register, no forgot password)
-9. Frontend `usePermission` hook
-10. Frontend `<PermissionGuard>` component
-11. User management page (admin creates/edits/resets password)
-12. Test all roles
+5. **Backend always validates** — Never trust frontend permission check
+6. **publicId for API** — Use publicId in URLs, not internal id
+7. **Audit sensitive actions** — Log user create/update/delete
 
 ---
 
 ## Success Criteria
 
-- [ ] No registration route exists
-- [ ] No forgot password route exists
-- [ ] No self-service password change
-- [ ] Admin created via seed script
-- [ ] Admin can create users with password
-- [ ] Admin can reset user password
-- [ ] Admin can CRUD roles and permissions
-- [ ] User can CRUD category/item/order (based on role)
-- [ ] Viewer can only read
-- [ ] Delete button hidden for viewer (frontend)
-- [ ] API returns 403 for unauthorized (backend)
-- [ ] Permission constants used everywhere
-- [ ] Login page has no "Register" or "Forgot Password" link
+- [x] No registration route exists
+- [x] No forgot password route exists
+- [x] Admin created via seed script
+- [x] Admin can create users with password
+- [x] Admin can reset user password
+- [x] Permission-based access control
+- [x] Fast auth (no "Checking authentication..." delay)
+- [x] Audit logging for user management
+- [x] Permission constants used everywhere
+- [x] Login page has no "Register" or "Forgot Password" link

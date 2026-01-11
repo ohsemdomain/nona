@@ -6,6 +6,7 @@ import {
 	meRoute,
 	orderRoute,
 	userRoute,
+	sessionTokenRoute,
 } from "./route";
 import { requireAuth, authRateLimit, apiRateLimit } from "./lib";
 
@@ -22,6 +23,10 @@ app.get("/api/health", (c) => {
 app.use("/api/auth/sign-in/*", authRateLimit);
 app.use("/api/auth/sign-up/*", authRateLimit);
 app.route("/api/auth", authRoute);
+
+// Session token routes (requires auth, for fast session caching)
+app.use("/api/session/*", requireAuth);
+app.route("/api/session", sessionTokenRoute);
 
 // Protected routes - rate limit + authentication
 app.use("/api/category/*", apiRateLimit);

@@ -39,7 +39,7 @@
 	"env": {
 		"dev": {
 			"vars": {
-				"TRUSTED_ORIGIN": "http://localhost:5650,http://192.168.2.154:5650"
+				"TRUSTED_ORIGIN": "http://localhost:5655,http://192.168.2.154:5655"
 			}
 		},
 		"production": {

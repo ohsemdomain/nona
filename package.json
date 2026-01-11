@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite --host --port=5650",
+		"dev": "vite --host --port=5655",
 		"build": "tsc -b && vite build",
 		"deploy": "bun run build && wrangler deploy",
 		"db:generate": "drizzle-kit generate",
@@ -12,7 +12,8 @@
 		"db:migrate:prod": "wrangler d1 migrations apply DB --remote",
 		"db:studio": "drizzle-kit studio",
 		"db:seed-rbac": "wrangler d1 execute DB --local --file=scripts/seed-rbac.sql",
-		"db:seed-admin": "bun run scripts/seed-admin.ts"
+		"db:seed-admin": "bun run scripts/seed-admin.ts",
+		"db:reset": "bun run scripts/db-reset.ts"
 	},
 	"dependencies": {
 		"@hono/zod-validator": "^0.4.1",
