@@ -184,7 +184,7 @@ export function OrderFormPage() {
 	if (isEdit && isLoadingOrder) {
 		return (
 			<div className="flex h-full items-center justify-center">
-				<LoadingState message="Loading order..." />
+				<LoadingState />
 			</div>
 		);
 	}

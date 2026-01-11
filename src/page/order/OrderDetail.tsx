@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { Button, DetailPanelHeader, LoadingState } from "@/src/component";
+import { Button, DetailPanelHeader, SkeletonOrderDetail } from "@/src/component";
 import { formatDateTime } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
 import { api } from "@/src/lib/api";
@@ -21,7 +21,7 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 	});
 
 	if (isLoading) {
-		return <LoadingState message="Loading order detail..." />;
+		return <SkeletonOrderDetail lineCount={3} />;
 	}
 
 	const orderData = fullOrder ?? order;
