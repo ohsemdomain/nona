@@ -15,3 +15,23 @@ export function updatedTimestamp() {
 		updatedAt: nowUnix(),
 	};
 }
+
+/**
+ * Timestamps for auth tables that use Date mode in Drizzle
+ */
+export function authTimestamps() {
+	const now = new Date();
+	return {
+		createdAt: now,
+		updatedAt: now,
+	};
+}
+
+/**
+ * Updated timestamp for auth tables that use Date mode in Drizzle
+ */
+export function authUpdatedTimestamp() {
+	return {
+		updatedAt: new Date(),
+	};
+}

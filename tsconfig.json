@@ -16,7 +16,7 @@
 			"@/src/*": ["./src/*"],
 			"@/worker/*": ["./worker/*"]
 		},
-		"types": ["vite/client", "@cloudflare/workers-types"],
+		"types": ["vite/client", "@cloudflare/workers-types", "bun"],
 		"skipLibCheck": true,
 		"strict": true,
 		"noUnusedLocals": true,

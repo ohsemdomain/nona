@@ -1,5 +1,12 @@
 import { Hono } from "hono";
-import { authRoute, categoryRoute, itemRoute, orderRoute } from "./route";
+import {
+	authRoute,
+	categoryRoute,
+	itemRoute,
+	meRoute,
+	orderRoute,
+	userRoute,
+} from "./route";
 import { requireAuth, authRateLimit, apiRateLimit } from "./lib";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -29,6 +36,16 @@ app.use("/api/order/*", requireAuth);
 app.route("/api/category", categoryRoute);
 app.route("/api/item", itemRoute);
 app.route("/api/order", orderRoute);
+
+// User routes (admin only - permission check in route handlers)
+app.use("/api/user/*", apiRateLimit);
+app.use("/api/user/*", requireAuth);
+app.route("/api/user", userRoute);
+
+// Current user route (self info with role/permissions)
+app.use("/api/me", apiRateLimit);
+app.use("/api/me", requireAuth);
+app.route("/api/me", meRoute);
 
 // API 404 handler - must be before static asset catch-all
 app.all("/api/*", (c) => {

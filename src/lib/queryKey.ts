@@ -16,4 +16,9 @@ export const queryKey = {
 			["order", "list", param] as const,
 		detail: (id: string) => ["order", "detail", id] as const,
 	},
+	user: {
+		all: ["user"] as const,
+		list: (param?: Record<string, unknown>) => ["user", "list", param] as const,
+		detail: (id: string) => ["user", "detail", id] as const,
+	},
 };

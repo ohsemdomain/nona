@@ -3,6 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { eq, isNull, and, like, sql } from "drizzle-orm";
 import { createDb, item, category } from "../db";
 import { createItemSchema, updateItemSchema } from "../../shared/schema/item";
+import { PERMISSION } from "../../shared/constant/permission";
 import {
 	generatePublicId,
 	timestamps,
@@ -13,12 +14,13 @@ import {
 	conflict,
 	checkDependencies,
 	parsePagination,
+	requirePermission,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
 
 // GET /api/item - List (paginated, filterable)
-app.get("/", async (c) => {
+app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 	const db = createDb(c.env.DB);
 	const query = c.req.query();
 	const { search, categoryId } = query;
@@ -27,11 +29,15 @@ app.get("/", async (c) => {
 	let whereClause = isNull(item.deletedAt);
 
 	if (search) {
-		whereClause = and(whereClause, like(item.name, `%${search}%`))!;
+		whereClause = and(whereClause, like(item.name, `%${search}%`)) ?? whereClause;
 	}
 
 	if (categoryId) {
-		whereClause = and(whereClause, eq(item.categoryId, parseInt(categoryId)))!;
+		const categoryIdNum = parseInt(categoryId, 10);
+		if (isNaN(categoryIdNum)) {
+			return c.json({ error: "Invalid category ID" }, 400);
+		}
+		whereClause = and(whereClause, eq(item.categoryId, categoryIdNum)) ?? whereClause;
 	}
 
 	const [data, countResult] = await Promise.all([
@@ -64,7 +70,7 @@ app.get("/", async (c) => {
 });
 
 // GET /api/item/:id - Detail
-app.get("/:id", async (c) => {
+app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
 
@@ -97,90 +103,104 @@ app.get("/:id", async (c) => {
 });
 
 // POST /api/item - Create
-app.post("/", zValidator("json", createItemSchema), async (c) => {
-	const db = createDb(c.env.DB);
-	const input = c.req.valid("json");
+app.post(
+	"/",
+	requirePermission(PERMISSION.ITEM_CREATE),
+	zValidator("json", createItemSchema),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const input = c.req.valid("json");
 
-	// Verify category exists
-	const categoryExists = await db
-		.select({ id: category.id })
-		.from(category)
-		.where(and(eq(category.id, input.categoryId), isNull(category.deletedAt)))
-		.limit(1);
-
-	if (categoryExists.length === 0) {
-		return badRequest(c, "Category not found");
-	}
-
-	const result = await db
-		.insert(item)
-		.values({
-			publicId: generatePublicId(),
-			name: input.name,
-			categoryId: input.categoryId,
-			price: input.price,
-			...timestamps(),
-		})
-		.returning();
-
-	return c.json(result[0], 201);
-});
-
-// PUT /api/item/:id - Update with optimistic locking
-app.put("/:id", zValidator("json", updateItemSchema), async (c) => {
-	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
-	const input = c.req.valid("json");
-
-	// Verify category if changing
-	if (input.categoryId) {
+		// Verify category exists
 		const categoryExists = await db
 			.select({ id: category.id })
 			.from(category)
-			.where(and(eq(category.id, input.categoryId), isNull(category.deletedAt)))
+			.where(
+				and(eq(category.id, input.categoryId), isNull(category.deletedAt)),
+			)
 			.limit(1);
 
 		if (categoryExists.length === 0) {
 			return badRequest(c, "Category not found");
 		}
-	}
 
-	// Update with optimistic locking - check updatedAt matches
-	const { updatedAt, ...updateData } = input;
-	const result = await db
-		.update(item)
-		.set({
-			...updateData,
-			...updatedTimestamp(),
-		})
-		.where(
-			and(
-				eq(item.publicId, publicId),
-				isNull(item.deletedAt),
-				eq(item.updatedAt, updatedAt),
-			),
-		)
-		.returning();
+		const result = await db
+			.insert(item)
+			.values({
+				publicId: generatePublicId(),
+				name: input.name,
+				categoryId: input.categoryId,
+				price: input.price,
+				...timestamps(),
+			})
+			.returning();
 
-	// If no rows updated, check if record exists or was modified
-	if (result.length === 0) {
-		const current = await db
-			.select()
-			.from(item)
-			.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
-			.limit(1);
+		return c.json(result[0], 201);
+	},
+);
 
-		if (current.length > 0) {
-			return conflict(c, "Item was modified. Please refresh and try again.");
+// PUT /api/item/:id - Update with optimistic locking
+app.put(
+	"/:id",
+	requirePermission(PERMISSION.ITEM_UPDATE),
+	zValidator("json", updateItemSchema),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const publicId = c.req.param("id");
+		const input = c.req.valid("json");
+
+		// Verify category if changing
+		if (input.categoryId) {
+			const categoryExists = await db
+				.select({ id: category.id })
+				.from(category)
+				.where(
+					and(eq(category.id, input.categoryId), isNull(category.deletedAt)),
+				)
+				.limit(1);
+
+			if (categoryExists.length === 0) {
+				return badRequest(c, "Category not found");
+			}
 		}
-		return notFound(c, "Item not found");
-	}
 
-	return c.json(result[0]);
-});
+		// Update with optimistic locking - check updatedAt matches
+		const { updatedAt, ...updateData } = input;
+		const result = await db
+			.update(item)
+			.set({
+				...updateData,
+				...updatedTimestamp(),
+			})
+			.where(
+				and(
+					eq(item.publicId, publicId),
+					isNull(item.deletedAt),
+					eq(item.updatedAt, updatedAt),
+				),
+			)
+			.returning();
+
+		// If no rows updated, check if record exists or was modified
+		if (result.length === 0) {
+			const current = await db
+				.select()
+				.from(item)
+				.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+				.limit(1);
+
+			if (current.length > 0) {
+				return conflict(c, "Item was modified. Please refresh and try again.");
+			}
+			return notFound(c, "Item not found");
+		}
+
+		return c.json(result[0]);
+	},
+);
 
 // DELETE /api/item/:id - Soft delete with TOCTOU protection
-app.delete("/:id", async (c) => {
+app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
 

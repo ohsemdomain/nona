@@ -1,12 +1,13 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { queryKey } from "./queryKey";
 
-type Entity = "category" | "item" | "order";
+type Entity = "category" | "item" | "order" | "user";
 
 const relatedEntityMap: Record<Entity, Entity[]> = {
 	category: ["item", "order"], // Transitive: category affects items AND orders
 	item: ["order"],
 	order: [],
+	user: [],
 };
 
 export function invalidateRelated(

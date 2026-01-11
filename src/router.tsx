@@ -3,18 +3,14 @@ import { Layout, ProtectedRoute, RouteErrorBoundary } from "@/src/component";
 import { CategoryPage } from "@/src/page/category";
 import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
-import { LoginPage, RegisterPage } from "@/src/page/auth";
+import { UserPage } from "@/src/page/user";
+import { LoginPage } from "@/src/page/auth";
 
 export const router = createBrowserRouter([
 	// Public auth routes (no layout)
 	{
 		path: "/login",
 		element: <LoginPage />,
-		errorElement: <RouteErrorBoundary />,
-	},
-	{
-		path: "/register",
-		element: <RegisterPage />,
 		errorElement: <RouteErrorBoundary />,
 	},
 	// Protected routes (with layout)
@@ -54,6 +50,11 @@ export const router = createBrowserRouter([
 			{
 				path: "order/:id/edit",
 				element: <OrderFormPage />,
+				errorElement: <RouteErrorBoundary />,
+			},
+			{
+				path: "user",
+				element: <UserPage />,
 				errorElement: <RouteErrorBoundary />,
 			},
 		],

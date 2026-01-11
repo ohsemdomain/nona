@@ -19,3 +19,4 @@ export type {
 	CreateOrderLineInput,
 } from "./order";
 export { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "./order";
+export type { User, CreateUserInput, UpdateUserInput } from "./user";

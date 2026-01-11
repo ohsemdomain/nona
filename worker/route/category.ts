@@ -6,6 +6,7 @@ import {
 	createCategorySchema,
 	updateCategorySchema,
 } from "../../shared/schema/category";
+import { PERMISSION } from "../../shared/constant/permission";
 import {
 	generatePublicId,
 	timestamps,
@@ -15,12 +16,13 @@ import {
 	conflict,
 	checkDependencies,
 	parsePagination,
+	requirePermission,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
 
 // GET /api/category - List (paginated, filterable)
-app.get("/", async (c) => {
+app.get("/", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 	const db = createDb(c.env.DB);
 	const query = c.req.query();
 	const { search } = query;
@@ -49,7 +51,7 @@ app.get("/", async (c) => {
 });
 
 // GET /api/category/:id - Detail
-app.get("/:id", async (c) => {
+app.get("/:id", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
 
@@ -67,97 +69,114 @@ app.get("/:id", async (c) => {
 });
 
 // POST /api/category - Create
-app.post("/", zValidator("json", createCategorySchema), async (c) => {
-	const db = createDb(c.env.DB);
-	const input = c.req.valid("json");
+app.post(
+	"/",
+	requirePermission(PERMISSION.CATEGORY_CREATE),
+	zValidator("json", createCategorySchema),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const input = c.req.valid("json");
 
-	const result = await db
-		.insert(category)
-		.values({
-			publicId: generatePublicId(),
-			name: input.name,
-			...timestamps(),
-		})
-		.returning();
+		const result = await db
+			.insert(category)
+			.values({
+				publicId: generatePublicId(),
+				name: input.name,
+				...timestamps(),
+			})
+			.returning();
 
-	return c.json(result[0], 201);
-});
+		return c.json(result[0], 201);
+	},
+);
 
 // PUT /api/category/:id - Update with optimistic locking
-app.put("/:id", zValidator("json", updateCategorySchema), async (c) => {
-	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
-	const input = c.req.valid("json");
+app.put(
+	"/:id",
+	requirePermission(PERMISSION.CATEGORY_UPDATE),
+	zValidator("json", updateCategorySchema),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const publicId = c.req.param("id");
+		const input = c.req.valid("json");
 
-	// Update with optimistic locking - check updatedAt matches
-	const result = await db
-		.update(category)
-		.set({
-			name: input.name,
-			...updatedTimestamp(),
-		})
-		.where(
-			and(
-				eq(category.publicId, publicId),
-				isNull(category.deletedAt),
-				eq(category.updatedAt, input.updatedAt),
-			),
-		)
-		.returning();
+		// Update with optimistic locking - check updatedAt matches
+		const result = await db
+			.update(category)
+			.set({
+				name: input.name,
+				...updatedTimestamp(),
+			})
+			.where(
+				and(
+					eq(category.publicId, publicId),
+					isNull(category.deletedAt),
+					eq(category.updatedAt, input.updatedAt),
+				),
+			)
+			.returning();
 
-	// If no rows updated, check if record exists or was modified
-	if (result.length === 0) {
-		const current = await db
+		// If no rows updated, check if record exists or was modified
+		if (result.length === 0) {
+			const current = await db
+				.select()
+				.from(category)
+				.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+				.limit(1);
+
+			if (current.length > 0) {
+				return conflict(
+					c,
+					"Category was modified. Please refresh and try again.",
+				);
+			}
+			return notFound(c, "Category not found");
+		}
+
+		return c.json(result[0]);
+	},
+);
+
+// DELETE /api/category/:id - Soft delete with TOCTOU protection
+app.delete(
+	"/:id",
+	requirePermission(PERMISSION.CATEGORY_DELETE),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const publicId = c.req.param("id");
+
+		const existing = await db
 			.select()
 			.from(category)
 			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
 			.limit(1);
 
-		if (current.length > 0) {
-			return conflict(c, "Category was modified. Please refresh and try again.");
+		if (existing.length === 0) {
+			return notFound(c, "Category not found");
 		}
-		return notFound(c, "Category not found");
-	}
 
-	return c.json(result[0]);
-});
+		// Check dependencies before delete
+		const { hasDependencies, message } = await checkDependencies(
+			db,
+			"category",
+			existing[0].id,
+		);
 
-// DELETE /api/category/:id - Soft delete with TOCTOU protection
-app.delete("/:id", async (c) => {
-	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+		if (hasDependencies) {
+			return conflict(c, message!);
+		}
 
-	const existing = await db
-		.select()
-		.from(category)
-		.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
-		.limit(1);
+		// Soft delete
+		await db
+			.update(category)
+			.set({
+				deletedAt: Date.now(),
+				...updatedTimestamp(),
+			})
+			.where(eq(category.publicId, publicId));
 
-	if (existing.length === 0) {
-		return notFound(c, "Category not found");
-	}
-
-	// Check dependencies before delete
-	const { hasDependencies, message } = await checkDependencies(
-		db,
-		"category",
-		existing[0].id,
-	);
-
-	if (hasDependencies) {
-		return conflict(c, message!);
-	}
-
-	// Soft delete
-	await db
-		.update(category)
-		.set({
-			deletedAt: Date.now(),
-			...updatedTimestamp(),
-		})
-		.where(eq(category.publicId, publicId));
-
-	return c.json({ success: true });
-});
+		return c.json({ success: true });
+	},
+);
 
 export { app as categoryRoute };

@@ -18,3 +18,4 @@ export { DataTable } from "./DataTable";
 export { NavBar } from "./NavBar";
 export { Layout } from "./Layout";
 export { ProtectedRoute } from "./ProtectedRoute";
+export { PermissionGuard } from "./PermissionGuard";

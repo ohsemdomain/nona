@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FormField, Input, Button } from "@/src/component";
 import { signIn } from "@/src/lib/auth";
 import { useAuth } from "@/src/lib/AuthProvider";
@@ -123,14 +123,8 @@ export function LoginPage() {
 					</Button>
 				</form>
 
-				<p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-					Don't have an account?{" "}
-					<Link
-						to="/register"
-						className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-					>
-						Sign up
-					</Link>
+				<p className="text-center text-sm text-zinc-500 dark:text-zinc-500">
+					Contact admin for account access
 				</p>
 			</div>
 		</div>

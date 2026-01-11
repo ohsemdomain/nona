@@ -6,7 +6,7 @@ import { queryKey } from "@/src/lib/queryKey";
 import { useFilter } from "./useFilter";
 import { usePagination } from "./usePagination";
 
-type Entity = "category" | "item" | "order";
+type Entity = "category" | "item" | "order" | "user";
 
 interface ListResponse<T> {
 	data: T[];

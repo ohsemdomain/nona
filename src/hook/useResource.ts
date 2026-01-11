@@ -4,7 +4,7 @@ import { queryKey } from "@/src/lib/queryKey";
 import { invalidateRelated } from "@/src/lib/invalidation";
 import { TOAST } from "@/src/lib/toast";
 
-type Entity = "category" | "item" | "order";
+type Entity = "category" | "item" | "order" | "user";
 
 interface ListResponse<T> {
 	data: T[];
