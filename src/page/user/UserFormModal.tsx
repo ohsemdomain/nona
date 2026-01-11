@@ -9,7 +9,7 @@ import type { User, CreateUserInput, UpdateUserInput } from "@/shared/type";
 
 interface UserFormModalProp {
 	id: string;
-	onSuccess?: () => void;
+	onSuccess?: (user: User) => void;
 	onClose?: () => void;
 }
 
@@ -68,10 +68,10 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 
 	const createMutation = useMutation({
 		mutationFn: (data: CreateUserInput) => api.post<User>("/user", data),
-		onSuccess: () => {
+		onSuccess: (user) => {
 			TOAST.created("User");
 			closeModal(id);
-			onSuccess?.();
+			onSuccess?.(user);
 		},
 		onError: handleApiError,
 	});
@@ -79,10 +79,10 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 	const updateMutation = useMutation({
 		mutationFn: ({ publicId, data }: { publicId: string; data: UpdateUserInput }) =>
 			api.put<User>(`/user/${publicId}`, data),
-		onSuccess: () => {
+		onSuccess: (user) => {
 			TOAST.updated("User");
 			closeModal(id);
-			onSuccess?.();
+			onSuccess?.(user);
 		},
 		onError: handleApiError,
 	});
