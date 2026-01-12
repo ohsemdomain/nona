@@ -17,7 +17,7 @@ import type {
 	CreateItemInput,
 	UpdateItemInput,
 } from "@/shared/type";
-import { CategoryFormModal } from "@/src/page/category/CategoryFormModal";
+import { CategoryFormModal } from "@/src/feature/category";
 
 interface ItemFormModalProp {
 	id: string;

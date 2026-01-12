@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Layers, Package, ShoppingCart, LogOut, User, Users } from "lucide-react";
+import { Layers, Package, ShoppingCart, LogOut, User, Settings } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/src/lib/AuthProvider";
 import { usePermission } from "@/src/hook/usePermission";
@@ -50,7 +50,7 @@ export function NavBar() {
 					))}
 					{hasPermission(PERMISSION.USER_READ) && (
 						<NavLink
-							to="/user"
+							to="/setting"
 							className={({ isActive }) =>
 								clsx(
 									"flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
@@ -60,8 +60,8 @@ export function NavBar() {
 								)
 							}
 						>
-							<Users className="h-4 w-4" />
-							User
+							<Settings className="h-4 w-4" />
+							Setting
 						</NavLink>
 					)}
 				</div>

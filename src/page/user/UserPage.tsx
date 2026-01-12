@@ -17,9 +17,11 @@ import {
 import { PERMISSION } from "@/shared/constant/permission";
 import { getRoleColorClasses } from "@/shared/constant/auth";
 import type { User } from "@/shared/type";
-import { UserDetail } from "./UserDetail";
-import { UserFormModal } from "./UserFormModal";
-import { UserDeleteDialog } from "./UserDeleteDialog";
+import {
+	UserDetail,
+	UserFormModal,
+	UserDeleteDialog,
+} from "@/src/feature/user";
 
 const MODAL_ID = {
 	create: "user-create",

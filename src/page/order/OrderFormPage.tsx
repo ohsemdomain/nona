@@ -23,7 +23,7 @@ import type {
 	UpdateOrderInput,
 } from "@/shared/type";
 import { ORDER_STATUS_LABEL } from "@/shared/type";
-import { ItemFormModal } from "@/src/page/item/ItemFormModal";
+import { ItemFormModal } from "@/src/feature/item";
 
 interface FormLine {
 	key: string;

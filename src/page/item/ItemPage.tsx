@@ -15,9 +15,11 @@ import {
 } from "@/src/component";
 import { formatMoney } from "@/src/lib/format";
 import type { Item } from "@/shared/type";
-import { ItemDetail } from "./ItemDetail";
-import { ItemFormModal } from "./ItemFormModal";
-import { ItemDeleteDialog } from "./ItemDeleteDialog";
+import {
+	ItemDetail,
+	ItemFormModal,
+	ItemDeleteDialog,
+} from "@/src/feature/item";
 
 const MODAL_ID = {
 	create: "item-create",

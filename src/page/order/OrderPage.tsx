@@ -17,8 +17,7 @@ import { formatMoney } from "@/src/lib/format";
 import { formatDate } from "@/src/lib/date";
 import type { Order } from "@/shared/type";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "@/shared/type";
-import { OrderDetail } from "./OrderDetail";
-import { OrderDeleteDialog } from "./OrderDeleteDialog";
+import { OrderDetail, OrderDeleteDialog } from "@/src/feature/order";
 
 const MODAL_ID = {
 	delete: "order-delete",

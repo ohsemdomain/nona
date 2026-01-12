@@ -14,9 +14,11 @@ import {
 	SkeletonDetailPanel,
 } from "@/src/component";
 import type { Category } from "@/shared/type";
-import { CategoryDetail } from "./CategoryDetail";
-import { CategoryFormModal } from "./CategoryFormModal";
-import { CategoryDeleteDialog } from "./CategoryDeleteDialog";
+import {
+	CategoryDetail,
+	CategoryFormModal,
+	CategoryDeleteDialog,
+} from "@/src/feature/category";
 
 const MODAL_ID = {
 	create: "category-create",

@@ -4,6 +4,7 @@ import { CategoryPage } from "@/src/page/category";
 import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
 import { UserPage } from "@/src/page/user";
+import { SettingPage } from "@/src/page/setting";
 import { LoginPage } from "@/src/page/auth";
 
 export const router = createBrowserRouter([
@@ -53,9 +54,20 @@ export const router = createBrowserRouter([
 				errorElement: <RouteErrorBoundary />,
 			},
 			{
-				path: "user",
-				element: <UserPage />,
+				path: "setting",
+				element: <SettingPage />,
 				errorElement: <RouteErrorBoundary />,
+				children: [
+					{
+						index: true,
+						element: <Navigate to="/setting/user" replace />,
+					},
+					{
+						path: "user",
+						element: <UserPage />,
+						errorElement: <RouteErrorBoundary />,
+					},
+				],
 			},
 		],
 	},
