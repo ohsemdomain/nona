@@ -1,12 +1,14 @@
 import { useCallback } from "react";
 import { useAuth } from "@/src/lib/AuthProvider";
-import { ROLE, type PermissionValue } from "@/shared/constant/permission";
+import type { PermissionValue } from "@/shared/constant/permission";
 
 export function usePermission() {
 	const { role, permissions } = useAuth();
 
 	const hasPermission = useCallback(
 		(permission: PermissionValue | string): boolean => {
+			// system:admin bypasses all checks
+			if (permissions.includes("system:admin")) return true;
 			return permissions.includes(permission);
 		},
 		[permissions],
@@ -14,6 +16,7 @@ export function usePermission() {
 
 	const hasAnyPermission = useCallback(
 		(...requiredPermissions: (PermissionValue | string)[]): boolean => {
+			if (permissions.includes("system:admin")) return true;
 			return requiredPermissions.some((p) => permissions.includes(p));
 		},
 		[permissions],
@@ -21,14 +24,13 @@ export function usePermission() {
 
 	const hasAllPermissions = useCallback(
 		(...requiredPermissions: (PermissionValue | string)[]): boolean => {
+			if (permissions.includes("system:admin")) return true;
 			return requiredPermissions.every((p) => permissions.includes(p));
 		},
 		[permissions],
 	);
 
-	const isAdmin = role === ROLE.ADMIN;
-	const isUser = role === ROLE.USER;
-	const isViewer = role === ROLE.VIEWER;
+	const isAdmin = permissions.includes("system:admin");
 
 	return {
 		role,
@@ -37,7 +39,5 @@ export function usePermission() {
 		hasAnyPermission,
 		hasAllPermissions,
 		isAdmin,
-		isUser,
-		isViewer,
 	};
 }
