@@ -18,6 +18,9 @@ export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
 export const AUDIT_RESOURCE = {
 	USER: "user",
 	ROLE: "role",
+	CATEGORY: "category",
+	ITEM: "item",
+	ORDER: "order",
 } as const;
 
 export type AuditResource = (typeof AUDIT_RESOURCE)[keyof typeof AUDIT_RESOURCE];

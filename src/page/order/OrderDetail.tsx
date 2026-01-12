@@ -1,6 +1,16 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { Button, DetailPanelHeader, SkeletonOrderDetail } from "@/src/component";
+import {
+	Button,
+	DetailPanelHeader,
+	SkeletonOrderDetail,
+	TabGroup,
+	TabList,
+	Tab,
+	TabPanels,
+	TabPanel,
+	HistoryLogPanel,
+} from "@/src/component";
 import { formatDateTime } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
 import { api } from "@/src/lib/api";
@@ -45,80 +55,108 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 				}
 			/>
 
-			<div className="space-y-4">
-				<div className="flex items-center gap-4">
-					<div className="flex-1">
-						<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-							Status
-						</dt>
-						<dd className="mt-1">
-							<span
-								className={`inline-block rounded-full px-2.5 py-1 text-sm font-medium ${ORDER_STATUS_COLOR[orderData.status]}`}
-							>
-								{ORDER_STATUS_LABEL[orderData.status]}
-							</span>
-						</dd>
-					</div>
-					<div className="flex-1">
-						<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-							Total
-						</dt>
-						<dd className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-							{formatMoney(orderData.total)}
-						</dd>
-					</div>
-				</div>
+			<TabGroup defaultTab="detail">
+				<TabList aria-label="Order detail navigation">
+					<Tab id="detail">Detail</Tab>
+					<Tab id="history">History</Tab>
+				</TabList>
 
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Created
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{formatDateTime(orderData.createdAt)}
-					</dd>
-				</div>
-
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Last Updated
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{formatDateTime(orderData.updatedAt)}
-					</dd>
-				</div>
-			</div>
-
-			<div className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
-				<h3 className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
-					Order Line ({lineList.length})
-				</h3>
-				{lineList.length === 0 ? (
-					<p className="text-sm text-zinc-500 dark:text-zinc-400">
-						No item in this order.
-					</p>
-				) : (
-					<div className="space-y-2">
-						{lineList.map((line) => (
-							<div
-								key={line.id}
-								className="flex items-center justify-between rounded border border-zinc-200 p-3 dark:border-zinc-700"
-							>
-								<div className="min-w-0 flex-1">
-									<p className="font-medium text-zinc-900 dark:text-zinc-100">
-										{line.item?.name ?? "Unknown Item"}
-									</p>
-									<p className="text-sm text-zinc-500 dark:text-zinc-400">
-										{formatMoney(line.unitPrice)} x {line.quantity}
-									</p>
+				<TabPanels>
+					<TabPanel id="detail">
+						<div className="space-y-4">
+							<div className="flex items-center gap-4">
+								<div className="flex-1">
+									<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+										Status
+									</dt>
+									<dd className="mt-1">
+										<span
+											className={`inline-block rounded-full px-2.5 py-1 text-sm font-medium ${ORDER_STATUS_COLOR[orderData.status]}`}
+										>
+											{ORDER_STATUS_LABEL[orderData.status]}
+										</span>
+									</dd>
 								</div>
-								<span className="shrink-0 font-medium text-zinc-900 dark:text-zinc-100">
-									{formatMoney(line.lineTotal)}
-								</span>
+								<div className="flex-1">
+									<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+										Total
+									</dt>
+									<dd className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+										{formatMoney(orderData.total)}
+									</dd>
+								</div>
 							</div>
-						))}
-					</div>
-				)}
-			</div>
+
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Created
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{formatDateTime(orderData.createdAt)}
+									{orderData.createdByName && (
+										<span className="text-zinc-500 dark:text-zinc-400">
+											{" "}by {orderData.createdByName}
+										</span>
+									)}
+								</dd>
+							</div>
+
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Last Updated
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{formatDateTime(orderData.updatedAt)}
+									{orderData.updatedByName && (
+										<span className="text-zinc-500 dark:text-zinc-400">
+											{" "}by {orderData.updatedByName}
+										</span>
+									)}
+								</dd>
+							</div>
+
+							<div className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
+								<h3 className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+									Order Line ({lineList.length})
+								</h3>
+								{lineList.length === 0 ? (
+									<p className="text-sm text-zinc-500 dark:text-zinc-400">
+										No item in this order.
+									</p>
+								) : (
+									<div className="space-y-2">
+										{lineList.map((line) => (
+											<div
+												key={line.id}
+												className="flex items-center justify-between rounded border border-zinc-200 p-3 dark:border-zinc-700"
+											>
+												<div className="min-w-0 flex-1">
+													<p className="font-medium text-zinc-900 dark:text-zinc-100">
+														{line.item?.name ?? "Unknown Item"}
+													</p>
+													<p className="text-sm text-zinc-500 dark:text-zinc-400">
+														{formatMoney(line.unitPrice)} x {line.quantity}
+													</p>
+												</div>
+												<span className="shrink-0 font-medium text-zinc-900 dark:text-zinc-100">
+													{formatMoney(line.lineTotal)}
+												</span>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+						</div>
+					</TabPanel>
+
+					<TabPanel id="history">
+						<HistoryLogPanel
+							resourceType="order"
+							resourceId={orderData.publicId}
+						/>
+					</TabPanel>
+				</TabPanels>
+			</TabGroup>
 		</div>
 	);
 }

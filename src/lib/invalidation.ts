@@ -4,7 +4,7 @@ import { queryKey } from "./queryKey";
 type Entity = "category" | "item" | "order" | "user";
 
 const relatedEntityMap: Record<Entity, Entity[]> = {
-	category: ["item", "order"], // Transitive: category affects items AND orders
+	category: ["item", "order"], // Transitive: category affects item AND order
 	item: ["order"],
 	order: [],
 	user: [],

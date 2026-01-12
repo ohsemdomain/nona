@@ -1,5 +1,14 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { Button, DetailPanelHeader } from "@/src/component";
+import {
+	Button,
+	DetailPanelHeader,
+	TabGroup,
+	TabList,
+	Tab,
+	TabPanels,
+	TabPanel,
+	HistoryLogPanel,
+} from "@/src/component";
 import { formatDateTime } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
 import type { Item } from "@/shared/type";
@@ -29,50 +38,79 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 				}
 			/>
 
-			<div className="space-y-4">
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Name
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">{item.name}</dd>
-				</div>
+			<TabGroup defaultTab="detail">
+				<TabList aria-label="Item detail navigation">
+					<Tab id="detail">Detail</Tab>
+					<Tab id="history">History</Tab>
+				</TabList>
 
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Category
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{item.category?.name ?? "No category"}
-					</dd>
-				</div>
+				<TabPanels>
+					<TabPanel id="detail">
+						<div className="space-y-4">
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Name
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">{item.name}</dd>
+							</div>
 
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Price
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{formatMoney(item.price)}
-					</dd>
-				</div>
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Category
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{item.category?.name ?? "No category"}
+								</dd>
+							</div>
 
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Created
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{formatDateTime(item.createdAt)}
-					</dd>
-				</div>
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Price
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{formatMoney(item.price)}
+								</dd>
+							</div>
 
-				<div>
-					<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-						Last Updated
-					</dt>
-					<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
-						{formatDateTime(item.updatedAt)}
-					</dd>
-				</div>
-			</div>
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Created
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{formatDateTime(item.createdAt)}
+									{item.createdByName && (
+										<span className="text-zinc-500 dark:text-zinc-400">
+											{" "}by {item.createdByName}
+										</span>
+									)}
+								</dd>
+							</div>
+
+							<div>
+								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									Last Updated
+								</dt>
+								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									{formatDateTime(item.updatedAt)}
+									{item.updatedByName && (
+										<span className="text-zinc-500 dark:text-zinc-400">
+											{" "}by {item.updatedByName}
+										</span>
+									)}
+								</dd>
+							</div>
+						</div>
+					</TabPanel>
+
+					<TabPanel id="history">
+						<HistoryLogPanel
+							resourceType="item"
+							resourceId={item.publicId}
+							resourceName={item.name}
+						/>
+					</TabPanel>
+				</TabPanels>
+			</TabGroup>
 		</div>
 	);
 }

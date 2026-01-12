@@ -4,10 +4,16 @@ CREATE TABLE `category` (
 	`name` text NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
-	`deleted_at` integer
+	`deleted_at` integer,
+	`created_by` text,
+	`updated_by` text,
+	FOREIGN KEY (`created_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `category_public_id_unique` ON `category` (`public_id`);--> statement-breakpoint
+CREATE INDEX `category_created_by_idx` ON `category` (`created_by`);--> statement-breakpoint
+CREATE INDEX `category_updated_by_idx` ON `category` (`updated_by`);--> statement-breakpoint
 CREATE TABLE `item` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`public_id` text NOT NULL,
@@ -17,11 +23,17 @@ CREATE TABLE `item` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`deleted_at` integer,
-	FOREIGN KEY (`category_id`) REFERENCES `category`(`id`) ON UPDATE no action ON DELETE no action
+	`created_by` text,
+	`updated_by` text,
+	FOREIGN KEY (`category_id`) REFERENCES `category`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`created_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `item_public_id_unique` ON `item` (`public_id`);--> statement-breakpoint
 CREATE INDEX `item_category_id_idx` ON `item` (`category_id`);--> statement-breakpoint
+CREATE INDEX `item_created_by_idx` ON `item` (`created_by`);--> statement-breakpoint
+CREATE INDEX `item_updated_by_idx` ON `item` (`updated_by`);--> statement-breakpoint
 CREATE TABLE `order` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`public_id` text NOT NULL,
@@ -29,11 +41,17 @@ CREATE TABLE `order` (
 	`total` integer DEFAULT 0 NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
-	`deleted_at` integer
+	`deleted_at` integer,
+	`created_by` text,
+	`updated_by` text,
+	FOREIGN KEY (`created_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `order_public_id_unique` ON `order` (`public_id`);--> statement-breakpoint
 CREATE INDEX `order_status_idx` ON `order` (`status`);--> statement-breakpoint
+CREATE INDEX `order_created_by_idx` ON `order` (`created_by`);--> statement-breakpoint
+CREATE INDEX `order_updated_by_idx` ON `order` (`updated_by`);--> statement-breakpoint
 CREATE TABLE `order_line` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`order_id` integer NOT NULL,

@@ -5,6 +5,10 @@ export interface Category {
 	createdAt: number;
 	updatedAt: number;
 	deletedAt: number | null;
+	createdBy: string | null;
+	updatedBy: string | null;
+	createdByName: string | null;
+	updatedByName: string | null;
 }
 
 export interface CreateCategoryInput {

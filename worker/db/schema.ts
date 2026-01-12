@@ -1,5 +1,6 @@
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
+import { user } from "./auth-schema";
 
 // ============================================
 // RBAC Tables
@@ -72,14 +73,23 @@ export type NewRolePermission = typeof rolePermission.$inferInsert;
 // ============================================
 
 // Category table
-export const category = sqliteTable("category", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	publicId: text("public_id").notNull().unique(),
-	name: text("name").notNull(),
-	createdAt: integer("created_at").notNull(),
-	updatedAt: integer("updated_at").notNull(),
-	deletedAt: integer("deleted_at"),
-});
+export const category = sqliteTable(
+	"category",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		publicId: text("public_id").notNull().unique(),
+		name: text("name").notNull(),
+		createdAt: integer("created_at").notNull(),
+		updatedAt: integer("updated_at").notNull(),
+		deletedAt: integer("deleted_at"),
+		createdBy: text("created_by").references(() => user.id),
+		updatedBy: text("updated_by").references(() => user.id),
+	},
+	(table) => [
+		index("category_created_by_idx").on(table.createdBy),
+		index("category_updated_by_idx").on(table.updatedBy),
+	],
+);
 
 export const categoryRelation = relations(category, ({ many }) => ({
 	itemList: many(item),
@@ -99,8 +109,14 @@ export const item = sqliteTable(
 		createdAt: integer("created_at").notNull(),
 		updatedAt: integer("updated_at").notNull(),
 		deletedAt: integer("deleted_at"),
+		createdBy: text("created_by").references(() => user.id),
+		updatedBy: text("updated_by").references(() => user.id),
 	},
-	(table) => [index("item_category_id_idx").on(table.categoryId)],
+	(table) => [
+		index("item_category_id_idx").on(table.categoryId),
+		index("item_created_by_idx").on(table.createdBy),
+		index("item_updated_by_idx").on(table.updatedBy),
+	],
 );
 
 export const itemRelation = relations(item, ({ one, many }) => ({
@@ -122,8 +138,14 @@ export const order = sqliteTable(
 		createdAt: integer("created_at").notNull(),
 		updatedAt: integer("updated_at").notNull(),
 		deletedAt: integer("deleted_at"),
+		createdBy: text("created_by").references(() => user.id),
+		updatedBy: text("updated_by").references(() => user.id),
 	},
-	(table) => [index("order_status_idx").on(table.status)],
+	(table) => [
+		index("order_status_idx").on(table.status),
+		index("order_created_by_idx").on(table.createdBy),
+		index("order_updated_by_idx").on(table.updatedBy),
+	],
 );
 
 export const orderRelation = relations(order, ({ many }) => ({

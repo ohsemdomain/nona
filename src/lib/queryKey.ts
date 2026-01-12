@@ -1,4 +1,9 @@
 export const queryKey = {
+	audit: {
+		all: ["audit"] as const,
+		resource: (resource: string, resourceId: string, param?: Record<string, unknown>) =>
+			["audit", resource, resourceId, param] as const,
+	},
 	category: {
 		all: ["category"] as const,
 		list: (param?: Record<string, unknown>) =>

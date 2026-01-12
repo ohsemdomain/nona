@@ -2,17 +2,20 @@ export function nowUnix(): number {
 	return Date.now();
 }
 
-export function timestamps() {
+export function timestamps(userId?: string) {
 	const now = nowUnix();
 	return {
 		createdAt: now,
 		updatedAt: now,
+		createdBy: userId,
+		updatedBy: userId,
 	};
 }
 
-export function updatedTimestamp() {
+export function updatedTimestamp(userId?: string) {
 	return {
 		updatedAt: nowUnix(),
+		updatedBy: userId,
 	};
 }
 

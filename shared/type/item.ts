@@ -13,6 +13,10 @@ export interface Item {
 	createdAt: number;
 	updatedAt: number;
 	deletedAt: number | null;
+	createdBy: string | null;
+	updatedBy: string | null;
+	createdByName: string | null;
+	updatedByName: string | null;
 	category: ItemCategory | null;
 }
 

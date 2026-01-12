@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq, isNull, and, like, sql } from "drizzle-orm";
-import { createDb, item, category } from "../db";
+import { alias } from "drizzle-orm/sqlite-core";
+import { createDb, item, category, user } from "../db";
 import { createItemSchema, updateItemSchema } from "../../shared/schema/item";
 import { PERMISSION } from "../../shared/constant/permission";
 import {
@@ -15,7 +16,16 @@ import {
 	checkDependencies,
 	parsePagination,
 	requirePermission,
+	getUserId,
+	logAudit,
+	createAuditChanges,
+	AUDIT_ACTION,
+	AUDIT_RESOURCE,
 } from "../lib";
+
+// Aliases for creator/updater joins
+const creator = alias(user, "creator");
+const updater = alias(user, "updater");
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -51,6 +61,10 @@ app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
 				deletedAt: item.deletedAt,
+				createdBy: item.createdBy,
+				updatedBy: item.updatedBy,
+				createdByName: creator.name,
+				updatedByName: updater.name,
 				category: {
 					id: category.id,
 					publicId: category.publicId,
@@ -59,6 +73,8 @@ app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 			})
 			.from(item)
 			.leftJoin(category, eq(item.categoryId, category.id))
+			.leftJoin(creator, eq(item.createdBy, creator.id))
+			.leftJoin(updater, eq(item.updatedBy, updater.id))
 			.where(whereClause)
 			.limit(limit)
 			.offset(offset)
@@ -84,6 +100,10 @@ app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 			createdAt: item.createdAt,
 			updatedAt: item.updatedAt,
 			deletedAt: item.deletedAt,
+			createdBy: item.createdBy,
+			updatedBy: item.updatedBy,
+			createdByName: creator.name,
+			updatedByName: updater.name,
 			category: {
 				id: category.id,
 				publicId: category.publicId,
@@ -92,6 +112,8 @@ app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 		})
 		.from(item)
 		.leftJoin(category, eq(item.categoryId, category.id))
+		.leftJoin(creator, eq(item.createdBy, creator.id))
+		.leftJoin(updater, eq(item.updatedBy, updater.id))
 		.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
 		.limit(1);
 
@@ -110,6 +132,7 @@ app.post(
 	async (c) => {
 		const db = createDb(c.env.DB);
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
 
 		// Verify category exists
 		const categoryExists = await db
@@ -131,11 +154,22 @@ app.post(
 				name: input.name,
 				categoryId: input.categoryId,
 				price: input.price,
-				...timestamps(),
+				...timestamps(userId),
 			})
 			.returning();
 
-		return c.json(result[0], 201);
+		const created = result[0];
+
+		// Log audit
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.CREATE,
+			resource: AUDIT_RESOURCE.ITEM,
+			resourceId: created.publicId,
+			metadata: { name: created.name, price: created.price },
+		});
+
+		return c.json(created, 201);
 	},
 );
 
@@ -148,6 +182,20 @@ app.put(
 		const db = createDb(c.env.DB);
 		const publicId = c.req.param("id");
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
+
+		// Get existing data for audit trail
+		const existing = await db
+			.select({ name: item.name, categoryId: item.categoryId, price: item.price })
+			.from(item)
+			.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+			.limit(1);
+
+		if (existing.length === 0) {
+			return notFound(c, "Item not found");
+		}
+
+		const oldData = existing[0];
 
 		// Verify category if changing
 		if (input.categoryId) {
@@ -170,7 +218,7 @@ app.put(
 			.update(item)
 			.set({
 				...updateData,
-				...updatedTimestamp(),
+				...updatedTimestamp(userId),
 			})
 			.where(
 				and(
@@ -181,21 +229,30 @@ app.put(
 			)
 			.returning();
 
-		// If no rows updated, check if record exists or was modified
+		// If no rows updated, record was modified by another user
 		if (result.length === 0) {
-			const current = await db
-				.select()
-				.from(item)
-				.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
-				.limit(1);
-
-			if (current.length > 0) {
-				return conflict(c, "Item was modified. Please refresh and try again.");
-			}
-			return notFound(c, "Item not found");
+			return conflict(c, "Item was modified. Please refresh and try again.");
 		}
 
-		return c.json(result[0]);
+		const updated = result[0];
+
+		// Log audit with changes
+		const changes = createAuditChanges(
+			{ name: oldData.name, categoryId: oldData.categoryId, price: oldData.price },
+			{ name: updated.name, categoryId: updated.categoryId, price: updated.price },
+			["name", "categoryId", "price"],
+		);
+
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.UPDATE,
+			resource: AUDIT_RESOURCE.ITEM,
+			resourceId: publicId,
+			changes,
+			metadata: { name: updated.name },
+		});
+
+		return c.json(updated);
 	},
 );
 
@@ -203,9 +260,10 @@ app.put(
 app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
+	const userId = getUserId(c);
 
 	const existing = await db
-		.select()
+		.select({ id: item.id, name: item.name })
 		.from(item)
 		.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
 		.limit(1);
@@ -214,11 +272,13 @@ app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 		return notFound(c, "Item not found");
 	}
 
+	const toDelete = existing[0];
+
 	// Check dependencies before delete
 	const { hasDependencies, message } = await checkDependencies(
 		db,
 		"item",
-		existing[0].id,
+		toDelete.id,
 	);
 
 	if (hasDependencies) {
@@ -230,9 +290,18 @@ app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 		.update(item)
 		.set({
 			deletedAt: Date.now(),
-			...updatedTimestamp(),
+			...updatedTimestamp(userId),
 		})
 		.where(eq(item.publicId, publicId));
+
+	// Log audit
+	await logAudit(db, {
+		actorId: userId,
+		action: AUDIT_ACTION.DELETE,
+		resource: AUDIT_RESOURCE.ITEM,
+		resourceId: publicId,
+		metadata: { name: toDelete.name },
+	});
 
 	return c.json({ success: true });
 });

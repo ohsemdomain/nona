@@ -12,7 +12,7 @@ interface EmptyStateProp {
 
 export function EmptyState({
 	title = "No data",
-	message = "There are no items to display.",
+	message = "There is no data to display.",
 	icon,
 	action,
 	className,

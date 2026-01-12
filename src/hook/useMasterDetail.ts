@@ -50,8 +50,6 @@ export function useMasterDetail<T extends HasPublicId>(
 	const { autoSelectFirst = true } = option;
 	const [searchParam, setSearchParam] = useSearchParams();
 
-	const selectedId = searchParam.get("selected");
-
 	const { search, setSearch, filterMap, setFilter, clearFilter, queryParam } =
 		useFilter();
 
@@ -72,10 +70,46 @@ export function useMasterDetail<T extends HasPublicId>(
 	const list = data?.data ?? [];
 	const total = data?.total ?? 0;
 
+	// Read URL selection
+	const urlSelectedId = searchParam.get("selected");
+
+	// Compute effective selection DURING RENDER (not in effect)
+	// This ensures UI shows correct selection immediately
+	const computedSelectedId = useMemo(() => {
+		// Case 1: URL has selection - validate it exists in list
+		if (urlSelectedId) {
+			const exists = list.length === 0 || list.some((item) => item.publicId === urlSelectedId);
+			if (exists) return urlSelectedId;
+			// Invalid selection - fall through to auto-select
+		}
+
+		// Case 2: No selection or invalid - auto-select first if enabled
+		if (autoSelectFirst && list.length > 0) {
+			return list[0].publicId;
+		}
+
+		// Case 3: No auto-select or empty list
+		return null;
+	}, [urlSelectedId, list, autoSelectFirst]);
+
 	const selectedItem = useMemo(
-		() => list.find((item) => item.publicId === selectedId),
-		[list, selectedId],
+		() => list.find((item) => item.publicId === computedSelectedId),
+		[list, computedSelectedId],
 	);
+
+	// Sync URL when computed selection differs from URL
+	// This runs AFTER render, so UI is already correct
+	useEffect(() => {
+		if (computedSelectedId !== urlSelectedId) {
+			const newParam = new URLSearchParams(searchParam);
+			if (computedSelectedId) {
+				newParam.set("selected", computedSelectedId);
+			} else {
+				newParam.delete("selected");
+			}
+			setSearchParam(newParam, { replace: true });
+		}
+	}, [computedSelectedId, urlSelectedId, searchParam, setSearchParam]);
 
 	const setSelectedId = useCallback(
 		(id: string | null) => {
@@ -106,12 +140,12 @@ export function useMasterDetail<T extends HasPublicId>(
 	);
 
 	const selectAfterDelete = useCallback(() => {
-		if (!selectedId || list.length === 0) {
+		if (!computedSelectedId || list.length === 0) {
 			setSelectedId(null);
 			return;
 		}
 
-		const currentIndex = list.findIndex((item) => item.publicId === selectedId);
+		const currentIndex = list.findIndex((item) => item.publicId === computedSelectedId);
 
 		if (currentIndex === -1) {
 			selectFirst();
@@ -126,13 +160,7 @@ export function useMasterDetail<T extends HasPublicId>(
 		const nextIndex =
 			currentIndex < list.length - 1 ? currentIndex + 1 : currentIndex - 1;
 		setSelectedId(list[nextIndex].publicId);
-	}, [selectedId, list, setSelectedId, selectFirst]);
-
-	useEffect(() => {
-		if (autoSelectFirst && !isLoading && !selectedId && list.length > 0) {
-			selectFirst();
-		}
-	}, [autoSelectFirst, isLoading, selectedId, list.length, selectFirst]);
+	}, [computedSelectedId, list, setSelectedId, selectFirst]);
 
 	useEffect(() => {
 		resetPagination();
@@ -144,7 +172,7 @@ export function useMasterDetail<T extends HasPublicId>(
 		isLoading,
 		isError,
 		refetch,
-		selectedId,
+		selectedId: computedSelectedId,
 		selectedItem,
 		setSelectedId,
 		selectFirst,

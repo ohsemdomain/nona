@@ -13,3 +13,5 @@ export {
 	SkeletonDetailPanel,
 	SkeletonOrderDetail,
 } from "./SkeletonDetailPanel";
+
+export { SkeletonHistoryLog } from "./SkeletonHistoryLog";

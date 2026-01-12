@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq, isNull, and, sql, inArray } from "drizzle-orm";
-import { createDb, order, orderLine, item } from "../db";
+import { alias } from "drizzle-orm/sqlite-core";
+import { createDb, order, orderLine, item, user } from "../db";
 import {
 	createOrderSchema,
 	updateOrderSchema,
@@ -17,7 +18,16 @@ import {
 	conflict,
 	parsePagination,
 	requirePermission,
+	getUserId,
+	logAudit,
+	createAuditChanges,
+	AUDIT_ACTION,
+	AUDIT_RESOURCE,
 } from "../lib";
+
+// Aliases for creator/updater joins
+const creator = alias(user, "creator");
+const updater = alias(user, "updater");
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -36,8 +46,22 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 
 	const [data, countResult] = await Promise.all([
 		db
-			.select()
+			.select({
+				id: order.id,
+				publicId: order.publicId,
+				status: order.status,
+				total: order.total,
+				createdAt: order.createdAt,
+				updatedAt: order.updatedAt,
+				deletedAt: order.deletedAt,
+				createdBy: order.createdBy,
+				updatedBy: order.updatedBy,
+				createdByName: creator.name,
+				updatedByName: updater.name,
+			})
 			.from(order)
+			.leftJoin(creator, eq(order.createdBy, creator.id))
+			.leftJoin(updater, eq(order.updatedBy, updater.id))
 			.where(whereClause)
 			.limit(limit)
 			.offset(offset)
@@ -54,8 +78,22 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 	const publicId = c.req.param("id");
 
 	const orderResult = await db
-		.select()
+		.select({
+			id: order.id,
+			publicId: order.publicId,
+			status: order.status,
+			total: order.total,
+			createdAt: order.createdAt,
+			updatedAt: order.updatedAt,
+			deletedAt: order.deletedAt,
+			createdBy: order.createdBy,
+			updatedBy: order.updatedBy,
+			createdByName: creator.name,
+			updatedByName: updater.name,
+		})
 		.from(order)
+		.leftJoin(creator, eq(order.createdBy, creator.id))
+		.leftJoin(updater, eq(order.updatedBy, updater.id))
 		.where(and(eq(order.publicId, publicId), isNull(order.deletedAt)))
 		.limit(1);
 
@@ -97,6 +135,7 @@ app.post(
 	async (c) => {
 		const db = createDb(c.env.DB);
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
 
 		// Get item prices
 		const itemIdList = input.lineList.map((line) => line.itemId);
@@ -106,7 +145,7 @@ app.post(
 			.where(and(inArray(item.id, itemIdList), isNull(item.deletedAt)));
 
 		if (itemList.length !== itemIdList.length) {
-			return badRequest(c, "One or more items not found");
+			return badRequest(c, "One or more item not found");
 		}
 
 		const itemPriceMap = new Map(itemList.map((i) => [i.id, i.price]));
@@ -132,7 +171,7 @@ app.post(
 				publicId: generatePublicId(),
 				status: "draft",
 				total: orderTotal,
-				...timestamps(),
+				...timestamps(userId),
 			})
 			.returning();
 
@@ -156,6 +195,15 @@ app.post(
 				and(eq(orderLine.orderId, created.id), isNull(orderLine.deletedAt)),
 			);
 
+		// Log audit
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.CREATE,
+			resource: AUDIT_RESOURCE.ORDER,
+			resourceId: created.publicId,
+			metadata: { status: created.status, total: created.total, lineCount: lineList.length },
+		});
+
 		return c.json({ ...created, lineList }, 201);
 	},
 );
@@ -169,6 +217,7 @@ app.put(
 		const db = createDb(c.env.DB);
 		const publicId = c.req.param("id");
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
 
 		const existing = await db
 			.select()
@@ -190,7 +239,7 @@ app.put(
 			lineTotal: number;
 		}[] = [];
 
-		// Validate items and calculate totals BEFORE transaction
+		// Validate item and calculate total BEFORE transaction
 		if (input.lineList) {
 			const itemIdList = input.lineList.map((line) => line.itemId);
 			const itemList = await db
@@ -199,7 +248,7 @@ app.put(
 				.where(and(inArray(item.id, itemIdList), isNull(item.deletedAt)));
 
 			if (itemList.length !== new Set(itemIdList).size) {
-				return badRequest(c, "One or more items not found");
+				return badRequest(c, "One or more item not found");
 			}
 
 			const itemPriceMap = new Map(itemList.map((i) => [i.id, i.price]));
@@ -225,7 +274,7 @@ app.put(
 			.set({
 				status: input.status ?? existingOrder.status,
 				total: orderTotal,
-				...updatedTimestamp(),
+				...updatedTimestamp(userId),
 			})
 			.where(
 				and(eq(order.publicId, publicId), eq(order.updatedAt, input.updatedAt)),
@@ -266,7 +315,29 @@ app.put(
 				),
 			);
 
-		return c.json({ ...result[0], lineList });
+		const updated = result[0];
+
+		// Log audit with changes
+		const changes = createAuditChanges(
+			{ status: existingOrder.status, total: existingOrder.total },
+			{ status: updated.status, total: updated.total },
+			["status", "total"],
+		);
+
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.UPDATE,
+			resource: AUDIT_RESOURCE.ORDER,
+			resourceId: publicId,
+			changes,
+			metadata: {
+				status: updated.status,
+				total: updated.total,
+				linesChanged: !!input.lineList,
+			},
+		});
+
+		return c.json({ ...updated, lineList });
 	},
 );
 
@@ -274,9 +345,10 @@ app.put(
 app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 	const db = createDb(c.env.DB);
 	const publicId = c.req.param("id");
+	const userId = getUserId(c);
 
 	const existing = await db
-		.select()
+		.select({ id: order.id, status: order.status, total: order.total })
 		.from(order)
 		.where(and(eq(order.publicId, publicId), isNull(order.deletedAt)))
 		.limit(1);
@@ -284,6 +356,8 @@ app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 	if (existing.length === 0) {
 		return notFound(c, "Order not found");
 	}
+
+	const toDelete = existing[0];
 
 	// Soft delete order and lines
 	const now = Date.now();
@@ -293,7 +367,7 @@ app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 		.update(orderLine)
 		.set({ deletedAt: now })
 		.where(
-			and(eq(orderLine.orderId, existing[0].id), isNull(orderLine.deletedAt)),
+			and(eq(orderLine.orderId, toDelete.id), isNull(orderLine.deletedAt)),
 		);
 
 	// Soft delete order
@@ -301,9 +375,18 @@ app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 		.update(order)
 		.set({
 			deletedAt: now,
-			...updatedTimestamp(),
+			...updatedTimestamp(userId),
 		})
 		.where(eq(order.publicId, publicId));
+
+	// Log audit
+	await logAudit(db, {
+		actorId: userId,
+		action: AUDIT_ACTION.DELETE,
+		resource: AUDIT_RESOURCE.ORDER,
+		resourceId: publicId,
+		metadata: { status: toDelete.status, total: toDelete.total },
+	});
 
 	return c.json({ success: true });
 });

@@ -12,7 +12,7 @@ interface DependencyResult {
 }
 
 /**
- * Check if a category has dependent items (non-deleted)
+ * Check if a category has dependent item (non-deleted)
  */
 async function checkCategoryDependencies(
 	db: DbOrTransaction,
@@ -29,10 +29,9 @@ async function checkCategoryDependencies(
 		);
 
 	if (result.count > 0) {
-		const label = result.count === 1 ? "item" : "items";
 		return {
 			hasDependencies: true,
-			message: `Cannot delete: ${result.count} ${label} still reference this category`,
+			message: `Cannot delete: ${result.count} item still reference this category`,
 		};
 	}
 
@@ -40,7 +39,7 @@ async function checkCategoryDependencies(
 }
 
 /**
- * Check if an item has dependent order lines (in non-deleted orders)
+ * Check if an item has dependent order line (in non-deleted order)
  */
 async function checkItemDependencies(
 	db: DbOrTransaction,
@@ -56,10 +55,9 @@ async function checkItemDependencies(
 		);
 
 	if (result.count > 0) {
-		const label = result.count === 1 ? "order" : "orders";
 		return {
 			hasDependencies: true,
-			message: `Cannot delete: ${result.count} ${label} still reference this item`,
+			message: `Cannot delete: ${result.count} order still reference this item`,
 		};
 	}
 

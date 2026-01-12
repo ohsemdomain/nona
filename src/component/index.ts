@@ -21,6 +21,15 @@ export { Layout } from "./Layout";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { PermissionGuard } from "./PermissionGuard";
 
+// Tab components
+export { TabGroup, TabList, Tab, TabPanels, TabPanel } from "./Tab";
+
+// History log components
+export { HistoryLogPanel } from "./HistoryLogPanel";
+export { HistoryLogList } from "./HistoryLogList";
+export { HistoryLogItem } from "./HistoryLogItem";
+export { FieldChangeDisplay } from "./FieldChangeDisplay";
+
 // Skeleton components
 export {
 	SkeletonText,
@@ -33,4 +42,5 @@ export {
 	SkeletonTable,
 	SkeletonDetailPanel,
 	SkeletonOrderDetail,
+	SkeletonHistoryLog,
 } from "./skeleton";

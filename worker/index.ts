@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+	auditRoute,
 	authRoute,
 	categoryRoute,
 	itemRoute,
@@ -51,6 +52,11 @@ app.route("/api/user", userRoute);
 app.use("/api/me", apiRateLimit);
 app.use("/api/me", requireAuth);
 app.route("/api/me", meRoute);
+
+// Audit routes (history log for resources)
+app.use("/api/audit/*", apiRateLimit);
+app.use("/api/audit/*", requireAuth);
+app.route("/api/audit", auditRoute);
 
 // API 404 handler - must be before static asset catch-all
 app.all("/api/*", (c) => {

@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq, isNull, and, like, sql } from "drizzle-orm";
-import { createDb, category } from "../db";
+import { alias } from "drizzle-orm/sqlite-core";
+import { createDb, category, user } from "../db";
 import {
 	createCategorySchema,
 	updateCategorySchema,
@@ -17,7 +18,16 @@ import {
 	checkDependencies,
 	parsePagination,
 	requirePermission,
+	getUserId,
+	logAudit,
+	createAuditChanges,
+	AUDIT_ACTION,
+	AUDIT_RESOURCE,
 } from "../lib";
+
+// Aliases for creator/updater joins
+const creator = alias(user, "creator");
+const updater = alias(user, "updater");
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -35,8 +45,21 @@ app.get("/", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 
 	const [data, countResult] = await Promise.all([
 		db
-			.select()
+			.select({
+				id: category.id,
+				publicId: category.publicId,
+				name: category.name,
+				createdAt: category.createdAt,
+				updatedAt: category.updatedAt,
+				deletedAt: category.deletedAt,
+				createdBy: category.createdBy,
+				updatedBy: category.updatedBy,
+				createdByName: creator.name,
+				updatedByName: updater.name,
+			})
 			.from(category)
+			.leftJoin(creator, eq(category.createdBy, creator.id))
+			.leftJoin(updater, eq(category.updatedBy, updater.id))
 			.where(whereClause)
 			.limit(limit)
 			.offset(offset)
@@ -56,8 +79,21 @@ app.get("/:id", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 	const publicId = c.req.param("id");
 
 	const result = await db
-		.select()
+		.select({
+			id: category.id,
+			publicId: category.publicId,
+			name: category.name,
+			createdAt: category.createdAt,
+			updatedAt: category.updatedAt,
+			deletedAt: category.deletedAt,
+			createdBy: category.createdBy,
+			updatedBy: category.updatedBy,
+			createdByName: creator.name,
+			updatedByName: updater.name,
+		})
 		.from(category)
+		.leftJoin(creator, eq(category.createdBy, creator.id))
+		.leftJoin(updater, eq(category.updatedBy, updater.id))
 		.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
 		.limit(1);
 
@@ -76,17 +112,29 @@ app.post(
 	async (c) => {
 		const db = createDb(c.env.DB);
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
 
 		const result = await db
 			.insert(category)
 			.values({
 				publicId: generatePublicId(),
 				name: input.name,
-				...timestamps(),
+				...timestamps(userId),
 			})
 			.returning();
 
-		return c.json(result[0], 201);
+		const created = result[0];
+
+		// Log audit
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.CREATE,
+			resource: AUDIT_RESOURCE.CATEGORY,
+			resourceId: created.publicId,
+			metadata: { name: created.name },
+		});
+
+		return c.json(created, 201);
 	},
 );
 
@@ -99,13 +147,27 @@ app.put(
 		const db = createDb(c.env.DB);
 		const publicId = c.req.param("id");
 		const input = c.req.valid("json");
+		const userId = getUserId(c);
+
+		// Get existing data for audit trail
+		const existing = await db
+			.select({ name: category.name })
+			.from(category)
+			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+			.limit(1);
+
+		if (existing.length === 0) {
+			return notFound(c, "Category not found");
+		}
+
+		const oldData = existing[0];
 
 		// Update with optimistic locking - check updatedAt matches
 		const result = await db
 			.update(category)
 			.set({
 				name: input.name,
-				...updatedTimestamp(),
+				...updatedTimestamp(userId),
 			})
 			.where(
 				and(
@@ -116,24 +178,33 @@ app.put(
 			)
 			.returning();
 
-		// If no rows updated, check if record exists or was modified
+		// If no rows updated, record was modified by another user
 		if (result.length === 0) {
-			const current = await db
-				.select()
-				.from(category)
-				.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
-				.limit(1);
-
-			if (current.length > 0) {
-				return conflict(
-					c,
-					"Category was modified. Please refresh and try again.",
-				);
-			}
-			return notFound(c, "Category not found");
+			return conflict(
+				c,
+				"Category was modified. Please refresh and try again.",
+			);
 		}
 
-		return c.json(result[0]);
+		const updated = result[0];
+
+		// Log audit with changes
+		const changes = createAuditChanges(
+			{ name: oldData.name },
+			{ name: updated.name },
+			["name"],
+		);
+
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.UPDATE,
+			resource: AUDIT_RESOURCE.CATEGORY,
+			resourceId: publicId,
+			changes,
+			metadata: { name: updated.name },
+		});
+
+		return c.json(updated);
 	},
 );
 
@@ -144,9 +215,10 @@ app.delete(
 	async (c) => {
 		const db = createDb(c.env.DB);
 		const publicId = c.req.param("id");
+		const userId = getUserId(c);
 
 		const existing = await db
-			.select()
+			.select({ id: category.id, name: category.name })
 			.from(category)
 			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
 			.limit(1);
@@ -155,11 +227,13 @@ app.delete(
 			return notFound(c, "Category not found");
 		}
 
+		const toDelete = existing[0];
+
 		// Check dependencies before delete
 		const { hasDependencies, message } = await checkDependencies(
 			db,
 			"category",
-			existing[0].id,
+			toDelete.id,
 		);
 
 		if (hasDependencies) {
@@ -171,9 +245,18 @@ app.delete(
 			.update(category)
 			.set({
 				deletedAt: Date.now(),
-				...updatedTimestamp(),
+				...updatedTimestamp(userId),
 			})
 			.where(eq(category.publicId, publicId));
+
+		// Log audit
+		await logAudit(db, {
+			actorId: userId,
+			action: AUDIT_ACTION.DELETE,
+			resource: AUDIT_RESOURCE.CATEGORY,
+			resourceId: publicId,
+			metadata: { name: toDelete.name },
+		});
 
 		return c.json({ success: true });
 	},

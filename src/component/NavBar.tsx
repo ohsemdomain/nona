@@ -61,7 +61,7 @@ export function NavBar() {
 							}
 						>
 							<Users className="h-4 w-4" />
-							Users
+							User
 						</NavLink>
 					)}
 				</div>
