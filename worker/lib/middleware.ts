@@ -59,9 +59,9 @@ export function requirePermission(
 			session.user.id,
 		);
 
-		const hasPermission = permissions.some((p) =>
-			userPermissions.includes(p),
-		);
+		const hasPermission =
+			userPermissions.includes("system:admin") ||
+			permissions.some((p) => userPermissions.includes(p));
 
 		if (!hasPermission) {
 			return c.json({ error: "Forbidden" }, 403);

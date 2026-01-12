@@ -127,5 +127,7 @@ export async function hasPermission(
 	permissionName: string,
 ): Promise<boolean> {
 	const permissions = await getUserPermission(d1, userId);
+	// Admin bypass - system:admin grants all permissions
+	if (permissions.includes("system:admin")) return true;
 	return permissions.includes(permissionName);
 }
