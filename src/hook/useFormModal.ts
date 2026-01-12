@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useUIStore } from "@/src/store/ui";
 import { useResource } from "@/src/hook/useResource";
 import { useFormDirty } from "@/src/hook/useFormDirty";
-
-type Entity = "category" | "item" | "order";
+import type { Entity } from "@/shared/type";
 
 interface UseFormModalOption<TEntity, TForm, TCreate, TUpdate> {
 	id: string;

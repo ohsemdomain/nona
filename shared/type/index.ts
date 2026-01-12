@@ -20,6 +20,12 @@ export type {
 } from "./order";
 export { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "./order";
 export type { User, CreateUserInput, UpdateUserInput } from "./user";
+
+/**
+ * Entity types for CRUD operations.
+ * Used by useResource, useFormModal, useMasterDetail, and cache invalidation.
+ */
+export type Entity = "category" | "item" | "order" | "user";
 export type {
 	AuditAction,
 	AuditResource,

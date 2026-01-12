@@ -3,8 +3,7 @@ import { api, handleApiError } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
 import { invalidateRelated } from "@/src/lib/invalidation";
 import { TOAST } from "@/src/lib/toast";
-
-type Entity = "category" | "item" | "order" | "user";
+import type { Entity } from "@/shared/type";
 
 interface ListResponse<T> {
 	data: T[];

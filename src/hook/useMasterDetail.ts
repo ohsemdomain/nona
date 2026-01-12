@@ -5,8 +5,7 @@ import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
 import { useFilter } from "./useFilter";
 import { usePagination } from "./usePagination";
-
-type Entity = "category" | "item" | "order" | "user";
+import type { Entity } from "@/shared/type";
 
 interface ListResponse<T> {
 	data: T[];
