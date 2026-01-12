@@ -20,6 +20,14 @@ export type {
 } from "./order";
 export { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "./order";
 export type { User, CreateUserInput, UpdateUserInput } from "./user";
+export type {
+	Role,
+	RoleWithPermission,
+	CreateRoleInput,
+	UpdateRoleInput,
+	Permission,
+	PermissionGroup,
+} from "./role";
 
 /**
  * Entity types for CRUD operations.
