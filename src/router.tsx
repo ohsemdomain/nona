@@ -4,6 +4,7 @@ import { CategoryPage } from "@/src/page/category";
 import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
 import { UserPage } from "@/src/page/user";
+import { RolePage } from "@/src/page/role";
 import { SettingPage, SystemLogPage } from "@/src/page/setting";
 import { LoginPage } from "@/src/page/auth";
 
@@ -70,6 +71,11 @@ export const router = createBrowserRouter([
 					{
 						path: "log",
 						element: <SystemLogPage />,
+						errorElement: <RouteErrorBoundary />,
+					},
+					{
+						path: "role",
+						element: <RolePage />,
 						errorElement: <RouteErrorBoundary />,
 					},
 				],
