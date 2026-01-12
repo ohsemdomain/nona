@@ -18,6 +18,8 @@ export const role = sqliteTable("role", {
 export const permission = sqliteTable("permission", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	name: text("name").notNull().unique(), // format: resource:action
+	resource: text("resource").notNull(), // e.g., "item", "order", "role"
+	action: text("action").notNull(), // e.g., "create", "read", "update", "delete"
 	description: text("description"),
 });
 
