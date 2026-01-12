@@ -21,7 +21,6 @@ import {
 	userSelectFields,
 	formatUserDates,
 	formatUserList,
-	findRoleByName,
 	logAudit,
 	AUDIT_ACTION,
 	AUDIT_RESOURCE,
@@ -106,10 +105,17 @@ app.post(
 			return conflict(c, "Email already exists");
 		}
 
-		// Get role ID
-		const foundRole = await findRoleByName(db, input.role);
-		if (!foundRole) {
-			return badRequest(c, "Role not found");
+		// Verify role exists if provided
+		if (input.roleId) {
+			const roleExists = await db
+				.select({ id: role.id })
+				.from(role)
+				.where(eq(role.id, input.roleId))
+				.limit(1);
+
+			if (roleExists.length === 0) {
+				return badRequest(c, "Role not found");
+			}
 		}
 
 		// Hash password
@@ -128,7 +134,7 @@ app.post(
 			name: input.name,
 			email: input.email,
 			emailVerified: false,
-			roleId: foundRole.id,
+			roleId: input.roleId ?? null,
 			...now,
 		});
 
@@ -149,7 +155,7 @@ app.post(
 			resourceId: userPublicId,
 			metadata: {
 				email: input.email,
-				role: input.role,
+				roleId: input.roleId,
 			},
 		});
 
@@ -216,17 +222,21 @@ app.put(
 			updates.name = input.name;
 		}
 
-		// Track changes for audit
-		let newRoleName: string | undefined;
+		// Update role if provided (including null to remove role)
+		if (input.roleId !== undefined) {
+			if (input.roleId !== null) {
+				// Verify role exists
+				const roleExists = await db
+					.select({ id: role.id })
+					.from(role)
+					.where(eq(role.id, input.roleId))
+					.limit(1);
 
-		// Update role if provided
-		if (input.role) {
-			const foundRole = await findRoleByName(db, input.role);
-			if (!foundRole) {
-				return badRequest(c, "Role not found");
+				if (roleExists.length === 0) {
+					return badRequest(c, "Role not found");
+				}
 			}
-			updates.roleId = foundRole.id;
-			newRoleName = input.role;
+			updates.roleId = input.roleId;
 		}
 
 		// Update user
@@ -254,7 +264,10 @@ app.put(
 		// Log audit with changes
 		const changes = createAuditChanges(
 			{ name: existingUser.name, roleId: existingUser.roleId },
-			{ name: input.name ?? existingUser.name, roleId: updates.roleId ?? existingUser.roleId },
+			{
+				name: input.name ?? existingUser.name,
+				roleId: updates.roleId !== undefined ? updates.roleId : existingUser.roleId,
+			},
 			["name", "roleId"],
 		);
 
@@ -266,7 +279,7 @@ app.put(
 			changes,
 			metadata: {
 				passwordChanged: !!input.password,
-				newRole: newRoleName,
+				newRoleId: input.roleId,
 			},
 		});
 

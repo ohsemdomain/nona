@@ -21,14 +21,14 @@ interface FormState {
 	name: string;
 	email: string;
 	password: string;
-	role: string;
+	roleId: string; // String for form state, converted to number for API
 }
 
 const initialForm: FormState = {
 	name: "",
 	email: "",
 	password: "",
-	role: "",
+	roleId: "",
 };
 
 export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
@@ -47,18 +47,18 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 				name: user.name,
 				email: user.email,
 				password: "", // Never show password when editing
-				role: user.roleName ?? "",
+				roleId: user.roleId ? String(user.roleId) : "",
 			}),
 			toCreateInput: (form) => ({
 				name: form.name.trim(),
 				email: form.email.trim(),
 				password: form.password,
-				role: form.role,
+				roleId: form.roleId ? Number.parseInt(form.roleId, 10) : undefined,
 			}),
 			toUpdateInput: (form, entity) => {
 				const data: UpdateUserInput = {
 					name: form.name.trim(),
-					role: form.role,
+					roleId: form.roleId ? Number.parseInt(form.roleId, 10) : null,
 					updatedAt: entity.updatedAt,
 				};
 				// Only include password if changed (not empty)
@@ -88,10 +88,6 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 					error.password = "Password is required";
 				} else if (form.password && form.password.length < 6) {
 					error.password = "Password must be at least 6 characters";
-				}
-
-				if (!form.role) {
-					error.role = "Role is required";
 				}
 
 				return error;
@@ -169,18 +165,17 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 					<FormField
 						label="Role"
 						htmlFor={`${id}-role`}
-						error={modal.error.role}
-						required
+						error={modal.error.roleId}
 					>
 						<Select
 							id={`${id}-role`}
-							value={modal.form.role}
-							onChange={(e) => modal.setField("role", e.target.value)}
+							value={modal.form.roleId}
+							onChange={(e) => modal.setField("roleId", e.target.value)}
 							disabled={modal.isPending}
 						>
-							<option value="">Select role</option>
+							<option value="">No role</option>
 							{roleList.map((role) => (
-								<option key={role.id} value={role.name}>
+								<option key={role.id} value={role.id}>
 									{role.name}
 								</option>
 							))}

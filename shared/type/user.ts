@@ -1,5 +1,3 @@
-import type { RoleValue } from "../constant/permission";
-
 export interface User {
 	id: string;
 	publicId: string;
@@ -18,12 +16,12 @@ export interface CreateUserInput {
 	name: string;
 	email: string;
 	password: string;
-	role: RoleValue;
+	roleId?: number;
 }
 
 export interface UpdateUserInput {
 	name?: string;
-	role?: RoleValue;
+	roleId?: number | null;
 	password?: string;
 	updatedAt: number;
 }

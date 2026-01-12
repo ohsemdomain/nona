@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ROLE, type RoleValue } from "../constant/permission";
 
 export const userSchema = z.object({
 	id: z.string(),
@@ -19,17 +18,12 @@ export const createUserSchema = z.object({
 	name: z.string().min(1, "Name is required"),
 	email: z.string().email("Invalid email address"),
 	password: z.string().min(6, "Password must be at least 6 characters"),
-	role: z.enum([ROLE.ADMIN, ROLE.USER, ROLE.VIEWER] as [
-		RoleValue,
-		...RoleValue[],
-	]),
+	roleId: z.number().int().positive().optional(),
 });
 
 export const updateUserSchema = z.object({
 	name: z.string().min(1, "Name is required").optional(),
-	role: z
-		.enum([ROLE.ADMIN, ROLE.USER, ROLE.VIEWER] as [RoleValue, ...RoleValue[]])
-		.optional(),
+	roleId: z.number().int().positive().nullable().optional(),
 	password: z
 		.string()
 		.min(6, "Password must be at least 6 characters")
