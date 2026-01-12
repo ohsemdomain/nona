@@ -19,4 +19,7 @@ export function invalidateRelated(
 	for (const related of relatedEntityMap[entity]) {
 		queryClient.invalidateQueries({ queryKey: queryKey[related].all });
 	}
+
+	// Invalidate audit logs (system-wide and entity-specific)
+	queryClient.invalidateQueries({ queryKey: queryKey.audit.all });
 }

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { eq, isNull, and, like, sql } from "drizzle-orm";
+import { eq, isNull, and, like, sql, desc } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { createDb, category, user } from "../db";
 import {
@@ -63,7 +63,7 @@ app.get("/", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 			.where(whereClause)
 			.limit(limit)
 			.offset(offset)
-			.orderBy(category.createdAt),
+			.orderBy(desc(category.updatedAt)),
 		db
 			.select({ count: sql<number>`count(*)` })
 			.from(category)
