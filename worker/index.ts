@@ -7,6 +7,7 @@ import {
 	meRoute,
 	orderRoute,
 	permissionRoute,
+	roleRoute,
 	userRoute,
 	sessionTokenRoute,
 } from "./route";
@@ -63,6 +64,13 @@ app.route("/api/audit", auditRoute);
 app.use("/api/permission", apiRateLimit);
 app.use("/api/permission", requireAuth);
 app.route("/api/permission", permissionRoute);
+
+// Role routes (CRUD and permission assignment - permission check in route handlers)
+app.use("/api/role", apiRateLimit);
+app.use("/api/role", requireAuth);
+app.use("/api/role/*", apiRateLimit);
+app.use("/api/role/*", requireAuth);
+app.route("/api/role", roleRoute);
 
 // API 404 handler - must be before static asset catch-all
 app.all("/api/*", (c) => {

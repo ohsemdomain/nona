@@ -5,5 +5,6 @@ export { itemRoute } from "./item";
 export { meRoute } from "./me";
 export { orderRoute } from "./order";
 export { permissionRoute } from "./permission";
+export { roleRoute } from "./role";
 export { sessionTokenRoute } from "./session-token";
 export { userRoute } from "./user";
