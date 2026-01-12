@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, like, gte, lte } from "drizzle-orm";
 import { createDb, auditLog, user } from "../db";
 import { parsePagination, listResponse, requirePermission } from "../lib";
 import { PERMISSION } from "../../shared/constant/permission";
@@ -39,6 +39,87 @@ function parseChanges(changesJson: string | null): AuditFieldChange[] {
 		return [];
 	}
 }
+
+/**
+ * GET /api/audit/system
+ *
+ * Fetches system-wide audit logs with filtering.
+ * Admin-only (requires USER_READ permission).
+ * Query params: resource, action, actorName, dateFrom, dateTo, page, pageSize
+ */
+app.get("/system", requirePermission(PERMISSION.USER_READ), async (c) => {
+	const db = createDb(c.env.DB);
+	const query = c.req.query();
+	const { offset, limit } = parsePagination(query);
+
+	// Build dynamic filter conditions
+	const filterList: ReturnType<typeof eq>[] = [];
+
+	if (query.resource) {
+		filterList.push(eq(auditLog.resource, query.resource));
+	}
+
+	if (query.action) {
+		filterList.push(eq(auditLog.action, query.action));
+	}
+
+	if (query.dateFrom) {
+		filterList.push(gte(auditLog.createdAt, Number(query.dateFrom)));
+	}
+
+	if (query.dateTo) {
+		filterList.push(lte(auditLog.createdAt, Number(query.dateTo)));
+	}
+
+	if (query.actorName) {
+		filterList.push(like(user.name, `%${query.actorName}%`));
+	}
+
+	const whereClause = filterList.length > 0 ? and(...filterList) : undefined;
+
+	const [data, countResult] = await Promise.all([
+		db
+			.select({
+				id: auditLog.id,
+				actorId: auditLog.actorId,
+				action: auditLog.action,
+				resource: auditLog.resource,
+				resourceId: auditLog.resourceId,
+				changes: auditLog.changes,
+				metadata: auditLog.metadata,
+				createdAt: auditLog.createdAt,
+				actorName: user.name,
+			})
+			.from(auditLog)
+			.leftJoin(user, eq(auditLog.actorId, user.id))
+			.where(whereClause)
+			.orderBy(desc(auditLog.createdAt))
+			.limit(limit)
+			.offset(offset),
+		db
+			.select({ count: sql<number>`count(*)` })
+			.from(auditLog)
+			.leftJoin(user, eq(auditLog.actorId, user.id))
+			.where(whereClause),
+	]);
+
+	// Transform to frontend format
+	const entries: AuditLogEntry[] = data.map((row) => ({
+		id: row.id,
+		action: row.action as AuditAction,
+		resource: row.resource as AuditResource,
+		resourceId: row.resourceId,
+		actor: {
+			id: row.actorId,
+			name: row.actorName ?? "Unknown User",
+		},
+		changes: parseChanges(row.changes),
+		metadata: row.metadata ? JSON.parse(row.metadata) : {},
+		createdAt: row.createdAt,
+	}));
+
+	return listResponse(c, entries, countResult[0]?.count ?? 0);
+});
 
 /**
  * GET /api/audit/:resource/:resourceId

@@ -34,6 +34,7 @@ const FIELD_CONFIG: Record<AuditResource, Record<string, FieldConfig>> = {
 		roleId: { label: "Role", type: "number" },
 		email: { label: "Email", type: "string" },
 	},
+	auth: {},
 };
 
 /**
@@ -101,4 +102,5 @@ export const RESOURCE_LABEL: Record<AuditResource, string> = {
 	item: "Item",
 	order: "Order",
 	user: "User",
+	auth: "User",
 };

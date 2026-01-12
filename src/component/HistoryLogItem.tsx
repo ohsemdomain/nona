@@ -1,4 +1,4 @@
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, LogIn, LogOut } from "lucide-react";
 import { clsx } from "clsx";
 import { formatRelative } from "@/src/lib/date";
 import { FieldChangeDisplay } from "./FieldChangeDisplay";
@@ -41,6 +41,18 @@ const ACTION_CONFIG: Record<
 		label: "deleted",
 		bgColor: "bg-red-100 dark:bg-red-900/30",
 		iconColor: "text-red-600 dark:text-red-400",
+	},
+	LOGIN: {
+		icon: LogIn,
+		label: "logged in",
+		bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
+		iconColor: "text-emerald-600 dark:text-emerald-400",
+	},
+	LOGOUT: {
+		icon: LogOut,
+		label: "logged out",
+		bgColor: "bg-zinc-100 dark:bg-zinc-800",
+		iconColor: "text-zinc-600 dark:text-zinc-400",
 	},
 };
 

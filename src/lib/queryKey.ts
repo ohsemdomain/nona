@@ -3,6 +3,8 @@ export const queryKey = {
 		all: ["audit"] as const,
 		resource: (resource: string, resourceId: string, param?: Record<string, unknown>) =>
 			["audit", resource, resourceId, param] as const,
+		system: (param?: Record<string, unknown>) =>
+			["audit", "system", param] as const,
 	},
 	category: {
 		all: ["category"] as const,

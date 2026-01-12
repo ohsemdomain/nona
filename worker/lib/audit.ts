@@ -8,6 +8,8 @@ export const AUDIT_ACTION = {
 	CREATE: "CREATE",
 	UPDATE: "UPDATE",
 	DELETE: "DELETE",
+	LOGIN: "LOGIN",
+	LOGOUT: "LOGOUT",
 } as const;
 
 export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
@@ -21,6 +23,7 @@ export const AUDIT_RESOURCE = {
 	CATEGORY: "category",
 	ITEM: "item",
 	ORDER: "order",
+	AUTH: "auth",
 } as const;
 
 export type AuditResource = (typeof AUDIT_RESOURCE)[keyof typeof AUDIT_RESOURCE];

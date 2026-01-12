@@ -1,11 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { Users } from "lucide-react";
+import { Users, FileText } from "lucide-react";
 
 const navItemList = [
 	{ to: "/setting/user", label: "User", icon: Users },
-	// Future panels can be added here:
-	// { to: "/setting/role", label: "Role", icon: Shield },
-	// { to: "/setting/company", label: "Company", icon: Building2 },
+	{ to: "/setting/log", label: "Log", icon: FileText },
 ];
 
 export function SettingNav() {
