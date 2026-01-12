@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
 	Modal,
 	FormField,
@@ -7,8 +8,8 @@ import {
 	ConfirmDialog,
 } from "@/src/component";
 import { useFormModal } from "@/src/hook/useFormModal";
-import { ROLE, type RoleValue } from "@/shared/constant/permission";
-import type { User, CreateUserInput, UpdateUserInput } from "@/shared/type";
+import { api } from "@/src/lib/api";
+import type { User, CreateUserInput, UpdateUserInput, Role } from "@/shared/type";
 
 interface UserFormModalProp {
 	id: string;
@@ -20,23 +21,22 @@ interface FormState {
 	name: string;
 	email: string;
 	password: string;
-	role: RoleValue;
+	role: string;
 }
 
 const initialForm: FormState = {
 	name: "",
 	email: "",
 	password: "",
-	role: ROLE.USER,
+	role: "",
 };
 
-const roleOption = [
-	{ value: ROLE.ADMIN, label: "Admin" },
-	{ value: ROLE.USER, label: "User" },
-	{ value: ROLE.VIEWER, label: "Viewer" },
-];
-
 export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
+	const { data: roleList = [] } = useQuery({
+		queryKey: ["role"],
+		queryFn: () => api.get<Role[]>("/role"),
+	});
+
 	const modal = useFormModal<User, FormState, CreateUserInput, UpdateUserInput>(
 		{
 			id,
@@ -47,7 +47,7 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 				name: user.name,
 				email: user.email,
 				password: "", // Never show password when editing
-				role: (user.roleName as RoleValue) || ROLE.USER,
+				role: user.roleName ?? "",
 			}),
 			toCreateInput: (form) => ({
 				name: form.name.trim(),
@@ -175,14 +175,13 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 						<Select
 							id={`${id}-role`}
 							value={modal.form.role}
-							onChange={(e) =>
-								modal.setField("role", e.target.value as RoleValue)
-							}
+							onChange={(e) => modal.setField("role", e.target.value)}
 							disabled={modal.isPending}
 						>
-							{roleOption.map((option) => (
-								<option key={option.value} value={option.value}>
-									{option.label}
+							<option value="">Select role</option>
+							{roleList.map((role) => (
+								<option key={role.id} value={role.name}>
+									{role.name}
 								</option>
 							))}
 						</Select>
