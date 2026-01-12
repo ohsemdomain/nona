@@ -6,6 +6,7 @@ import {
 	itemRoute,
 	meRoute,
 	orderRoute,
+	permissionRoute,
 	userRoute,
 	sessionTokenRoute,
 } from "./route";
@@ -57,6 +58,11 @@ app.route("/api/me", meRoute);
 app.use("/api/audit/*", apiRateLimit);
 app.use("/api/audit/*", requireAuth);
 app.route("/api/audit", auditRoute);
+
+// Permission routes (list all permissions - permission check in route handlers)
+app.use("/api/permission", apiRateLimit);
+app.use("/api/permission", requireAuth);
+app.route("/api/permission", permissionRoute);
 
 // API 404 handler - must be before static asset catch-all
 app.all("/api/*", (c) => {
