@@ -51,28 +51,6 @@ export function PermissionMatrix({
 		return { standardGroupList: standard, specialPermissionList: special };
 	}, [permissionGroupList]);
 
-	// Calculate column header states (for "select all" in column)
-	const columnState = useMemo(() => {
-		const state: Record<string, { all: boolean; some: boolean }> = {};
-
-		for (const action of ACTION_ORDER) {
-			const permissionListForAction = standardGroupList.flatMap((g) =>
-				g.permissionList.filter((p) => p.action === action).map((p) => p.name),
-			);
-
-			const selectedCount = permissionListForAction.filter((p) =>
-				selectedPermissionList.has(p),
-			).length;
-
-			state[action] = {
-				all: selectedCount === permissionListForAction.length && permissionListForAction.length > 0,
-				some: selectedCount > 0 && selectedCount < permissionListForAction.length,
-			};
-		}
-
-		return state;
-	}, [standardGroupList, selectedPermissionList]);
-
 	const togglePermission = (permissionName: string) => {
 		const next = new Set(selectedPermissionList);
 		if (next.has(permissionName)) {
@@ -80,25 +58,6 @@ export function PermissionMatrix({
 		} else {
 			next.add(permissionName);
 		}
-		onChange(next);
-	};
-
-	const toggleColumn = (action: string) => {
-		const permissionListForAction = standardGroupList.flatMap((g) =>
-			g.permissionList.filter((p) => p.action === action).map((p) => p.name),
-		);
-
-		const allSelected = columnState[action].all;
-		const next = new Set(selectedPermissionList);
-
-		for (const p of permissionListForAction) {
-			if (allSelected) {
-				next.delete(p);
-			} else {
-				next.add(p);
-			}
-		}
-
 		onChange(next);
 	};
 
@@ -147,20 +106,7 @@ export function PermissionMatrix({
 									key={action}
 									className="w-20 px-3 py-2 text-center font-medium text-zinc-600 dark:text-zinc-400"
 								>
-									<button
-										type="button"
-										onClick={() => toggleColumn(action)}
-										disabled={disabled}
-										className="inline-flex items-center gap-1.5 hover:text-zinc-900 dark:hover:text-zinc-200 disabled:cursor-not-allowed"
-									>
-										<Checkbox
-											checked={columnState[action].all}
-											indeterminate={columnState[action].some}
-											disabled={disabled}
-											onChange={() => toggleColumn(action)}
-										/>
-										{ACTION_LABEL[action]}
-									</button>
+									{ACTION_LABEL[action]}
 								</th>
 							))}
 						</tr>
