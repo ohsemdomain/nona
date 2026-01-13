@@ -1,7 +1,9 @@
 export { Button } from "./Button";
 export { Input } from "./Input";
 export { Select } from "./Select";
+export { Checkbox } from "./Checkbox";
 export { FormField } from "./FormField";
+export { PermissionMatrix } from "./PermissionMatrix";
 export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { LoadingState } from "./LoadingState";
