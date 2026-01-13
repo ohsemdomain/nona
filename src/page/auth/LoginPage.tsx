@@ -68,19 +68,19 @@ export function LoginPage() {
 	};
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
-			<div className="w-full max-w-md space-y-6 rounded-lg border border-zinc-200 bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
+		<div className="flex min-h-screen items-center justify-center bg-zinc-50 ">
+			<div className="w-full max-w-md space-y-6 rounded-lg border border-zinc-200 bg-white p-8  ">
 				<div className="text-center">
-					<h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+					<h1 className="text-2xl font-bold text-zinc-900 ">
 						Sign In
 					</h1>
-					<p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+					<p className="mt-2 text-sm text-zinc-600 ">
 						Welcome back to Nona
 					</p>
 				</div>
 
 				{error.general && (
-					<div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+					<div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600   ">
 						{error.general}
 					</div>
 				)}
@@ -123,7 +123,7 @@ export function LoginPage() {
 					</Button>
 				</form>
 
-				<p className="text-center text-sm text-zinc-500 dark:text-zinc-500">
+				<p className="text-center text-sm text-zinc-500 ">
 					Contact admin for account access
 				</p>
 			</div>

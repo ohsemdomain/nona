@@ -51,22 +51,22 @@ export function CategoryDetail({
 					<TabPanel id="detail">
 						<div className="space-y-4">
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Name
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{category.name}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(category.createdAt)}
 									{category.createdByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {category.createdByName}
 										</span>
 									)}
@@ -74,13 +74,13 @@ export function CategoryDetail({
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Last Updated
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(category.updatedAt)}
 									{category.updatedByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {category.updatedByName}
 										</span>
 									)}

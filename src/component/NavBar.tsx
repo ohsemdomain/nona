@@ -25,22 +25,20 @@ export function NavBar() {
 	};
 
 	return (
-		<nav className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-950">
+		<nav className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-6">
 			<div className="flex items-center gap-6">
-				<span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-					Nona
-				</span>
-				<div className="flex items-center gap-1">
+				<span className="text-lg font-bold text-zinc-900">Nona</span>
+				<div className="flex items-center gap-2">
 					{navItemList.map(({ to, label, icon: Icon }) => (
 						<NavLink
 							key={to}
 							to={to}
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
 									isActive
-										? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100",
+										? "bg-zinc-100 text-zinc-900"
+										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
 								)
 							}
 						>
@@ -53,10 +51,10 @@ export function NavBar() {
 							to="/setting"
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
 									isActive
-										? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100",
+										? "bg-zinc-100 text-zinc-900"
+										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
 								)
 							}
 						>
@@ -69,17 +67,17 @@ export function NavBar() {
 
 			<div className="flex items-center gap-3">
 				{session?.user && (
-					<div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+					<div className="flex items-center gap-2 text-sm text-zinc-600">
 						<User className="h-4 w-4" />
 						<span>{session.user.name || session.user.email}</span>
 						{role && (
 							<span
 								className={`rounded-full px-2 py-0.5 text-xs font-medium ${
 									role === "admin"
-										? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+										? "bg-red-100 text-red-700"
 										: role === "user"
-											? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-											: "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400"
+											? "bg-blue-100 text-blue-700"
+											: "bg-zinc-100 text-zinc-700"
 								}`}
 							>
 								{role}

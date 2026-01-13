@@ -61,39 +61,39 @@ export function RoleDetail({
 					<TabPanel id="detail">
 						<div className="space-y-4">
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Name
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{role.name}
 								</dd>
 							</div>
 
 							{role.description && (
 								<div>
-									<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									<dt className="text-sm font-medium text-zinc-500 ">
 										Description
 									</dt>
-									<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+									<dd className="mt-1 text-zinc-900 ">
 										{role.description}
 									</dd>
 								</div>
 							)}
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									User Count
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{role.userCount ?? 0}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(role.createdAt)}
 								</dd>
 							</div>

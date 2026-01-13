@@ -64,7 +64,7 @@ export function RolePermissionEditor({
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
-				<p className="text-sm text-zinc-500 dark:text-zinc-400">
+				<p className="text-sm text-zinc-500 ">
 					Select permission for this role
 				</p>
 				{hasChanges && (

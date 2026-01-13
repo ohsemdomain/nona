@@ -9,11 +9,11 @@ interface CompactLogItemProp {
 }
 
 const ACTION_COLOR: Record<AuditAction, string> = {
-	CREATE: "text-green-600 dark:text-green-400",
-	UPDATE: "text-blue-600 dark:text-blue-400",
-	DELETE: "text-red-600 dark:text-red-400",
-	LOGIN: "text-emerald-600 dark:text-emerald-400",
-	LOGOUT: "text-zinc-500 dark:text-zinc-400",
+	CREATE: "text-green-600 ",
+	UPDATE: "text-blue-600 ",
+	DELETE: "text-red-600 ",
+	LOGIN: "text-emerald-600 ",
+	LOGOUT: "text-zinc-500 ",
 };
 
 const ACTION_VERB: Record<AuditAction, string> = {
@@ -53,16 +53,16 @@ export function CompactLogItem({ entry, resourceType }: CompactLogItemProp) {
 	const isAuthAction = entry.action === "LOGIN" || entry.action === "LOGOUT";
 
 	return (
-		<div className="px-3 py-0.5 text-xs text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800/50">
+		<div className="px-3 py-0.5 text-xs text-zinc-600 hover:bg-zinc-50  ">
 			<span className={clsx("font-medium", color)}>{verb}</span>
 			{!isAuthAction && ` ${resourceLabel}`}
 			{displayName && ` '${displayName}'`}
 			{" "}by {entry.actor.name}
-			<span className="text-zinc-400 dark:text-zinc-500">
+			<span className="text-zinc-400 ">
 				{" "}{formatRelative(entry.createdAt)}
 			</span>
 			{changesText && (
-				<span className="text-zinc-400 dark:text-zinc-500">
+				<span className="text-zinc-400 ">
 					{" "}— {changesText}
 				</span>
 			)}

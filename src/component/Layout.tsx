@@ -3,9 +3,9 @@ import { NavBar } from "./NavBar";
 
 export function Layout() {
 	return (
-		<div className="flex h-screen flex-col bg-zinc-50 dark:bg-zinc-900">
+		<div className="flex h-screen flex-col bg-white">
 			<NavBar />
-			<main className="flex-1 overflow-hidden">
+			<main className="flex-1 overflow-hidden p-4">
 				<Outlet />
 			</main>
 		</div>

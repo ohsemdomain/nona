@@ -24,16 +24,16 @@ export function FieldChangeDisplay({
 	return (
 		<div
 			className={clsx(
-				"flex flex-wrap items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400",
+				"flex flex-wrap items-center gap-1 text-xs text-zinc-600 ",
 				className,
 			)}
 		>
 			<span className="font-medium">{fieldLabel}:</span>
-			<span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+			<span className="rounded bg-red-50 px-1.5 py-0.5 text-red-700  ">
 				{fromValue}
 			</span>
 			<ArrowRight className="h-3 w-3 text-zinc-400" />
-			<span className="rounded bg-green-50 px-1.5 py-0.5 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+			<span className="rounded bg-green-50 px-1.5 py-0.5 text-green-700  ">
 				{toValue}
 			</span>
 		</div>

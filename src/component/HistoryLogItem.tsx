@@ -27,32 +27,32 @@ const ACTION_CONFIG: Record<
 	CREATE: {
 		icon: Plus,
 		label: "created",
-		bgColor: "bg-green-100 dark:bg-green-900/30",
-		iconColor: "text-green-600 dark:text-green-400",
+		bgColor: "bg-green-100 ",
+		iconColor: "text-green-600 ",
 	},
 	UPDATE: {
 		icon: Pencil,
 		label: "updated",
-		bgColor: "bg-blue-100 dark:bg-blue-900/30",
-		iconColor: "text-blue-600 dark:text-blue-400",
+		bgColor: "bg-blue-100 ",
+		iconColor: "text-blue-600 ",
 	},
 	DELETE: {
 		icon: Trash2,
 		label: "deleted",
-		bgColor: "bg-red-100 dark:bg-red-900/30",
-		iconColor: "text-red-600 dark:text-red-400",
+		bgColor: "bg-red-100 ",
+		iconColor: "text-red-600 ",
 	},
 	LOGIN: {
 		icon: LogIn,
 		label: "logged in",
-		bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
-		iconColor: "text-emerald-600 dark:text-emerald-400",
+		bgColor: "bg-emerald-100 ",
+		iconColor: "text-emerald-600 ",
 	},
 	LOGOUT: {
 		icon: LogOut,
 		label: "logged out",
-		bgColor: "bg-zinc-100 dark:bg-zinc-800",
-		iconColor: "text-zinc-600 dark:text-zinc-400",
+		bgColor: "bg-zinc-100 ",
+		iconColor: "text-zinc-600 ",
 	},
 };
 
@@ -79,7 +79,7 @@ export function HistoryLogItem({
 	return (
 		<li
 			className={clsx(
-				"flex gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900",
+				"flex gap-3 rounded-lg border border-zinc-200 bg-white p-4  ",
 				className,
 			)}
 		>
@@ -96,12 +96,12 @@ export function HistoryLogItem({
 			{/* Content */}
 			<div className="min-w-0 flex-1">
 				{/* Main action description */}
-				<p className="text-sm text-zinc-900 dark:text-zinc-100">
+				<p className="text-sm text-zinc-900 ">
 					<span className="font-medium">{resourceLabel}</span>
 					{displayName && (
 						<>
 							{" "}
-							<span className="text-zinc-600 dark:text-zinc-400">
+							<span className="text-zinc-600 ">
 								'{displayName}'
 							</span>
 						</>
@@ -123,7 +123,7 @@ export function HistoryLogItem({
 				)}
 
 				{/* Metadata footer: actor and timestamp */}
-				<p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+				<p className="mt-2 text-xs text-zinc-500 ">
 					by {entry.actor.name} &middot; {formatRelative(entry.createdAt)}
 				</p>
 			</div>

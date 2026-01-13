@@ -46,8 +46,8 @@ export function SkeletonDetailPanel({
 					<SkeletonText width="1/2" size="xl" />
 					{showActions && (
 						<div className="flex gap-2">
-							<div className="h-9 w-16 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
-							<div className="h-9 w-20 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
+							<div className="h-9 w-16 animate-pulse bg-zinc-200  rounded" />
+							<div className="h-9 w-20 animate-pulse bg-zinc-200  rounded" />
 						</div>
 					)}
 				</div>
@@ -77,25 +77,25 @@ export function SkeletonOrderDetail({ lineCount = 3 }: SkeletonOrderDetailProp) 
 			<div className="flex items-center justify-between">
 				<SkeletonText width="1/3" size="xl" />
 				<div className="flex gap-2">
-					<div className="h-9 w-16 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
-					<div className="h-9 w-20 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
+					<div className="h-9 w-16 animate-pulse bg-zinc-200  rounded" />
+					<div className="h-9 w-20 animate-pulse bg-zinc-200  rounded" />
 				</div>
 			</div>
 
 			{/* Status and date row */}
 			<div className="flex items-center gap-4">
-				<div className="h-6 w-20 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+				<div className="h-6 w-20 animate-pulse bg-zinc-200  rounded-full" />
 				<SkeletonText width="1/4" size="sm" />
 			</div>
 
 			{/* Order lines section */}
 			<div className="space-y-2">
 				<SkeletonText width="1/4" size="base" />
-				<div className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+				<div className="border border-zinc-200  rounded-lg overflow-hidden">
 					{Array.from({ length: lineCount }).map((_, i) => (
 						<div
 							key={i}
-							className="flex items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 last:border-b-0"
+							className="flex items-center justify-between px-4 py-3 border-b border-zinc-200  last:border-b-0"
 						>
 							<SkeletonText width="1/2" size="sm" />
 							<div className="flex items-center gap-4">

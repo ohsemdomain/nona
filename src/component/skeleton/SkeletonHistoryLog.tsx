@@ -9,7 +9,7 @@ function SkeletonHistoryLogItem({
 	showChanges = false,
 }: SkeletonHistoryLogItemProp) {
 	return (
-		<div className="flex gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+		<div className="flex gap-3 rounded-lg border border-zinc-200 bg-white p-4  ">
 			<SkeletonCircle size="md" />
 			<div className="min-w-0 flex-1 space-y-2">
 				<SkeletonText width="3/4" size="sm" />

@@ -87,14 +87,14 @@ export function SystemLogPage() {
 		>
 			<div className="flex h-full flex-col">
 				{/* Header */}
-				<div className="shrink-0 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">
+				<div className="shrink-0 border-b border-zinc-200 bg-white px-4 py-3  ">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+							<h1 className="text-lg font-semibold text-zinc-900 ">
 								System Log
 							</h1>
 							{total > 0 && (
-								<span className="text-sm text-zinc-500 dark:text-zinc-400">
+								<span className="text-sm text-zinc-500 ">
 									{total} entries
 								</span>
 							)}
@@ -142,13 +142,13 @@ export function SystemLogPage() {
 				</div>
 
 				{/* Log */}
-				<div className="flex-1 overflow-auto bg-white py-1 dark:bg-zinc-900">
+				<div className="flex-1 overflow-auto bg-white py-1 ">
 					{isLoading ? (
 						<div className="space-y-0.5 px-3">
 							{Array.from({ length: 20 }).map((_, i) => (
 								<div
 									key={i}
-									className="h-4 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800"
+									className="h-4 animate-pulse rounded bg-zinc-100 "
 								/>
 							))}
 						</div>
@@ -159,7 +159,7 @@ export function SystemLogPage() {
 						/>
 					) : !data || data.length === 0 ? (
 						<EmptyState
-							icon={<FileText className="h-8 w-8 text-zinc-300 dark:text-zinc-600" />}
+							icon={<FileText className="h-8 w-8 text-zinc-300 " />}
 							title="No log found"
 							message={
 								hasActiveFilter
@@ -180,7 +180,7 @@ export function SystemLogPage() {
 
 				{/* Pagination */}
 				{total > PAGE_SIZE && (
-					<div className="shrink-0 border-t border-zinc-200 bg-white px-4 py-2 dark:border-zinc-700 dark:bg-zinc-800">
+					<div className="shrink-0 border-t border-zinc-200 bg-white px-4 py-2  ">
 						<Pagination
 							page={page}
 							pageSize={PAGE_SIZE}

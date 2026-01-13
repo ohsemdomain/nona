@@ -48,38 +48,38 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 					<TabPanel id="detail">
 						<div className="space-y-4">
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Name
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">{item.name}</dd>
+								<dd className="mt-1 text-zinc-900 ">{item.name}</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Category
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{item.category?.name ?? "No category"}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Price
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatMoney(item.price)}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(item.createdAt)}
 									{item.createdByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {item.createdByName}
 										</span>
 									)}
@@ -87,13 +87,13 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Last Updated
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(item.updatedAt)}
 									{item.updatedByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {item.updatedByName}
 										</span>
 									)}

@@ -23,11 +23,10 @@ export function SearchInput({
 				onChange={(e) => onChange(e.target.value)}
 				placeholder={placeholder}
 				className={clsx(
-					"w-full rounded border py-2 pl-9 pr-9 text-sm transition-colors",
-					"bg-white dark:bg-zinc-900",
-					"text-zinc-900 dark:text-zinc-100",
-					"placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
-					"border-zinc-300 dark:border-zinc-700",
+					"w-full rounded-lg border py-2 pl-9 pr-9 text-sm transition-colors",
+					"bg-white text-zinc-900",
+					"placeholder:text-zinc-400",
+					"border-zinc-200",
 					"focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2",
 				)}
 			/>
@@ -35,7 +34,7 @@ export function SearchInput({
 				<button
 					type="button"
 					onClick={() => onChange("")}
-					className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+					className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-400 hover:text-zinc-600"
 				>
 					<X className="h-4 w-4" />
 					<span className="sr-only">Clear search</span>

@@ -24,12 +24,12 @@ export function EmptyState({
 				className,
 			)}
 		>
-			{icon ?? <Inbox className="h-12 w-12 text-zinc-300 dark:text-zinc-600" />}
+			{icon ?? <Inbox className="h-12 w-12 text-zinc-300 text-zinc-600" />}
 			<div className="space-y-1">
-				<h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+				<h3 className="text-sm font-medium text-zinc-900 text-zinc-100">
 					{title}
 				</h3>
-				<p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+				<p className="text-sm text-zinc-500 text-zinc-400">{message}</p>
 			</div>
 			{action && <div className="mt-2">{action}</div>}
 		</div>

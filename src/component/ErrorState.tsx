@@ -31,21 +31,21 @@ export function ErrorState({
 				className,
 			)}
 		>
-			<div className="rounded-full bg-red-100 p-3 dark:bg-red-900/20">
-				<AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
+			<div className="rounded-full bg-red-100 p-3 bg-red-900/20">
+				<AlertTriangle className="h-10 w-10 text-red-600 text-red-400" />
 			</div>
 			<div className="space-y-1">
-				<h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+				<h3 className="text-sm font-medium text-zinc-900 text-zinc-100">
 					{title}
 				</h3>
-				<p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+				<p className="text-sm text-zinc-500 text-zinc-400">{message}</p>
 			</div>
 			{showDetails && error && (
 				<details className="w-full max-w-md text-left">
 					<summary className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-600">
 						Technical details
 					</summary>
-					<pre className="mt-2 overflow-auto rounded bg-zinc-100 p-2 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+					<pre className="mt-2 overflow-auto rounded bg-zinc-100 p-2 text-xs text-zinc-600 bg-zinc-800 text-zinc-400">
 						{error.message}
 					</pre>
 				</details>

@@ -17,21 +17,13 @@ export function MasterList({
 	return (
 		<div
 			className={clsx(
-				"flex h-full flex-col bg-zinc-50 dark:bg-zinc-900",
+				"flex h-full w-80 shrink-0 flex-col rounded-xl border border-zinc-200 bg-white",
 				className,
 			)}
 		>
-			{header && (
-				<div className="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-700">
-					{header}
-				</div>
-			)}
+			{header && <div className="shrink-0 p-4">{header}</div>}
 			<div className="flex-1 overflow-y-auto">{children}</div>
-			{footer && (
-				<div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-700">
-					{footer}
-				</div>
-			)}
+			{footer && <div className="shrink-0 p-4">{footer}</div>}
 		</div>
 	);
 }
@@ -55,9 +47,9 @@ export function MasterListItem({
 			onClick={onClick}
 			className={clsx(
 				"w-full px-4 py-3 text-left transition-colors",
-				"border-b border-zinc-200 dark:border-zinc-700",
-				"hover:bg-zinc-100 dark:hover:bg-zinc-800",
-				isSelected && "bg-zinc-200 dark:bg-zinc-800",
+				"border-b border-zinc-100",
+				"hover:bg-zinc-50",
+				isSelected && "bg-zinc-100",
 				className,
 			)}
 		>

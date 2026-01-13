@@ -17,21 +17,13 @@ export function DetailPanel({
 	return (
 		<div
 			className={clsx(
-				"flex h-full flex-col bg-white dark:bg-zinc-950",
+				"flex h-full flex-1 flex-col rounded-xl border border-zinc-200 bg-white",
 				className,
 			)}
 		>
-			{header && (
-				<div className="shrink-0 border-b border-zinc-200 p-4 dark:border-zinc-700">
-					{header}
-				</div>
-			)}
+			{header && <div className="shrink-0 p-4">{header}</div>}
 			<div className="flex-1 overflow-y-auto p-4">{children}</div>
-			{footer && (
-				<div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-700">
-					{footer}
-				</div>
-			)}
+			{footer && <div className="shrink-0 p-4">{footer}</div>}
 		</div>
 	);
 }
@@ -49,9 +41,7 @@ export function DetailPanelHeader({
 }: DetailPanelHeaderProp) {
 	return (
 		<div className={clsx("flex items-center justify-between gap-4", className)}>
-			<h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-				{title}
-			</h2>
+			<h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
 			{action && <div className="flex items-center gap-2">{action}</div>}
 		</div>
 	);

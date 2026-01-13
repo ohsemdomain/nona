@@ -4,7 +4,7 @@ import { ErrorState } from "./ErrorState";
 
 function RootFallback({ error, resetErrorBoundary }: FallbackProps) {
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+		<div className="flex min-h-screen items-center justify-center bg-zinc-50 ">
 			<ErrorState
 				title="Application Error"
 				message="The application encountered an unexpected error."

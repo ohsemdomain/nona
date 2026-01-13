@@ -22,7 +22,7 @@ export function FormField({
 		<div className={clsx("space-y-1.5", className)}>
 			<label
 				htmlFor={htmlFor}
-				className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+				className="block text-sm font-medium text-zinc-700 "
 			>
 				{label}
 				{required && <span className="ml-1 text-red-500">*</span>}

@@ -18,7 +18,7 @@ export function SkeletonTableRow({
 		<tr
 			role="presentation"
 			aria-hidden="true"
-			className="border-b border-zinc-200 dark:border-zinc-700"
+			className="border-b border-zinc-200 "
 		>
 			{/* Name column */}
 			<td className="px-4 py-3">
@@ -33,7 +33,7 @@ export function SkeletonTableRow({
 			{/* Role column with badge */}
 			{hasRoleBadge && (
 				<td className="px-4 py-3">
-					<div className="h-6 w-16 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded-full" />
+					<div className="h-6 w-16 animate-pulse bg-zinc-200  rounded-full" />
 				</td>
 			)}
 
@@ -41,8 +41,8 @@ export function SkeletonTableRow({
 			{hasActions && (
 				<td className="px-4 py-3">
 					<div className="flex gap-2">
-						<div className="h-8 w-14 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
-						<div className="h-8 w-16 animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded" />
+						<div className="h-8 w-14 animate-pulse bg-zinc-200  rounded" />
+						<div className="h-8 w-16 animate-pulse bg-zinc-200  rounded" />
 					</div>
 				</td>
 			)}
@@ -77,7 +77,7 @@ export function SkeletonTable({
 			<table className="w-full text-sm">
 				{showHeader && (
 					<thead>
-						<tr className="border-b border-zinc-200 dark:border-zinc-700">
+						<tr className="border-b border-zinc-200 ">
 							<th className="px-4 py-3 text-left">
 								<SkeletonText width="1/2" size="sm" />
 							</th>
@@ -97,7 +97,7 @@ export function SkeletonTable({
 						</tr>
 					</thead>
 				)}
-				<tbody className="divide-y divide-zinc-200 dark:divide-zinc-700">
+				<tbody className="divide-y divide-zinc-200 ">
 					{Array.from({ length: rows }).map((_, i) => (
 						<SkeletonTableRow
 							key={i}

@@ -66,7 +66,7 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 						<div className="space-y-4">
 							<div className="flex items-center gap-4">
 								<div className="flex-1">
-									<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									<dt className="text-sm font-medium text-zinc-500 ">
 										Status
 									</dt>
 									<dd className="mt-1">
@@ -78,23 +78,23 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 									</dd>
 								</div>
 								<div className="flex-1">
-									<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+									<dt className="text-sm font-medium text-zinc-500 ">
 										Total
 									</dt>
-									<dd className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+									<dd className="mt-1 text-lg font-semibold text-zinc-900 ">
 										{formatMoney(orderData.total)}
 									</dd>
 								</div>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(orderData.createdAt)}
 									{orderData.createdByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {orderData.createdByName}
 										</span>
 									)}
@@ -102,25 +102,25 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+								<dt className="text-sm font-medium text-zinc-500 ">
 									Last Updated
 								</dt>
-								<dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+								<dd className="mt-1 text-zinc-900 ">
 									{formatDateTime(orderData.updatedAt)}
 									{orderData.updatedByName && (
-										<span className="text-zinc-500 dark:text-zinc-400">
+										<span className="text-zinc-500 ">
 											{" "}by {orderData.updatedByName}
 										</span>
 									)}
 								</dd>
 							</div>
 
-							<div className="border-t border-zinc-200 pt-4 dark:border-zinc-700">
-								<h3 className="mb-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+							<div className="border-t border-zinc-200 pt-4 ">
+								<h3 className="mb-3 text-sm font-medium text-zinc-900 ">
 									Order Line ({lineList.length})
 								</h3>
 								{lineList.length === 0 ? (
-									<p className="text-sm text-zinc-500 dark:text-zinc-400">
+									<p className="text-sm text-zinc-500 ">
 										No item in this order.
 									</p>
 								) : (
@@ -128,17 +128,17 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 										{lineList.map((line) => (
 											<div
 												key={line.id}
-												className="flex items-center justify-between rounded border border-zinc-200 p-3 dark:border-zinc-700"
+												className="flex items-center justify-between rounded border border-zinc-200 p-3 "
 											>
 												<div className="min-w-0 flex-1">
-													<p className="font-medium text-zinc-900 dark:text-zinc-100">
+													<p className="font-medium text-zinc-900 ">
 														{line.item?.name ?? "Unknown Item"}
 													</p>
-													<p className="text-sm text-zinc-500 dark:text-zinc-400">
+													<p className="text-sm text-zinc-500 ">
 														{formatMoney(line.unitPrice)} x {line.quantity}
 													</p>
 												</div>
-												<span className="shrink-0 font-medium text-zinc-900 dark:text-zinc-100">
+												<span className="shrink-0 font-medium text-zinc-900 ">
 													{formatMoney(line.lineTotal)}
 												</span>
 											</div>

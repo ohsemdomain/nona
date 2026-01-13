@@ -43,7 +43,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProp>(
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					checked || indeterminate
 						? "border-blue-600 bg-blue-600"
-						: "border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-800",
+						: "border-zinc-300 bg-white  ",
 					className,
 				)}
 			>
@@ -72,7 +72,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProp>(
 						"inline-flex items-center gap-2 text-sm",
 						disabled
 							? "cursor-not-allowed text-zinc-400"
-							: "cursor-pointer text-zinc-700 dark:text-zinc-300",
+							: "cursor-pointer text-zinc-700 ",
 					)}
 				>
 					{checkbox}

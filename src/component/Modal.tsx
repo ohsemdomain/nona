@@ -75,7 +75,7 @@ export function Modal({
 			>
 				<div
 					className={clsx(
-						"w-full rounded-lg bg-white shadow-xl dark:bg-zinc-900",
+						"w-full rounded-xl border border-zinc-200 bg-white",
 						sizeStyleMap[size],
 					)}
 					role="dialog"
@@ -83,17 +83,17 @@ export function Modal({
 					aria-labelledby={`${id}-title`}
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+					<div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
 						<h2
 							id={`${id}-title`}
-							className="text-lg font-semibold text-zinc-900 dark:text-zinc-100"
+							className="text-lg font-semibold text-zinc-900"
 						>
 							{title}
 						</h2>
 						<button
 							type="button"
 							onClick={handleClose}
-							className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+							className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
 						>
 							<X className="h-5 w-5" />
 							<span className="sr-only">Close</span>
