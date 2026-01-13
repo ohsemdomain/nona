@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUIStore } from "@/src/store/ui";
 import {
 	MasterDetail,
@@ -59,6 +59,13 @@ export function RolePage() {
 	const filteredList = roleList.filter((role) =>
 		role.name.toLowerCase().includes(search.toLowerCase()),
 	);
+
+	// Auto-select first item when list loads
+	useEffect(() => {
+		if (selectedId === null && filteredList.length > 0) {
+			setSelectedId(filteredList[0].id);
+		}
+	}, [filteredList, selectedId]);
 
 	const handleCreate = () => {
 		openModal(MODAL_ID.create);

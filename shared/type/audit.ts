@@ -19,6 +19,7 @@ export const AUDIT_RESOURCE = {
 	ITEM: "item",
 	ORDER: "order",
 	USER: "user",
+	ROLE: "role",
 	AUTH: "auth",
 } as const;
 
