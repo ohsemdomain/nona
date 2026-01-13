@@ -69,6 +69,8 @@ CREATE INDEX `order_line_item_id_idx` ON `order_line` (`item_id`);--> statement-
 CREATE TABLE `permission` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
+	`resource` text NOT NULL,
+	`action` text NOT NULL,
 	`description` text
 );
 --> statement-breakpoint
