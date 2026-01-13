@@ -67,15 +67,40 @@ async function main() {
 		process.exit(0);
 	}
 
-	// Get admin role
-	const adminRole = db
-		.prepare("SELECT id FROM role WHERE name = 'admin'")
+	// Get or create admin role
+	let adminRole = db
+		.prepare("SELECT id FROM role WHERE name = 'Admin'")
 		.get() as { id: number } | undefined;
+
 	if (!adminRole) {
-		console.error("❌ Admin role not found. Run RBAC seed first:");
-		console.error("   bun run db:seed-rbac");
-		db.close();
-		process.exit(1);
+		console.log("📋 Creating Admin role with all permissions...");
+
+		// Create the Admin role
+		db.prepare(
+			"INSERT INTO role (name, description, created_at) VALUES (?, ?, ?)",
+		).run("Admin", "Full system access", Date.now());
+
+		adminRole = db
+			.prepare("SELECT id FROM role WHERE name = 'Admin'")
+			.get() as { id: number };
+
+		// Get all permissions
+		const permissionList = db
+			.prepare("SELECT id FROM permission")
+			.all() as { id: number }[];
+
+		// Assign all permissions to Admin role
+		const insertRolePermission = db.prepare(
+			"INSERT INTO role_permission (role_id, permission_id) VALUES (?, ?)",
+		);
+
+		for (const perm of permissionList) {
+			insertRolePermission.run(adminRole.id, perm.id);
+		}
+
+		console.log(
+			`   Assigned ${permissionList.length} permissions to Admin role`,
+		);
 	}
 
 	// Hash password
@@ -102,7 +127,7 @@ async function main() {
 
 	console.log("✅ Admin created successfully");
 	console.log(`   Email: ${adminEmail}`);
-	console.log(`   Role: admin`);
+	console.log(`   Role: Admin`);
 
 	db.close();
 }
