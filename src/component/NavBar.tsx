@@ -1,10 +1,17 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Layers, Package, ShoppingCart, LogOut, User, Settings, Menu } from "lucide-react";
+import { Layers, Package, ShoppingCart, LogOut, User, Settings, Menu, ChevronDown } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/src/lib/AuthProvider";
 import { usePermission } from "@/src/hook/usePermission";
 import { PERMISSION } from "@/shared/constant/permission";
-import { Button } from "./Button";
+import {
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownItem,
+	DropdownSeparator,
+	DropdownLabel,
+} from "./Dropdown";
 import toast from "react-hot-toast";
 
 interface NavBarProp {
@@ -81,32 +88,44 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 				</div>
 			</div>
 
-			{/* Desktop user info - hidden on mobile */}
-			<div className="hidden items-center gap-3 lg:flex">
+			{/* Desktop user dropdown - hidden on mobile */}
+			<div className="hidden lg:block">
 				{session?.user && (
-					<div className="flex items-center gap-2 text-sm text-geist-fg-secondary">
-						<User className="h-4 w-4" />
-						<span>{session.user.name || session.user.email}</span>
-						{role && (
-							<span
-								className={clsx(
-									"rounded-full px-2 py-0.5 text-xs font-medium",
-									role === "admin"
-										? "bg-geist-error/10 text-geist-error"
-										: role === "user"
-											? "bg-geist-success/10 text-geist-success"
-											: "bg-geist-bg-secondary text-geist-fg-secondary",
-								)}
+					<Dropdown>
+						<DropdownTrigger asChild>
+							<button
+								type="button"
+								className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-geist-fg-secondary transition-colors hover:bg-geist-bg-secondary hover:text-geist-fg"
 							>
-								{role}
-							</span>
-						)}
-					</div>
+								<User className="h-4 w-4" />
+								<span>{session.user.name || session.user.email}</span>
+								{role && (
+									<span
+										className={clsx(
+											"rounded-full px-2 py-0.5 text-xs font-medium",
+											role === "admin"
+												? "bg-geist-error/10 text-geist-error"
+												: role === "user"
+													? "bg-geist-success/10 text-geist-success"
+													: "bg-geist-bg-secondary text-geist-fg-secondary",
+										)}
+									>
+										{role}
+									</span>
+								)}
+								<ChevronDown className="h-3 w-3" />
+							</button>
+						</DropdownTrigger>
+						<DropdownContent align="end">
+							<DropdownLabel>{session.user.email}</DropdownLabel>
+							<DropdownSeparator />
+							<DropdownItem onSelect={handleLogout}>
+								<LogOut className="h-4 w-4" />
+								Logout
+							</DropdownItem>
+						</DropdownContent>
+					</Dropdown>
 				)}
-				<Button variant="secondary" size="sm" onClick={handleLogout}>
-					<LogOut className="h-4 w-4" />
-					Logout
-				</Button>
 			</div>
 		</nav>
 	);

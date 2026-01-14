@@ -1,16 +1,21 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
 import {
 	Button,
 	DetailPanelHeader,
-	PermissionGuard,
 	TabGroup,
 	TabList,
 	Tab,
 	TabPanels,
 	TabPanel,
 	HistoryLogPanel,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownItem,
+	DropdownSeparator,
 } from "@/src/component";
 import { formatDateTime } from "@/src/lib/date";
+import { usePermission } from "@/src/hook/usePermission";
 import { PERMISSION } from "@/shared/constant/permission";
 import { getRoleColorClasses } from "@/shared/constant/auth";
 import type { User } from "@/shared/type";
@@ -22,25 +27,40 @@ interface UserDetailProp {
 }
 
 export function UserDetail({ user, onEdit, onDelete }: UserDetailProp) {
+	const { hasPermission } = usePermission();
+	const canEdit = hasPermission(PERMISSION.USER_UPDATE);
+	const canDelete = hasPermission(PERMISSION.USER_DELETE);
+	const showDropdown = canEdit || canDelete;
+
 	return (
 		<div className="space-y-6">
 			<DetailPanelHeader
 				title={user.name}
 				action={
-					<>
-						<PermissionGuard permission={PERMISSION.USER_UPDATE}>
-							<Button variant="secondary" size="sm" onClick={onEdit}>
-								<Pencil className="h-4 w-4" />
-								Edit
-							</Button>
-						</PermissionGuard>
-						<PermissionGuard permission={PERMISSION.USER_DELETE}>
-							<Button variant="danger" size="sm" onClick={onDelete}>
-								<Trash2 className="h-4 w-4" />
-								Delete
-							</Button>
-						</PermissionGuard>
-					</>
+					showDropdown ? (
+						<Dropdown>
+							<DropdownTrigger asChild>
+								<Button variant="secondary" size="sm">
+									<MoreHorizontal className="h-4 w-4" />
+								</Button>
+							</DropdownTrigger>
+							<DropdownContent align="end">
+								{canEdit && (
+									<DropdownItem onSelect={onEdit}>
+										<Pencil className="h-4 w-4" />
+										Edit
+									</DropdownItem>
+								)}
+								{canEdit && canDelete && <DropdownSeparator />}
+								{canDelete && (
+									<DropdownItem variant="danger" onSelect={onDelete}>
+										<Trash2 className="h-4 w-4" />
+										Delete
+									</DropdownItem>
+								)}
+							</DropdownContent>
+						</Dropdown>
+					) : null
 				}
 			/>
 

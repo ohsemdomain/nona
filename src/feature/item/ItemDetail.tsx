@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
 import {
 	Button,
 	DetailPanelHeader,
@@ -8,6 +8,11 @@ import {
 	TabPanels,
 	TabPanel,
 	HistoryLogPanel,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownItem,
+	DropdownSeparator,
 } from "@/src/component";
 import { formatDateTime } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
@@ -25,16 +30,24 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 			<DetailPanelHeader
 				title={item.name}
 				action={
-					<>
-						<Button variant="secondary" size="sm" onClick={onEdit}>
-							<Pencil className="h-4 w-4" />
-							Edit
-						</Button>
-						<Button variant="danger" size="sm" onClick={onDelete}>
-							<Trash2 className="h-4 w-4" />
-							Delete
-						</Button>
-					</>
+					<Dropdown>
+						<DropdownTrigger asChild>
+							<Button variant="secondary" size="sm">
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownTrigger>
+						<DropdownContent align="end">
+							<DropdownItem onSelect={onEdit}>
+								<Pencil className="h-4 w-4" />
+								Edit
+							</DropdownItem>
+							<DropdownSeparator />
+							<DropdownItem variant="danger" onSelect={onDelete}>
+								<Trash2 className="h-4 w-4" />
+								Delete
+							</DropdownItem>
+						</DropdownContent>
+					</Dropdown>
 				}
 			/>
 
