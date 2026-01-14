@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useMasterDetail } from "@/src/hook/useMasterDetail";
 import { useUIStore } from "@/src/store/ui";
 import {
@@ -7,14 +8,17 @@ import {
 	MasterListItem,
 	DetailPanel,
 	SearchInput,
+	Select,
 	Button,
 	LoadingBoundary,
 	EmptyState,
 	SkeletonList,
 	SkeletonDetailPanel,
 } from "@/src/component";
+import { api } from "@/src/lib/api";
+import { queryKey } from "@/src/lib/queryKey";
 import { formatMoney } from "@/src/lib/format";
-import type { Item } from "@/shared/type";
+import type { Item, Category } from "@/shared/type";
 import {
 	ItemDetail,
 	ItemFormModal,
@@ -26,6 +30,11 @@ const MODAL_ID = {
 	edit: "item-edit",
 	delete: "item-delete",
 };
+
+interface CategoryListResponse {
+	data: Category[];
+	total: number;
+}
 
 export function ItemPage() {
 	const { openModal } = useUIStore();
@@ -40,9 +49,19 @@ export function ItemPage() {
 		setSelectedId,
 		search,
 		setSearch,
+		filterMap,
+		setFilter,
 		selectAfterCreate,
 		selectAfterDelete,
 	} = useMasterDetail<Item>("item");
+
+	// Fetch category list for filter dropdown
+	const { data: categoryData } = useQuery({
+		queryKey: queryKey.category.list(),
+		queryFn: () => api.get<CategoryListResponse>("/category"),
+	});
+
+	const categoryList = categoryData?.data ?? [];
 
 	const handleCreate = () => {
 		openModal(MODAL_ID.create);
@@ -75,11 +94,26 @@ export function ItemPage() {
 									New
 								</Button>
 							</div>
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search item..."
-							/>
+							<div className="flex items-center gap-2">
+								<Select
+									value={filterMap.categoryId || ""}
+									onChange={(e) => setFilter("categoryId", e.target.value)}
+									className="w-32"
+									aria-label="Filter by category"
+								>
+									<option value="">All Category</option>
+									{categoryList.map((cat) => (
+										<option key={cat.publicId} value={String(cat.id)}>
+											{cat.name}
+										</option>
+									))}
+								</Select>
+								<SearchInput
+									value={search}
+									onChange={setSearch}
+									placeholder="Search item..."
+								/>
+							</div>
 						</div>
 					}
 				>
