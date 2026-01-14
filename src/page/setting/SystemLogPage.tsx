@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { FileText, X } from "lucide-react";
 import {
 	Select,
@@ -9,6 +9,8 @@ import {
 	PermissionGuard,
 	CompactLogItem,
 } from "@/src/component";
+import { useFilter } from "@/src/hook/useFilter";
+import { usePagination } from "@/src/hook/usePagination";
 import {
 	useSystemAuditLog,
 	type SystemAuditLogFilter,
@@ -16,8 +18,6 @@ import {
 import { PERMISSION } from "@/shared/constant/permission";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "@/shared/type";
 import type { AuditAction, AuditResource } from "@/shared/type";
-
-const PAGE_SIZE = 50;
 
 const RESOURCE_OPTION = [
 	{ value: "", label: "All" },
@@ -38,42 +38,25 @@ const ACTION_OPTION = [
 ];
 
 export function SystemLogPage() {
-	const [page, setPage] = useState(1);
-	const [filter, setFilter] = useState<SystemAuditLogFilter>({
-		resource: "",
-		action: "",
-		actorName: "",
-	});
+	const { search, setSearch, filterMap, setFilter, clearFilter } = useFilter();
+	const { page, pageSize, setPage } = usePagination(50);
+
+	// Map useFilter state to the hook's expected format
+	const filter = useMemo((): SystemAuditLogFilter => ({
+		resource: (filterMap.resource as AuditResource) || "",
+		action: (filterMap.action as AuditAction) || "",
+		actorName: search,
+	}), [filterMap.resource, filterMap.action, search]);
 
 	const { data, total, isLoading, isError } = useSystemAuditLog({
 		filter,
 		page,
-		pageSize: PAGE_SIZE,
+		pageSize,
 	});
 
 	const hasActiveFilter = useMemo(() => {
-		return !!(filter.resource || filter.action || filter.actorName);
-	}, [filter]);
-
-	const handleResourceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setFilter((prev) => ({ ...prev, resource: e.target.value as AuditResource | "" }));
-		setPage(1);
-	};
-
-	const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setFilter((prev) => ({ ...prev, action: e.target.value as AuditAction | "" }));
-		setPage(1);
-	};
-
-	const handleActorNameChange = (value: string) => {
-		setFilter((prev) => ({ ...prev, actorName: value }));
-		setPage(1);
-	};
-
-	const handleClearFilter = () => {
-		setFilter({ resource: "", action: "", actorName: "" });
-		setPage(1);
-	};
+		return !!(filterMap.resource || filterMap.action || search);
+	}, [filterMap.resource, filterMap.action, search]);
 
 	return (
 		<PermissionGuard
@@ -100,7 +83,7 @@ export function SystemLogPage() {
 							)}
 						</div>
 						{hasActiveFilter && (
-							<Button variant="secondary" size="sm" onClick={handleClearFilter}>
+							<Button variant="secondary" size="sm" onClick={clearFilter}>
 								<X className="h-4 w-4" />
 								Clear
 							</Button>
@@ -108,8 +91,8 @@ export function SystemLogPage() {
 					</div>
 					<div className="mt-3 flex items-center gap-2">
 						<Select
-							value={filter.resource}
-							onChange={handleResourceChange}
+							value={filterMap.resource || ""}
+							onChange={(e) => setFilter("resource", e.target.value)}
 							aria-label="Filter by resource"
 							className="w-28"
 						>
@@ -120,8 +103,8 @@ export function SystemLogPage() {
 							))}
 						</Select>
 						<Select
-							value={filter.action}
-							onChange={handleActionChange}
+							value={filterMap.action || ""}
+							onChange={(e) => setFilter("action", e.target.value)}
 							aria-label="Filter by action"
 							className="w-28"
 						>
@@ -133,8 +116,8 @@ export function SystemLogPage() {
 						</Select>
 						<div className="w-40">
 							<SearchInput
-								value={filter.actorName ?? ""}
-								onChange={handleActorNameChange}
+								value={search}
+								onChange={setSearch}
 								placeholder="Search actor..."
 							/>
 						</div>
@@ -179,11 +162,11 @@ export function SystemLogPage() {
 				</div>
 
 				{/* Pagination */}
-				{total > PAGE_SIZE && (
+				{total > pageSize && (
 					<div className="shrink-0 border-t border-zinc-200 bg-white px-4 py-2  ">
 						<Pagination
 							page={page}
-							pageSize={PAGE_SIZE}
+							pageSize={pageSize}
 							total={total}
 							onPageChange={setPage}
 						/>
