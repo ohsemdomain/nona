@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Layers, Package, ShoppingCart, LogOut, User, Settings } from "lucide-react";
+import { Layers, Package, ShoppingCart, LogOut, User, Settings, Menu } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/src/lib/AuthProvider";
 import { usePermission } from "@/src/hook/usePermission";
@@ -7,13 +7,17 @@ import { PERMISSION } from "@/shared/constant/permission";
 import { Button } from "./Button";
 import toast from "react-hot-toast";
 
+interface NavBarProp {
+	onMenuOpen?: () => void;
+}
+
 const navItemList = [
 	{ to: "/category", label: "Category", icon: Layers },
 	{ to: "/item", label: "Item", icon: Package },
 	{ to: "/order", label: "Order", icon: ShoppingCart },
 ];
 
-export function NavBar() {
+export function NavBar({ onMenuOpen }: NavBarProp) {
 	const navigate = useNavigate();
 	const { session, role, logout } = useAuth();
 	const { hasPermission } = usePermission();
@@ -25,10 +29,22 @@ export function NavBar() {
 	};
 
 	return (
-		<nav className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-6">
-			<div className="flex items-center gap-6">
+		<nav className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 lg:px-6">
+			<div className="flex items-center gap-4 lg:gap-6">
+				{/* Mobile hamburger */}
+				<button
+					type="button"
+					onClick={onMenuOpen}
+					className="rounded-md p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 lg:hidden"
+				>
+					<Menu className="h-5 w-5" />
+					<span className="sr-only">Open menu</span>
+				</button>
+
 				<span className="text-lg font-bold text-zinc-900">Nona</span>
-				<div className="flex items-center gap-2">
+
+				{/* Desktop nav */}
+				<div className="hidden items-center gap-2 lg:flex">
 					{navItemList.map(({ to, label, icon: Icon }) => (
 						<NavLink
 							key={to}
@@ -65,7 +81,8 @@ export function NavBar() {
 				</div>
 			</div>
 
-			<div className="flex items-center gap-3">
+			{/* Desktop user info - hidden on mobile */}
+			<div className="hidden items-center gap-3 lg:flex">
 				{session?.user && (
 					<div className="flex items-center gap-2 text-sm text-zinc-600">
 						<User className="h-4 w-4" />

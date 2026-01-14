@@ -19,6 +19,7 @@ export { MasterList, MasterListItem } from "./MasterList";
 export { DetailPanel, DetailPanelHeader } from "./DetailPanel";
 export { DataTable } from "./DataTable";
 export { NavBar } from "./NavBar";
+export { MobileMenu } from "./MobileMenu";
 export { Layout } from "./Layout";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { PermissionGuard } from "./PermissionGuard";

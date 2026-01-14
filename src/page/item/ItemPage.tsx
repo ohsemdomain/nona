@@ -62,7 +62,7 @@ export function ItemPage() {
 
 	return (
 		<>
-			<MasterDetail>
+			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
 						<div className="space-y-3">
@@ -126,7 +126,7 @@ export function ItemPage() {
 					</LoadingBoundary>
 				</MasterList>
 
-				<DetailPanel>
+				<DetailPanel onBack={() => setSelectedId(null)} backLabel="Item">
 					{selectedItem ? (
 						<ItemDetail
 							item={selectedItem}

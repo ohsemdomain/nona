@@ -56,7 +56,7 @@ export function OrderPage() {
 
 	return (
 		<>
-			<MasterDetail>
+			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
 						<div className="space-y-3">
@@ -122,7 +122,7 @@ export function OrderPage() {
 					</LoadingBoundary>
 				</MasterList>
 
-				<DetailPanel>
+				<DetailPanel onBack={() => setSelectedId(null)} backLabel="Order">
 					{selectedItem ? (
 						<OrderDetail
 							order={selectedItem}

@@ -5,6 +5,7 @@ import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
 import { useFilter } from "./useFilter";
 import { usePagination } from "./usePagination";
+import { useIsMobile } from "./useIsMobile";
 import type { Entity } from "@/shared/type";
 
 interface ListResponse<T> {
@@ -47,6 +48,7 @@ export function useMasterDetail<T extends HasPublicId>(
 	option: UseMasterDetailOption = {},
 ): UseMasterDetailReturn<T> {
 	const { autoSelectFirst = true } = option;
+	const isMobile = useIsMobile();
 	const [searchParam, setSearchParam] = useSearchParams();
 
 	const { search, setSearch, filterMap, setFilter, clearFilter, queryParam } =
@@ -82,14 +84,15 @@ export function useMasterDetail<T extends HasPublicId>(
 			// Invalid selection - fall through to auto-select
 		}
 
-		// Case 2: No selection or invalid - auto-select first if enabled
-		if (autoSelectFirst && list.length > 0) {
+		// Case 2: No selection or invalid - auto-select first if enabled (desktop only)
+		// On mobile, we want to show the list first, not auto-select
+		if (autoSelectFirst && !isMobile && list.length > 0) {
 			return list[0].publicId;
 		}
 
-		// Case 3: No auto-select or empty list
+		// Case 3: No auto-select, mobile, or empty list
 		return null;
-	}, [urlSelectedId, list, autoSelectFirst]);
+	}, [urlSelectedId, list, autoSelectFirst, isMobile]);
 
 	const selectedItem = useMemo(
 		() => list.find((item) => item.publicId === computedSelectedId),

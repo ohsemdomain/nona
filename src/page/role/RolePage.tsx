@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useUIStore } from "@/src/store/ui";
+import { useIsMobile } from "@/src/hook/useIsMobile";
 import {
 	MasterDetail,
 	MasterList,
@@ -30,6 +31,7 @@ const MODAL_ID = {
 
 export function RolePage() {
 	const { openModal } = useUIStore();
+	const isMobile = useIsMobile();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [search, setSearch] = useState("");
 
@@ -60,12 +62,13 @@ export function RolePage() {
 		role.name.toLowerCase().includes(search.toLowerCase()),
 	);
 
-	// Auto-select first item when list loads
+	// Auto-select first item when list loads (desktop only)
+	// On mobile, show list first without auto-selection
 	useEffect(() => {
-		if (selectedId === null && filteredList.length > 0) {
+		if (!isMobile && selectedId === null && filteredList.length > 0) {
 			setSelectedId(filteredList[0].id);
 		}
-	}, [filteredList, selectedId]);
+	}, [filteredList, selectedId, isMobile]);
 
 	const handleCreate = () => {
 		openModal(MODAL_ID.create);
@@ -93,7 +96,7 @@ export function RolePage() {
 
 	return (
 		<>
-			<MasterDetail>
+			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
 						<div className="space-y-3">
@@ -157,7 +160,7 @@ export function RolePage() {
 					</LoadingBoundary>
 				</MasterList>
 
-				<DetailPanel>
+				<DetailPanel onBack={() => setSelectedId(null)} backLabel="Role">
 					{selectedRole ? (
 						<RoleDetail
 							role={selectedRole}

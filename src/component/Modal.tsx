@@ -14,10 +14,10 @@ interface ModalProp {
 }
 
 const sizeStyleMap = {
-	sm: "max-w-sm",
-	md: "max-w-md",
-	lg: "max-w-lg",
-	xl: "max-w-xl",
+	sm: "lg:max-w-sm",
+	md: "lg:max-w-md",
+	lg: "lg:max-w-lg",
+	xl: "lg:max-w-xl",
 };
 
 export function Modal({
@@ -63,19 +63,22 @@ export function Modal({
 
 	return createPortal(
 		<>
+			{/* Backdrop - hidden on mobile, visible on desktop */}
 			<div
-				className="fixed inset-0 bg-black/50 transition-opacity"
+				className="fixed inset-0 hidden bg-black/50 transition-opacity lg:block"
 				style={{ zIndex: overlayZIndex }}
 				onClick={handleClose}
 				aria-hidden="true"
 			/>
+			{/* Modal container */}
 			<div
-				className="fixed inset-0 flex items-center justify-center p-4"
+				className="fixed inset-0 flex items-start lg:items-center lg:justify-center lg:p-4"
 				style={{ zIndex: modalZIndex }}
 			>
 				<div
 					className={clsx(
-						"w-full rounded-xl border border-zinc-200 bg-white",
+						"flex h-full w-full flex-col bg-white",
+						"lg:h-auto lg:rounded-xl lg:border lg:border-zinc-200",
 						sizeStyleMap[size],
 					)}
 					role="dialog"
@@ -83,7 +86,7 @@ export function Modal({
 					aria-labelledby={`${id}-title`}
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
+					<div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3">
 						<h2
 							id={`${id}-title`}
 							className="text-lg font-semibold text-zinc-900"
@@ -99,7 +102,7 @@ export function Modal({
 							<span className="sr-only">Close</span>
 						</button>
 					</div>
-					<div className="p-4">{children}</div>
+					<div className="flex-1 overflow-y-auto p-4">{children}</div>
 				</div>
 			</div>
 		</>,

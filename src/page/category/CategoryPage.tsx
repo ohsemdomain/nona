@@ -61,7 +61,7 @@ export function CategoryPage() {
 
 	return (
 		<>
-			<MasterDetail>
+			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
 						<div className="space-y-3">
@@ -115,7 +115,7 @@ export function CategoryPage() {
 					</LoadingBoundary>
 				</MasterList>
 
-				<DetailPanel>
+				<DetailPanel onBack={() => setSelectedId(null)} backLabel="Category">
 					{selectedItem ? (
 						<CategoryDetail
 							category={selectedItem}
