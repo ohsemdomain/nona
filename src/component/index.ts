@@ -27,6 +27,25 @@ export { PermissionGuard } from "./PermissionGuard";
 // Tab components
 export { TabGroup, TabList, Tab, TabPanels, TabPanel } from "./Tab";
 
+// Dropdown components
+export {
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownItem,
+	DropdownCheckboxItem,
+	DropdownRadioGroup,
+	DropdownRadioItem,
+	DropdownLabel,
+	DropdownSeparator,
+	DropdownSub,
+	DropdownSubTrigger,
+	DropdownSubContent,
+	DropdownShortcut,
+	DropdownGroup,
+	DropdownPortal,
+} from "./Dropdown";
+
 // History log components
 export { HistoryLogPanel } from "./HistoryLogPanel";
 export { HistoryLogList } from "./HistoryLogList";
