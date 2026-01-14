@@ -8,6 +8,7 @@ import {
 	MasterListItem,
 	DetailPanel,
 	SearchInput,
+	Select,
 	Button,
 	LoadingBoundary,
 	EmptyState,
@@ -16,13 +17,22 @@ import {
 } from "@/src/component";
 import { formatMoney } from "@/src/lib/format";
 import { formatDate } from "@/src/lib/date";
-import type { Order } from "@/shared/type";
+import type { Order, OrderStatus } from "@/shared/type";
 import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "@/shared/type";
 import { OrderDetail, OrderDeleteDialog } from "@/src/feature/order";
 
 const MODAL_ID = {
 	delete: "order-delete",
 };
+
+const STATUS_OPTION: { value: OrderStatus | ""; label: string }[] = [
+	{ value: "", label: "All Status" },
+	{ value: "draft", label: "Draft" },
+	{ value: "pending", label: "Pending" },
+	{ value: "confirmed", label: "Confirmed" },
+	{ value: "completed", label: "Completed" },
+	{ value: "cancelled", label: "Cancelled" },
+];
 
 export function OrderPage() {
 	const navigate = useNavigate();
@@ -39,6 +49,8 @@ export function OrderPage() {
 		selectAfterDelete,
 		search,
 		setSearch,
+		filterMap,
+		setFilter,
 	} = useMasterDetail<Order>("order");
 
 	const handleCreate = () => {
@@ -72,11 +84,25 @@ export function OrderPage() {
 									New
 								</Button>
 							</div>
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search order..."
-							/>
+							<div className="flex items-center gap-2">
+								<Select
+									value={filterMap.status || ""}
+									onChange={(e) => setFilter("status", e.target.value)}
+									className="w-32"
+									aria-label="Filter by status"
+								>
+									{STATUS_OPTION.map((opt) => (
+										<option key={opt.value} value={opt.value}>
+											{opt.label}
+										</option>
+									))}
+								</Select>
+								<SearchInput
+									value={search}
+									onChange={setSearch}
+									placeholder="Search order..."
+								/>
+							</div>
 						</div>
 					}
 				>
