@@ -66,7 +66,7 @@ export function CategoryPage() {
 					header={
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-zinc-900 ">
+								<h1 className="text-lg font-semibold text-geist-fg">
 									Category
 								</h1>
 								<Button size="sm" onClick={handleCreate}>
@@ -106,7 +106,7 @@ export function CategoryPage() {
 									isSelected={selectedId === category.publicId}
 									onClick={() => setSelectedId(category.publicId)}
 								>
-									<p className="font-medium text-zinc-900 ">
+									<p className="font-medium text-geist-fg">
 										{category.name}
 									</p>
 								</MasterListItem>

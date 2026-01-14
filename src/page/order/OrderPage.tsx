@@ -76,7 +76,7 @@ export function OrderPage() {
 					header={
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-zinc-900 ">
+								<h1 className="text-lg font-semibold text-geist-fg">
 									Order
 								</h1>
 								<Button size="sm" onClick={handleCreate}>
@@ -132,15 +132,15 @@ export function OrderPage() {
 								>
 									<div className="flex items-center justify-between gap-2">
 										<div className="min-w-0 flex-1">
-											<p className="font-medium text-zinc-900 ">
+											<p className="font-medium text-geist-fg">
 												#{order.publicId}
 											</p>
-											<p className="text-sm text-zinc-500 ">
+											<p className="text-sm text-geist-fg-muted">
 												{formatDate(order.createdAt)}
 											</p>
 										</div>
 										<div className="flex shrink-0 flex-col items-end gap-1">
-											<span className="text-sm font-medium text-zinc-600 ">
+											<span className="text-sm font-medium text-geist-fg-secondary">
 												{formatMoney(order.total)}
 											</span>
 											<span

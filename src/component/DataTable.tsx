@@ -42,12 +42,12 @@ export function DataTable<T extends Record<string, unknown>>({
 		<div className={clsx("overflow-x-auto", className)}>
 			<table className="w-full text-sm">
 				<thead>
-					<tr className="border-b border-zinc-200 ">
+					<tr className="border-b border-geist-border">
 						{columnList.map((column) => (
 							<th
 								key={column.key}
 								className={clsx(
-									"px-4 py-3 text-left font-medium text-zinc-500 ",
+									"px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-geist-fg-muted",
 									column.sortable && "cursor-pointer select-none",
 									column.className,
 								)}
@@ -60,26 +60,26 @@ export function DataTable<T extends Record<string, unknown>>({
 									{column.sortable &&
 										sortKey === column.key &&
 										(sortDirection === "asc" ? (
-											<ChevronUp className="h-4 w-4" />
+											<ChevronUp className="h-3 w-3" />
 										) : (
-											<ChevronDown className="h-4 w-4" />
+											<ChevronDown className="h-3 w-3" />
 										))}
 								</div>
 							</th>
 						))}
 					</tr>
 				</thead>
-				<tbody className="divide-y divide-zinc-200 ">
+				<tbody className="divide-y divide-geist-border">
 					{data.map((item) => (
 						<tr
 							key={keyExtractor(item)}
-							className="hover:bg-zinc-50 "
+							className="hover:bg-geist-bg-secondary"
 						>
 							{columnList.map((column) => (
 								<td
 									key={column.key}
 									className={clsx(
-										"px-4 py-3 text-zinc-900 ",
+										"px-4 py-2.5 text-geist-fg",
 										column.className,
 									)}
 								>

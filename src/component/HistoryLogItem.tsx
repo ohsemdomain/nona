@@ -51,8 +51,8 @@ const ACTION_CONFIG: Record<
 	LOGOUT: {
 		icon: LogOut,
 		label: "logged out",
-		bgColor: "bg-zinc-100 ",
-		iconColor: "text-zinc-600 ",
+		bgColor: "bg-geist-bg-secondary",
+		iconColor: "text-geist-fg-secondary",
 	},
 };
 
@@ -79,7 +79,7 @@ export function HistoryLogItem({
 	return (
 		<li
 			className={clsx(
-				"flex gap-3 rounded-lg border border-zinc-200 bg-white p-4  ",
+				"flex gap-3 rounded-lg border border-geist-border bg-geist-bg p-4",
 				className,
 			)}
 		>
@@ -96,12 +96,12 @@ export function HistoryLogItem({
 			{/* Content */}
 			<div className="min-w-0 flex-1">
 				{/* Main action description */}
-				<p className="text-sm text-zinc-900 ">
+				<p className="text-sm text-geist-fg">
 					<span className="font-medium">{resourceLabel}</span>
 					{displayName && (
 						<>
 							{" "}
-							<span className="text-zinc-600 ">
+							<span className="text-geist-fg-secondary">
 								'{displayName}'
 							</span>
 						</>
@@ -123,7 +123,7 @@ export function HistoryLogItem({
 				)}
 
 				{/* Metadata footer: actor and timestamp */}
-				<p className="mt-2 text-xs text-zinc-500 ">
+				<p className="mt-2 text-xs text-geist-fg-muted">
 					by {entry.actor.name} &middot; {formatRelative(entry.createdAt)}
 				</p>
 			</div>

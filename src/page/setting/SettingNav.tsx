@@ -11,7 +11,7 @@ export function SettingNav() {
 	return (
 		<>
 			{/* Mobile: horizontal scrollable tabs */}
-			<nav className="shrink-0 border-b border-zinc-200 lg:hidden">
+			<nav className="shrink-0 border-b border-geist-border lg:hidden">
 				<div className="flex overflow-x-auto">
 					{navItemList.map(({ to, label, icon: Icon }) => (
 						<NavLink
@@ -20,8 +20,8 @@ export function SettingNav() {
 							className={({ isActive }) =>
 								`flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
 									isActive
-										? "border-zinc-900 text-zinc-900"
-										: "border-transparent text-zinc-600 hover:text-zinc-900"
+										? "border-geist-fg text-geist-fg"
+										: "border-transparent text-geist-fg-secondary hover:text-geist-fg"
 								}`
 							}
 						>
@@ -34,7 +34,7 @@ export function SettingNav() {
 
 			{/* Desktop: vertical sidebar nav */}
 			<nav className="hidden w-48 shrink-0 lg:block">
-				<h2 className="px-3 pb-2 text-sm font-semibold uppercase tracking-wider text-zinc-500">
+				<h2 className="px-3 pb-2 text-sm font-semibold uppercase tracking-wider text-geist-fg-muted">
 					Setting
 				</h2>
 				<ul className="space-y-1">
@@ -45,8 +45,8 @@ export function SettingNav() {
 								className={({ isActive }) =>
 									`flex items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium transition-colors ${
 										isActive
-											? "bg-zinc-100 text-zinc-900"
-											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+											? "bg-geist-bg-secondary text-geist-fg"
+											: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg"
 									}`
 								}
 							>

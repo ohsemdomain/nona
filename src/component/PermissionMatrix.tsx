@@ -94,24 +94,24 @@ export function PermissionMatrix({
 	return (
 		<div className="space-y-4">
 			{/* Permission Matrix Table */}
-			<div className="overflow-hidden rounded-lg border border-zinc-200 ">
+			<div className="overflow-hidden rounded-lg border border-geist-border">
 				<table className="w-full text-sm">
 					<thead>
-						<tr className="bg-zinc-50 ">
-							<th className="px-3 py-2 text-left font-medium text-zinc-600 ">
+						<tr className="bg-geist-bg-secondary">
+							<th className="px-3 py-2 text-left font-medium text-geist-fg-secondary">
 								Resource
 							</th>
 							{ACTION_ORDER.map((action) => (
 								<th
 									key={action}
-									className="w-20 px-3 py-2 text-center font-medium text-zinc-600 "
+									className="w-20 px-3 py-2 text-center font-medium text-geist-fg-secondary"
 								>
 									{ACTION_LABEL[action]}
 								</th>
 							))}
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-zinc-100 ">
+					<tbody className="divide-y divide-geist-border">
 						{standardGroupList.map((group) => {
 							const rowState = getRowState(group);
 							const permissionByAction: Record<string, string | null> = {};
@@ -126,7 +126,7 @@ export function PermissionMatrix({
 							return (
 								<tr
 									key={group.resource}
-									className="hover:bg-zinc-50 "
+									className="hover:bg-geist-bg-secondary"
 								>
 									<td className="px-3 py-2">
 										<button
@@ -135,7 +135,7 @@ export function PermissionMatrix({
 											disabled={disabled}
 											className={clsx(
 												"inline-flex items-center gap-2 font-medium",
-												"text-zinc-700 hover:text-zinc-900  ",
+												"text-geist-fg-secondary hover:text-geist-fg",
 												"disabled:cursor-not-allowed disabled:opacity-50",
 											)}
 										>
@@ -154,7 +154,7 @@ export function PermissionMatrix({
 											return (
 												<td
 													key={action}
-													className="px-3 py-2 text-center text-zinc-300 "
+													className="px-3 py-2 text-center text-geist-fg-muted"
 												>
 													—
 												</td>
@@ -181,7 +181,7 @@ export function PermissionMatrix({
 			{/* Special Permissions */}
 			{specialPermissionList.length > 0 && (
 				<div className="space-y-2">
-					<p className="text-xs font-medium uppercase tracking-wide text-zinc-500 ">
+					<p className="text-xs font-medium uppercase tracking-wide text-geist-fg-muted">
 						Special Permission
 					</p>
 					<div className="flex flex-wrap gap-3">

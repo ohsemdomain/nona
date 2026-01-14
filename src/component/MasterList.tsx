@@ -17,13 +17,13 @@ export function MasterList({
 	return (
 		<div
 			className={clsx(
-				"flex h-full w-full flex-col rounded-lg border border-zinc-200 bg-white lg:w-80 lg:shrink-0",
+				"flex h-full w-full flex-col rounded-lg border border-geist-border bg-geist-bg lg:w-80 lg:shrink-0",
 				className,
 			)}
 		>
-			{header && <div className="shrink-0 p-4">{header}</div>}
+			{header && <div className="shrink-0 p-5">{header}</div>}
 			<div className="flex-1 overflow-y-auto">{children}</div>
-			{footer && <div className="shrink-0 p-4">{footer}</div>}
+			{footer && <div className="shrink-0 p-5">{footer}</div>}
 		</div>
 	);
 }
@@ -46,10 +46,10 @@ export function MasterListItem({
 			type="button"
 			onClick={onClick}
 			className={clsx(
-				"w-full px-4 py-3 text-left transition-colors",
-				"border-b border-zinc-100",
-				"hover:bg-zinc-50",
-				isSelected && "bg-zinc-100",
+				"w-full px-5 py-3 text-left transition-colors",
+				"border-b border-geist-border",
+				"hover:bg-geist-bg-secondary",
+				isSelected && "bg-geist-bg-secondary",
 				className,
 			)}
 		>

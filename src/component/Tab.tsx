@@ -55,10 +55,6 @@ interface TabGroupProp {
 	className?: string;
 }
 
-/**
- * Root container for tab system.
- * Provides context and manages tab state.
- */
 export function TabGroup({
 	children,
 	defaultTab,
@@ -116,10 +112,6 @@ interface TabListProp {
 	"aria-label"?: string;
 }
 
-/**
- * Container for Tab buttons.
- * Handles keyboard navigation between tabs.
- */
 export function TabList({
 	children,
 	className,
@@ -153,8 +145,8 @@ export function TabList({
 	};
 
 	const variantStyles: Record<TabVariant, string> = {
-		underline: "border-b border-zinc-200 border-zinc-700",
-		pill: "bg-zinc-100 bg-zinc-800 rounded p-1",
+		underline: "border-b border-geist-border",
+		pill: "bg-geist-bg-secondary rounded p-1",
 	};
 
 	return (
@@ -180,10 +172,6 @@ interface TabProp {
 	className?: string;
 }
 
-/**
- * Individual tab button.
- * Click or keyboard focus activates the corresponding panel.
- */
 export function Tab({ id, children, disabled = false, className }: TabProp) {
 	const { activeTab, setActiveTab, registerTab, baseId, variant, size } =
 		useTabContext();
@@ -205,17 +193,14 @@ export function Tab({ id, children, disabled = false, className }: TabProp) {
 	> = {
 		underline: {
 			base: "-mb-px border-b-2 transition-colors",
-			active:
-				"border-zinc-900 text-zinc-900 border-zinc-100 text-zinc-100",
+			active: "border-geist-fg text-geist-fg",
 			inactive:
-				"border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 text-zinc-400 hover:text-zinc-300 hover:border-zinc-600",
+				"border-transparent text-geist-fg-muted hover:text-geist-fg-secondary hover:border-geist-border",
 		},
 		pill: {
 			base: "rounded-sm transition-colors",
-			active:
-				"bg-white text-zinc-900 shadow-sm bg-zinc-900 text-zinc-100",
-			inactive:
-				"text-zinc-500 hover:text-zinc-700 text-zinc-400 hover:text-zinc-300",
+			active: "bg-geist-bg text-geist-fg shadow-sm",
+			inactive: "text-geist-fg-muted hover:text-geist-fg-secondary",
 		},
 	};
 
@@ -232,8 +217,8 @@ export function Tab({ id, children, disabled = false, className }: TabProp) {
 			disabled={disabled}
 			onClick={() => !disabled && setActiveTab(id)}
 			className={clsx(
-				"font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2",
-				"disabled:cursor-not-allowed disabled:opacity-50",
+				"font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-fg focus-visible:ring-offset-2",
+				"disabled:pointer-events-none disabled:opacity-50",
 				sizeStyles[size],
 				styles.base,
 				isActive ? styles.active : styles.inactive,
@@ -254,9 +239,6 @@ interface TabPanelsProp {
 	className?: string;
 }
 
-/**
- * Container for TabPanel components.
- */
 export function TabPanels({ children, className }: TabPanelsProp) {
 	return <div className={clsx("mt-4", className)}>{children}</div>;
 }
@@ -271,9 +253,6 @@ interface TabPanelProp {
 	className?: string;
 }
 
-/**
- * Content panel shown when corresponding Tab is active.
- */
 export function TabPanel({ id, children, className }: TabPanelProp) {
 	const { activeTab, baseId } = useTabContext();
 	const isActive = activeTab === id;

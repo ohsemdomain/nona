@@ -19,16 +19,16 @@ export function FormField({
 	className,
 }: FormFieldProp) {
 	return (
-		<div className={clsx("space-y-1.5", className)}>
+		<div className={clsx("space-y-1", className)}>
 			<label
 				htmlFor={htmlFor}
-				className="block text-sm font-medium text-zinc-700 "
+				className="block text-xs font-medium text-geist-fg-secondary"
 			>
 				{label}
-				{required && <span className="ml-1 text-red-500">*</span>}
+				{required && <span className="ml-1 text-geist-error">*</span>}
 			</label>
 			{children}
-			{error && <p className="text-sm text-red-500">{error}</p>}
+			{error && <p className="text-xs text-geist-error">{error}</p>}
 		</div>
 	);
 }

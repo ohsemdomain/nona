@@ -68,7 +68,7 @@ function DefaultLoadingFallback() {
 			aria-label="Loading"
 			className="flex items-center justify-center py-12"
 		>
-			<div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-600  " />
+			<div className="h-8 w-8 animate-spin rounded-full border-2 border-geist-border border-t-geist-fg" />
 		</div>
 	);
 }
@@ -86,10 +86,10 @@ function DefaultErrorFallback({ error, onRetry }: DefaultErrorFallbackProp) {
 					<AlertCircle className="h-6 w-6 text-red-600 " />
 				</div>
 				<div className="space-y-1">
-					<p className="font-medium text-zinc-900 ">
+					<p className="font-medium text-geist-fg">
 						Something went wrong
 					</p>
-					<p className="text-sm text-zinc-500 ">
+					<p className="text-sm text-geist-fg-muted">
 						{error?.message ?? "Failed to load data. Please try again."}
 					</p>
 				</div>

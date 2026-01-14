@@ -39,11 +39,11 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProp>(
 				onClick={handleChange}
 				className={clsx(
 					"relative h-4 w-4 shrink-0 rounded border transition-colors",
-					"focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
-					"disabled:cursor-not-allowed disabled:opacity-50",
+					"focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-fg focus-visible:ring-offset-1",
+					"disabled:pointer-events-none disabled:opacity-50",
 					checked || indeterminate
-						? "border-blue-600 bg-blue-600"
-						: "border-zinc-300 bg-white  ",
+						? "border-geist-fg bg-geist-fg"
+						: "border-geist-border bg-geist-bg",
 					className,
 				)}
 			>
@@ -71,8 +71,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProp>(
 					className={clsx(
 						"inline-flex items-center gap-2 text-sm",
 						disabled
-							? "cursor-not-allowed text-zinc-400"
-							: "cursor-pointer text-zinc-700 ",
+							? "pointer-events-none text-geist-fg-muted"
+							: "cursor-pointer text-geist-fg-secondary",
 					)}
 				>
 					{checkbox}

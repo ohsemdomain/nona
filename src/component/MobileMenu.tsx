@@ -46,14 +46,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 			/>
 
 			{/* Drawer */}
-			<div className="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl">
+			<div className="fixed inset-y-0 left-0 z-50 w-72 bg-geist-bg shadow-xl">
 				{/* Header */}
-				<div className="flex h-16 items-center justify-between border-b border-zinc-200 px-4">
-					<span className="text-lg font-bold text-zinc-900">Nona</span>
+				<div className="flex h-14 items-center justify-between border-b border-geist-border px-4">
+					<span className="text-base font-semibold text-geist-fg">Nona</span>
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-sm p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+						className="rounded-sm p-2 text-geist-fg-muted hover:bg-geist-bg-secondary hover:text-geist-fg"
 					>
 						<X className="h-5 w-5" />
 						<span className="sr-only">Close menu</span>
@@ -72,8 +72,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 									clsx(
 										"flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors",
 										isActive
-											? "bg-zinc-100 text-zinc-900"
-											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
+											? "bg-geist-bg-secondary text-geist-fg"
+											: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg",
 									)
 								}
 							>
@@ -89,8 +89,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 									clsx(
 										"flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors",
 										isActive
-											? "bg-zinc-100 text-zinc-900"
-											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
+											? "bg-geist-bg-secondary text-geist-fg"
+											: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg",
 									)
 								}
 							>
@@ -102,13 +102,13 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 
 					{/* User info */}
 					{session?.user && (
-						<div className="mt-6 border-t border-zinc-200 pt-4">
+						<div className="mt-6 border-t border-geist-border pt-4">
 							<div className="flex items-center gap-3 px-3 py-2">
-								<div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100">
-									<User className="h-5 w-5 text-zinc-600" />
+								<div className="flex h-9 w-9 items-center justify-center rounded-full bg-geist-bg-secondary">
+									<User className="h-5 w-5 text-geist-fg-secondary" />
 								</div>
 								<div className="flex-1">
-									<p className="text-sm font-medium text-zinc-900">
+									<p className="text-sm font-medium text-geist-fg">
 										{session.user.name || session.user.email}
 									</p>
 									{role && (
@@ -116,10 +116,10 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 											className={clsx(
 												"text-xs font-medium",
 												role === "admin"
-													? "text-red-600"
+													? "text-geist-error"
 													: role === "user"
-														? "text-blue-600"
-														: "text-zinc-500",
+														? "text-geist-success"
+														: "text-geist-fg-muted",
 											)}
 										>
 											{role}

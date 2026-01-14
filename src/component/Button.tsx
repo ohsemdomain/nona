@@ -12,16 +12,20 @@ interface ButtonProp extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyleMap: Record<ButtonVariant, string> = {
-	primary: "bg-zinc-900 text-white hover:bg-zinc-800",
-	secondary: "bg-zinc-100 text-zinc-900 hover:bg-zinc-200",
-	danger: "bg-red-600 text-white hover:bg-red-700",
-	ghost: "bg-transparent text-zinc-900 hover:bg-zinc-100",
+	primary:
+		"bg-geist-fg text-white hover:bg-geist-fg/90 border-transparent",
+	secondary:
+		"bg-geist-bg text-geist-fg hover:bg-geist-bg-secondary border-geist-border",
+	danger:
+		"bg-geist-error text-white hover:bg-geist-error/90 border-transparent",
+	ghost:
+		"bg-transparent text-geist-fg hover:bg-geist-bg-secondary border-transparent",
 };
 
 const sizeStyleMap: Record<ButtonSize, string> = {
-	sm: "px-3 py-1.5 text-sm",
-	md: "px-4 py-2 text-sm",
-	lg: "px-6 py-3 text-base",
+	sm: "h-8 px-3 text-sm",
+	md: "h-9 px-4 text-sm",
+	lg: "h-10 px-4 text-base",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProp>(
@@ -42,9 +46,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProp>(
 				ref={ref}
 				disabled={disabled || isLoading}
 				className={clsx(
-					"inline-flex items-center justify-center gap-2 rounded-sm font-medium transition-colors",
-					"focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2",
-					"disabled:cursor-not-allowed disabled:opacity-50",
+					"inline-flex items-center justify-center gap-2 rounded-sm border font-medium transition-colors",
+					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-geist-fg focus-visible:ring-offset-2",
+					"disabled:pointer-events-none disabled:opacity-50",
 					variantStyleMap[variant],
 					sizeStyleMap[size],
 					className,

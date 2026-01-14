@@ -29,32 +29,32 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 	};
 
 	return (
-		<nav className="flex h-16 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 lg:px-6">
+		<nav className="flex h-14 shrink-0 items-center justify-between border-b border-geist-border bg-geist-bg px-4 lg:px-6">
 			<div className="flex items-center gap-4 lg:gap-6">
 				{/* Mobile hamburger */}
 				<button
 					type="button"
 					onClick={onMenuOpen}
-					className="rounded-sm p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 lg:hidden"
+					className="rounded-sm p-2 text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg lg:hidden"
 				>
 					<Menu className="h-5 w-5" />
 					<span className="sr-only">Open menu</span>
 				</button>
 
-				<span className="text-lg font-bold text-zinc-900">Nona</span>
+				<span className="text-base font-semibold text-geist-fg">Nona</span>
 
 				{/* Desktop nav */}
-				<div className="hidden items-center gap-2 lg:flex">
+				<div className="hidden items-center gap-1 lg:flex">
 					{navItemList.map(({ to, label, icon: Icon }) => (
 						<NavLink
 							key={to}
 							to={to}
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors",
 									isActive
-										? "bg-zinc-100 text-zinc-900"
-										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
+										? "bg-geist-bg-secondary text-geist-fg"
+										: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg",
 								)
 							}
 						>
@@ -67,10 +67,10 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 							to="/setting"
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors",
 									isActive
-										? "bg-zinc-100 text-zinc-900"
-										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
+										? "bg-geist-bg-secondary text-geist-fg"
+										: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg",
 								)
 							}
 						>
@@ -84,18 +84,19 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 			{/* Desktop user info - hidden on mobile */}
 			<div className="hidden items-center gap-3 lg:flex">
 				{session?.user && (
-					<div className="flex items-center gap-2 text-sm text-zinc-600">
+					<div className="flex items-center gap-2 text-sm text-geist-fg-secondary">
 						<User className="h-4 w-4" />
 						<span>{session.user.name || session.user.email}</span>
 						{role && (
 							<span
-								className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+								className={clsx(
+									"rounded-full px-2 py-0.5 text-xs font-medium",
 									role === "admin"
-										? "bg-red-100 text-red-700"
+										? "bg-geist-error/10 text-geist-error"
 										: role === "user"
-											? "bg-blue-100 text-blue-700"
-											: "bg-zinc-100 text-zinc-700"
-								}`}
+											? "bg-geist-success/10 text-geist-success"
+											: "bg-geist-bg-secondary text-geist-fg-secondary",
+								)}
 							>
 								{role}
 							</span>

@@ -35,17 +35,17 @@ export function ErrorState({
 				<AlertTriangle className="h-10 w-10 text-red-600 text-red-400" />
 			</div>
 			<div className="space-y-1">
-				<h3 className="text-sm font-medium text-zinc-900 text-zinc-100">
+				<h3 className="text-sm font-medium text-geist-fg">
 					{title}
 				</h3>
-				<p className="text-sm text-zinc-500 text-zinc-400">{message}</p>
+				<p className="text-sm text-geist-fg-muted">{message}</p>
 			</div>
 			{showDetails && error && (
 				<details className="w-full max-w-md text-left">
-					<summary className="cursor-pointer text-xs text-zinc-400 hover:text-zinc-600">
+					<summary className="cursor-pointer text-xs text-geist-fg-muted hover:text-geist-fg-secondary">
 						Technical details
 					</summary>
-					<pre className="mt-2 overflow-auto rounded bg-zinc-100 p-2 text-xs text-zinc-600 bg-zinc-800 text-zinc-400">
+					<pre className="mt-2 overflow-auto rounded bg-geist-bg-secondary p-2 text-xs text-geist-fg-secondary">
 						{error.message}
 					</pre>
 				</details>

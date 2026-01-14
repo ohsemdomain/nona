@@ -68,13 +68,13 @@ export function LoginPage() {
 	};
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-zinc-50 ">
-			<div className="w-full max-w-md space-y-6 rounded-lg border border-zinc-200 bg-white p-8  ">
+		<div className="flex min-h-screen items-center justify-center bg-geist-bg-secondary">
+			<div className="w-full max-w-md space-y-6 rounded-lg border border-geist-border bg-geist-bg p-8">
 				<div className="text-center">
-					<h1 className="text-2xl font-bold text-zinc-900 ">
+					<h1 className="text-2xl font-bold text-geist-fg">
 						Sign In
 					</h1>
-					<p className="mt-2 text-sm text-zinc-600 ">
+					<p className="mt-2 text-sm text-geist-fg-secondary">
 						Welcome back to Nona
 					</p>
 				</div>
@@ -123,7 +123,7 @@ export function LoginPage() {
 					</Button>
 				</form>
 
-				<p className="text-center text-sm text-zinc-500 ">
+				<p className="text-center text-sm text-geist-fg-muted">
 					Contact admin for account access
 				</p>
 			</div>

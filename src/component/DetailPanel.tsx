@@ -22,26 +22,26 @@ export function DetailPanel({
 	return (
 		<div
 			className={clsx(
-				"flex h-full flex-1 flex-col bg-white",
+				"flex h-full flex-1 flex-col bg-geist-bg",
 				className,
 			)}
 		>
 			{/* Mobile back button */}
 			{onBack && (
-				<div className="shrink-0 border-b border-zinc-200 p-2 lg:hidden">
+				<div className="shrink-0 border-b border-geist-border p-2 lg:hidden">
 					<button
 						type="button"
 						onClick={onBack}
-						className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+						className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						{backLabel}
 					</button>
 				</div>
 			)}
-			{header && <div className="shrink-0 p-4">{header}</div>}
-			<div className="flex-1 overflow-y-auto p-4">{children}</div>
-			{footer && <div className="shrink-0 p-4">{footer}</div>}
+			{header && <div className="shrink-0 p-6">{header}</div>}
+			<div className="flex-1 overflow-y-auto p-6">{children}</div>
+			{footer && <div className="shrink-0 p-6">{footer}</div>}
 		</div>
 	);
 }
@@ -59,7 +59,7 @@ export function DetailPanelHeader({
 }: DetailPanelHeaderProp) {
 	return (
 		<div className={clsx("flex items-center justify-between gap-4", className)}>
-			<h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
+			<h2 className="text-base font-semibold text-geist-fg">{title}</h2>
 			{action && <div className="flex items-center gap-2">{action}</div>}
 		</div>
 	);

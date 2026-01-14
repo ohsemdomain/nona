@@ -70,14 +70,14 @@ export function SystemLogPage() {
 		>
 			<div className="flex h-full flex-col">
 				{/* Header */}
-				<div className="shrink-0 border-b border-zinc-200 bg-white px-4 py-3  ">
+				<div className="shrink-0 border-b border-geist-border bg-geist-bg px-4 py-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<h1 className="text-lg font-semibold text-zinc-900 ">
+							<h1 className="text-lg font-semibold text-geist-fg">
 								System Log
 							</h1>
 							{total > 0 && (
-								<span className="text-sm text-zinc-500 ">
+								<span className="text-sm text-geist-fg-muted">
 									{total} entries
 								</span>
 							)}
@@ -125,13 +125,13 @@ export function SystemLogPage() {
 				</div>
 
 				{/* Log */}
-				<div className="flex-1 overflow-auto bg-white py-1 ">
+				<div className="flex-1 overflow-auto bg-geist-bg py-1">
 					{isLoading ? (
 						<div className="space-y-0.5 px-3">
 							{Array.from({ length: 20 }).map((_, i) => (
 								<div
 									key={i}
-									className="h-4 animate-pulse rounded bg-zinc-100 "
+									className="h-4 animate-pulse rounded bg-geist-bg-secondary"
 								/>
 							))}
 						</div>
@@ -142,7 +142,7 @@ export function SystemLogPage() {
 						/>
 					) : !data || data.length === 0 ? (
 						<EmptyState
-							icon={<FileText className="h-8 w-8 text-zinc-300 " />}
+							icon={<FileText className="h-8 w-8 text-geist-fg-muted" />}
 							title="No log found"
 							message={
 								hasActiveFilter
@@ -163,7 +163,7 @@ export function SystemLogPage() {
 
 				{/* Pagination */}
 				{total > pageSize && (
-					<div className="shrink-0 border-t border-zinc-200 bg-white px-4 py-2  ">
+					<div className="shrink-0 border-t border-geist-border bg-geist-bg px-4 py-2">
 						<Pagination
 							page={page}
 							pageSize={pageSize}

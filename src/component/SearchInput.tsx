@@ -16,25 +16,25 @@ export function SearchInput({
 }: SearchInputProp) {
 	return (
 		<div className={clsx("relative", className)}>
-			<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+			<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-geist-fg-muted" />
 			<input
 				type="text"
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				placeholder={placeholder}
 				className={clsx(
-					"w-full rounded-md border py-2 pl-9 pr-9 text-sm transition-colors",
-					"bg-white text-zinc-900",
-					"placeholder:text-zinc-400",
-					"border-zinc-200",
-					"focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2",
+					"h-9 w-full rounded border pl-9 pr-9 text-sm transition-colors",
+					"bg-geist-bg text-geist-fg",
+					"placeholder:text-geist-fg-muted",
+					"border-geist-border",
+					"focus:border-geist-fg focus:outline-none",
 				)}
 			/>
 			{value && (
 				<button
 					type="button"
 					onClick={() => onChange("")}
-					className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-zinc-400 hover:text-zinc-600"
+					className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-geist-fg-muted hover:text-geist-fg"
 				>
 					<X className="h-4 w-4" />
 					<span className="sr-only">Clear search</span>

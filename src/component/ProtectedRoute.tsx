@@ -12,7 +12,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProp) {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-screen items-center justify-center bg-zinc-50 ">
+			<div className="flex h-screen items-center justify-center bg-geist-bg-secondary">
 				<LoadingState />
 			</div>
 		);

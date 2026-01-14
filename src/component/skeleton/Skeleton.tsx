@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 
-const baseClass = "animate-pulse bg-zinc-200  rounded";
+const baseClass = "animate-pulse bg-geist-border rounded";
 
 type SkeletonWidth = "full" | "3/4" | "1/2" | "1/3" | "1/4";
 type SkeletonSize = "xs" | "sm" | "base" | "lg" | "xl";

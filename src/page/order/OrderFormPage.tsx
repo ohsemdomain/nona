@@ -211,8 +211,8 @@ export function OrderFormPage() {
 						</Button>
 					</div>
 
-					<div className="rounded-lg border border-zinc-200 bg-white p-6  ">
-						<h1 className="mb-6 text-xl font-semibold text-zinc-900 ">
+					<div className="rounded-lg border border-geist-border bg-geist-bg p-6">
+						<h1 className="mb-6 text-xl font-semibold text-geist-fg">
 							{isEdit ? `Edit Order #${id}` : "Create Order"}
 						</h1>
 
@@ -238,9 +238,9 @@ export function OrderFormPage() {
 
 							<div>
 								<div className="mb-3 flex items-center justify-between">
-									<label className="block text-sm font-medium text-zinc-700 ">
+									<label className="block text-sm font-medium text-geist-fg-secondary">
 										Order Line
-										<span className="ml-1 text-red-500">*</span>
+										<span className="ml-1 text-geist-error">*</span>
 									</label>
 									<Button
 										type="button"
@@ -259,8 +259,8 @@ export function OrderFormPage() {
 								)}
 
 								{lineList.length === 0 ? (
-									<div className="rounded border border-dashed border-zinc-300 p-8 text-center ">
-										<p className="text-sm text-zinc-500 ">
+									<div className="rounded border border-dashed border-geist-border p-8 text-center">
+										<p className="text-sm text-geist-fg-muted">
 											No item added. Click "Add Item" to add an item to the
 											order.
 										</p>
@@ -277,7 +277,7 @@ export function OrderFormPage() {
 											return (
 												<div
 													key={line.key}
-													className="flex items-start gap-3 rounded border border-zinc-200 p-3 "
+													className="flex items-start gap-3 rounded border border-geist-border p-3"
 												>
 													<div className="min-w-0 flex-1 space-y-3">
 														<div className="flex gap-2">
@@ -340,17 +340,17 @@ export function OrderFormPage() {
 																			parseInt(e.target.value) || 1,
 																		)
 																	}
-																	className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-500 disabled:cursor-not-allowed disabled:opacity-50   "
+																	className="h-9 w-full rounded border border-geist-border bg-geist-bg px-3 text-sm text-geist-fg focus:border-geist-fg focus:outline-none disabled:pointer-events-none disabled:opacity-50"
 																	disabled={isPending}
 																/>
 															</div>
-															<span className="text-sm text-zinc-500 ">
+															<span className="text-sm text-geist-fg-muted">
 																x{" "}
 																{selectedItem
 																	? formatMoney(selectedItem.price)
 																	: "$0.00"}
 															</span>
-															<span className="ml-auto font-medium text-zinc-900 ">
+															<span className="ml-auto font-medium text-geist-fg">
 																{formatMoney(lineTotal)}
 															</span>
 														</div>
@@ -371,12 +371,12 @@ export function OrderFormPage() {
 								)}
 							</div>
 
-							<div className="border-t border-zinc-200 pt-4 ">
+							<div className="border-t border-geist-border pt-4">
 								<div className="flex items-center justify-between">
-									<span className="text-lg font-medium text-zinc-900 ">
+									<span className="text-lg font-medium text-geist-fg">
 										Total
 									</span>
-									<span className="text-xl font-semibold text-zinc-900 ">
+									<span className="text-xl font-semibold text-geist-fg">
 										{formatMoney(orderTotal)}
 									</span>
 								</div>

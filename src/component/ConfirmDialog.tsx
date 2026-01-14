@@ -46,7 +46,7 @@ export function ConfirmDialog({
 							<AlertTriangle className="h-5 w-5 text-red-600 " />
 						</div>
 					)}
-					<p className="text-sm text-zinc-600 ">{message}</p>
+					<p className="text-sm text-geist-fg-secondary">{message}</p>
 				</div>
 				<div className="flex justify-end gap-3">
 					<Button

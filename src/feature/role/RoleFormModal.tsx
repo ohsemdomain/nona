@@ -201,7 +201,7 @@ export function RoleFormModal({ id, onSuccess, onClose }: RoleFormModalProp) {
 							placeholder="Enter role description (optional)"
 							disabled={isPending}
 							rows={3}
-							className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-zinc-50 disabled:text-zinc-500      "
+							className="w-full rounded border border-geist-border bg-geist-bg px-3 py-2 text-sm text-geist-fg placeholder:text-geist-fg-muted focus:border-geist-fg focus:outline-none disabled:bg-geist-bg-secondary disabled:text-geist-fg-muted"
 						/>
 					</FormField>
 

@@ -23,7 +23,7 @@ export function SkeletonListItem({
 			role="presentation"
 			aria-hidden="true"
 			className={clsx(
-				"w-full px-4 py-3 border-b border-zinc-200 ",
+				"w-full px-4 py-3 border-b border-geist-border",
 				className,
 			)}
 		>
@@ -43,7 +43,7 @@ export function SkeletonListItem({
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
 						<SkeletonText width="1/3" size="base" />
-						<div className="h-5 w-16 animate-pulse bg-zinc-200  rounded-full" />
+						<div className="h-5 w-16 animate-pulse bg-geist-border rounded-full" />
 					</div>
 					<div className="flex items-center justify-between">
 						<SkeletonText width="1/4" size="sm" />

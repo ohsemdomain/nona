@@ -54,7 +54,7 @@ export function HistoryLogPanel({
 	if (!data || data.length === 0) {
 		return (
 			<EmptyState
-				icon={<History className="h-12 w-12 text-zinc-300 " />}
+				icon={<History className="h-12 w-12 text-geist-fg-muted" />}
 				title="No history yet"
 				message={`No changes have been recorded for this ${resourceType}.`}
 				className={className}

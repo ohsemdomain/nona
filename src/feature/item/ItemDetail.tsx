@@ -48,38 +48,38 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 					<TabPanel id="detail">
 						<div className="space-y-4">
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Name
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">{item.name}</dd>
+								<dd className="mt-1 text-geist-fg">{item.name}</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Category
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{item.category?.name ?? "No category"}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Price
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{formatMoney(item.price)}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{formatDateTime(item.createdAt)}
 									{item.createdByName && (
-										<span className="text-zinc-500 ">
+										<span className="text-geist-fg-muted">
 											{" "}by {item.createdByName}
 										</span>
 									)}
@@ -87,13 +87,13 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Last Updated
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{formatDateTime(item.updatedAt)}
 									{item.updatedByName && (
-										<span className="text-zinc-500 ">
+										<span className="text-geist-fg-muted">
 											{" "}by {item.updatedByName}
 										</span>
 									)}

@@ -9,11 +9,11 @@ interface CompactLogItemProp {
 }
 
 const ACTION_COLOR: Record<AuditAction, string> = {
-	CREATE: "text-green-600 ",
-	UPDATE: "text-blue-600 ",
-	DELETE: "text-red-600 ",
-	LOGIN: "text-emerald-600 ",
-	LOGOUT: "text-zinc-500 ",
+	CREATE: "text-green-600",
+	UPDATE: "text-blue-600",
+	DELETE: "text-red-600",
+	LOGIN: "text-emerald-600",
+	LOGOUT: "text-geist-fg-muted",
 };
 
 const ACTION_VERB: Record<AuditAction, string> = {
@@ -53,16 +53,16 @@ export function CompactLogItem({ entry, resourceType }: CompactLogItemProp) {
 	const isAuthAction = entry.action === "LOGIN" || entry.action === "LOGOUT";
 
 	return (
-		<div className="px-3 py-0.5 text-xs text-zinc-600 hover:bg-zinc-50  ">
+		<div className="px-3 py-0.5 text-xs text-geist-fg-secondary hover:bg-geist-bg-secondary">
 			<span className={clsx("font-medium", color)}>{verb}</span>
 			{!isAuthAction && ` ${resourceLabel}`}
 			{displayName && ` '${displayName}'`}
 			{" "}by {entry.actor.name}
-			<span className="text-zinc-400 ">
+			<span className="text-geist-fg-muted">
 				{" "}{formatRelative(entry.createdAt)}
 			</span>
 			{changesText && (
-				<span className="text-zinc-400 ">
+				<span className="text-geist-fg-muted">
 					{" "}— {changesText}
 				</span>
 			)}

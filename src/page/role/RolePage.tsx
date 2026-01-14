@@ -149,7 +149,7 @@ export function RolePage() {
 					header={
 						<div className="space-y-3">
 							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-zinc-900 ">
+								<h1 className="text-lg font-semibold text-geist-fg">
 									Role
 								</h1>
 								<Button size="sm" onClick={handleCreate}>
@@ -190,15 +190,15 @@ export function RolePage() {
 									onClick={() => setSelectedId(role.id)}
 								>
 									<div className="flex items-center justify-between">
-										<p className="font-medium text-zinc-900 ">
+										<p className="font-medium text-geist-fg">
 											{role.name}
 										</p>
-										<span className="text-xs text-zinc-500 ">
+										<span className="text-xs text-geist-fg-muted">
 											{role.userCount ?? 0} user
 										</span>
 									</div>
 									{role.description && (
-										<p className="text-sm text-zinc-500  truncate">
+										<p className="text-sm text-geist-fg-muted truncate">
 											{role.description}
 										</p>
 									)}

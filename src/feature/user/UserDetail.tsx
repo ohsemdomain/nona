@@ -54,23 +54,23 @@ export function UserDetail({ user, onEdit, onDelete }: UserDetailProp) {
 					<TabPanel id="detail">
 						<div className="space-y-4">
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Name
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">{user.name}</dd>
+								<dd className="mt-1 text-geist-fg">{user.name}</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Email
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{user.email}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Role
 								</dt>
 								<dd className="mt-1">
@@ -83,19 +83,19 @@ export function UserDetail({ user, onEdit, onDelete }: UserDetailProp) {
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Created
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{formatDateTime(user.createdAt)}
 								</dd>
 							</div>
 
 							<div>
-								<dt className="text-sm font-medium text-zinc-500 ">
+								<dt className="text-sm font-medium text-geist-fg-muted">
 									Last Updated
 								</dt>
-								<dd className="mt-1 text-zinc-900 ">
+								<dd className="mt-1 text-geist-fg">
 									{formatDateTime(user.updatedAt)}
 								</dd>
 							</div>

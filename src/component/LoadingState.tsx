@@ -15,7 +15,7 @@ export function LoadingState({ className }: LoadingStateProp) {
 				className,
 			)}
 		>
-			<Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
+			<Loader2 className="h-8 w-8 animate-spin text-geist-fg-muted" />
 		</div>
 	);
 }

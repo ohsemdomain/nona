@@ -25,7 +25,7 @@ export function Pagination({
 
 	return (
 		<div className={clsx("flex items-center justify-between gap-4", className)}>
-			<p className="text-sm text-zinc-500 text-zinc-400">
+			<p className="text-sm text-geist-fg-muted">
 				Showing {start} to {end} of {total}
 			</p>
 			<div className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export function Pagination({
 					<ChevronLeft className="h-4 w-4" />
 					<span className="sr-only">Previous page</span>
 				</Button>
-				<span className="text-sm text-zinc-600 text-zinc-400">
+				<span className="text-sm text-geist-fg-secondary">
 					Page {page} of {totalPages}
 				</span>
 				<Button

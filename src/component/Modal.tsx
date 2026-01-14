@@ -77,8 +77,8 @@ export function Modal({
 			>
 				<div
 					className={clsx(
-						"flex h-full w-full flex-col bg-white",
-						"lg:h-auto lg:rounded-lg lg:border lg:border-zinc-200",
+						"flex h-full w-full flex-col bg-geist-bg",
+						"lg:h-auto lg:rounded-lg lg:border lg:border-geist-border lg:shadow-lg",
 						sizeStyleMap[size],
 					)}
 					role="dialog"
@@ -86,23 +86,23 @@ export function Modal({
 					aria-labelledby={`${id}-title`}
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3">
+					<div className="flex shrink-0 items-center justify-between border-b border-geist-border px-5 py-4">
 						<h2
 							id={`${id}-title`}
-							className="text-lg font-semibold text-zinc-900"
+							className="text-base font-semibold text-geist-fg"
 						>
 							{title}
 						</h2>
 						<button
 							type="button"
 							onClick={handleClose}
-							className="rounded-sm p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+							className="rounded-sm p-1 text-geist-fg-muted hover:bg-geist-bg-secondary hover:text-geist-fg"
 						>
 							<X className="h-5 w-5" />
 							<span className="sr-only">Close</span>
 						</button>
 					</div>
-					<div className="flex-1 overflow-y-auto p-4">{children}</div>
+					<div className="flex-1 overflow-y-auto p-5">{children}</div>
 				</div>
 			</div>
 		</>,
