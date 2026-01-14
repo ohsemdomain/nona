@@ -147,8 +147,8 @@ app.post(
 			...now,
 		});
 
-		// Log audit
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.USER,
@@ -157,7 +157,7 @@ app.post(
 				email: input.email,
 				roleId: input.roleId,
 			},
-		});
+		}));
 
 		// Fetch created user with role
 		const created = await db
@@ -271,7 +271,8 @@ app.put(
 			["name", "roleId"],
 		);
 
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.USER,
@@ -281,7 +282,7 @@ app.put(
 				passwordChanged: !!input.password,
 				newRoleId: input.roleId,
 			},
-		});
+		}));
 
 		// Fetch updated user
 		const updated = await db
@@ -324,8 +325,8 @@ app.delete("/:id", requirePermission(PERMISSION.USER_DELETE), async (c) => {
 		})
 		.where(eq(user.id, existing[0].id));
 
-	// Log audit
-	await logAudit(db, {
+	// Non-blocking audit log
+	c.executionCtx.waitUntil(logAudit(db, {
 		actorId,
 		action: AUDIT_ACTION.DELETE,
 		resource: AUDIT_RESOURCE.USER,
@@ -334,7 +335,7 @@ app.delete("/:id", requirePermission(PERMISSION.USER_DELETE), async (c) => {
 			email: existing[0].email,
 			name: existing[0].name,
 		},
-	});
+	}));
 
 	return c.json({ success: true });
 });

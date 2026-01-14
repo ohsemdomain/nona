@@ -125,14 +125,14 @@ app.post(
 
 		const created = result[0];
 
-		// Log audit
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.CATEGORY,
 			resourceId: created.publicId,
 			metadata: { name: created.name },
-		});
+		}));
 
 		return c.json(created, 201);
 	},
@@ -195,14 +195,15 @@ app.put(
 			["name"],
 		);
 
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.CATEGORY,
 			resourceId: publicId,
 			changes,
 			metadata: { name: updated.name },
-		});
+		}));
 
 		return c.json(updated);
 	},
@@ -249,14 +250,14 @@ app.delete(
 			})
 			.where(eq(category.publicId, publicId));
 
-		// Log audit
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.DELETE,
 			resource: AUDIT_RESOURCE.CATEGORY,
 			resourceId: publicId,
 			metadata: { name: toDelete.name },
-		});
+		}));
 
 		return c.json({ success: true });
 	},

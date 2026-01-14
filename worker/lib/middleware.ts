@@ -21,11 +21,25 @@ export const requireAuth: MiddlewareHandler<{ Bindings: Env }> = async (
 	return next();
 };
 
+type SessionResult = Awaited<ReturnType<ReturnType<typeof createAuth>["api"]["getSession"]>>;
+
 export async function getSessionFromContext(c: Context<{ Bindings: Env }>) {
+	// Check if session is already cached in context (set by requirePermission middleware)
+	const ctx = c as unknown as { _session?: SessionResult };
+	if (ctx._session !== undefined) {
+		return ctx._session;
+	}
+
+	// Fallback: fetch session from auth API
 	const auth = createAuth(c.env);
-	return auth.api.getSession({
+	const session = await auth.api.getSession({
 		headers: c.req.raw.headers,
 	});
+
+	// Cache it for future calls in this request
+	ctx._session = session;
+
+	return session;
 }
 
 /**
@@ -51,7 +65,7 @@ export function requirePermission(
 			return c.json({ error: "Unauthorized" }, 401);
 		}
 
-		// Store user ID in context for later use
+		// Store user ID in context for later use (session already cached by getSessionFromContext)
 		(c as unknown as { userId: string }).userId = session.user.id;
 
 		const userPermissions = await getUserPermission(

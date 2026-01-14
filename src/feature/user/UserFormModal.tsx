@@ -34,7 +34,10 @@ const initialForm: FormState = {
 export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 	const { data: roleList = [] } = useQuery({
 		queryKey: ["role"],
-		queryFn: () => api.get<Role[]>("/role"),
+		queryFn: async () => {
+			const response = await api.get<{ data: Role[] }>("/role");
+			return response.data;
+		},
 	});
 
 	const modal = useFormModal<User, FormState, CreateUserInput, UpdateUserInput>(

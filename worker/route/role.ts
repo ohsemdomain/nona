@@ -125,13 +125,14 @@ app.post(
 
 		const created = result[0];
 
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.ROLE,
 			resourceId: String(created.id),
 			metadata: { name: created.name },
-		});
+		}));
 
 		return c.json({ ...created, permissionList: [] }, 201);
 	},
@@ -185,13 +186,14 @@ app.put(
 			.where(eq(role.id, roleId))
 			.returning();
 
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.ROLE,
 			resourceId: String(roleId),
 			metadata: { name: result[0].name },
-		});
+		}));
 
 		return c.json(result[0]);
 	},
@@ -247,7 +249,8 @@ app.put(
 		// Invalidate permission cache for all users (role permissions changed)
 		invalidateAllPermissionCache();
 
-		await logAudit(db, {
+		// Non-blocking audit log
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.ROLE,
@@ -257,7 +260,7 @@ app.put(
 				action: "permission_update",
 				permissionCount: permissionIdList.length,
 			},
-		});
+		}));
 
 		return c.json({ success: true, permissionCount: permissionIdList.length });
 	},
@@ -299,13 +302,14 @@ app.delete("/:id", requirePermission(PERMISSION.ROLE_DELETE), async (c) => {
 	// Delete role
 	await db.delete(role).where(eq(role.id, roleId));
 
-	await logAudit(db, {
+	// Non-blocking audit log
+	c.executionCtx.waitUntil(logAudit(db, {
 		actorId: userId,
 		action: AUDIT_ACTION.DELETE,
 		resource: AUDIT_RESOURCE.ROLE,
 		resourceId: String(roleId),
 		metadata: { name: existing[0].name },
-	});
+	}));
 
 	return c.json({ success: true });
 });

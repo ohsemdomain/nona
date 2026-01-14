@@ -122,13 +122,20 @@ export function OrderFormPage() {
 		);
 	};
 
-	const calculateTotal = () => {
+	// Create item lookup map for O(1) access instead of O(n) Array.find()
+	const itemMap = useMemo(
+		() => new Map(itemList.map((item) => [String(item.id), item])),
+		[itemList],
+	);
+
+	// Memoize total calculation to avoid recalculating on every render
+	const orderTotal = useMemo(() => {
 		return lineList.reduce((sum, line) => {
-			const item = itemList.find((i) => String(i.id) === line.itemId);
+			const item = itemMap.get(line.itemId);
 			if (!item) return sum;
 			return sum + item.price * line.quantity;
 		}, 0);
-	};
+	}, [lineList, itemMap]);
 
 	const validate = (): boolean => {
 		const newError: Record<string, string> = {};
@@ -261,9 +268,8 @@ export function OrderFormPage() {
 								) : (
 									<div className="space-y-3">
 										{lineList.map((line) => {
-											const selectedItem = itemList.find(
-												(i) => String(i.id) === line.itemId,
-											);
+											// Use itemMap for O(1) lookup instead of O(n) find
+											const selectedItem = itemMap.get(line.itemId);
 											const lineTotal = selectedItem
 												? selectedItem.price * line.quantity
 												: 0;
@@ -371,7 +377,7 @@ export function OrderFormPage() {
 										Total
 									</span>
 									<span className="text-xl font-semibold text-zinc-900 ">
-										{formatMoney(calculateTotal())}
+										{formatMoney(orderTotal)}
 									</span>
 								</div>
 							</div>

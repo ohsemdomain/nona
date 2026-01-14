@@ -25,12 +25,15 @@ interface OrderDetailProp {
 }
 
 export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
+	// Only fetch full details if lineList is not already present (list endpoint doesn't include lines)
+	const needsFetch = !order.lineList;
 	const { data: fullOrder, isLoading } = useQuery({
 		queryKey: queryKey.order.detail(order.publicId),
 		queryFn: () => api.get<Order>(`/order/${order.publicId}`),
+		enabled: needsFetch,
 	});
 
-	if (isLoading) {
+	if (needsFetch && isLoading) {
 		return <SkeletonOrderDetail lineCount={3} />;
 	}
 

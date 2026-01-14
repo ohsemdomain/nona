@@ -199,14 +199,14 @@ app.post(
 				and(eq(orderLine.orderId, created.id), isNull(orderLine.deletedAt)),
 			);
 
-		// Log audit
-		await logAudit(db, {
+		// Non-blocking audit log - don't wait for it to complete
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.ORDER,
 			resourceId: created.publicId,
 			metadata: { status: created.status, total: created.total, lineCount: lineList.length },
-		});
+		}));
 
 		return c.json({ ...created, lineList }, 201);
 	},
@@ -328,7 +328,8 @@ app.put(
 			["status", "total"],
 		);
 
-		await logAudit(db, {
+		// Non-blocking audit log - don't wait for it to complete
+		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.ORDER,
@@ -339,7 +340,7 @@ app.put(
 				total: updated.total,
 				linesChanged: !!input.lineList,
 			},
-		});
+		}));
 
 		return c.json({ ...updated, lineList });
 	},
@@ -383,14 +384,14 @@ app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 		})
 		.where(eq(order.publicId, publicId));
 
-	// Log audit
-	await logAudit(db, {
+	// Non-blocking audit log - don't wait for it to complete
+	c.executionCtx.waitUntil(logAudit(db, {
 		actorId: userId,
 		action: AUDIT_ACTION.DELETE,
 		resource: AUDIT_RESOURCE.ORDER,
 		resourceId: publicId,
 		metadata: { status: toDelete.status, total: toDelete.total },
-	});
+	}));
 
 	return c.json({ success: true });
 });
