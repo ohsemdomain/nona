@@ -8,6 +8,6 @@ interface MasterDetailProp {
 
 export function MasterDetail({ children, className }: MasterDetailProp) {
 	return (
-		<div className={clsx("flex h-full gap-4", className)}>{children}</div>
+		<div className={clsx("mx-auto flex h-full gap-4 max-w-6xl", className)}>{children}</div>
 	);
 }

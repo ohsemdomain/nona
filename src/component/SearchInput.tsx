@@ -23,7 +23,7 @@ export function SearchInput({
 				onChange={(e) => onChange(e.target.value)}
 				placeholder={placeholder}
 				className={clsx(
-					"w-full rounded-lg border py-2 pl-9 pr-9 text-sm transition-colors",
+					"w-full rounded-md border py-2 pl-9 pr-9 text-sm transition-colors",
 					"bg-white text-zinc-900",
 					"placeholder:text-zinc-400",
 					"border-zinc-200",

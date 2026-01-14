@@ -3,7 +3,7 @@ import { SettingNav } from "./SettingNav";
 
 export function SettingPage() {
 	return (
-		<div className="flex h-full gap-4">
+		<div className="mx-auto flex h-full gap-4 max-w-6xl">
 			<SettingNav />
 			<div className="flex-1 overflow-hidden">
 				<Outlet />

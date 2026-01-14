@@ -17,7 +17,7 @@ export function DetailPanel({
 	return (
 		<div
 			className={clsx(
-				"flex h-full flex-1 flex-col rounded-xl border border-zinc-200 bg-white",
+				"flex h-full flex-1 flex-col bg-white",
 				className,
 			)}
 		>
