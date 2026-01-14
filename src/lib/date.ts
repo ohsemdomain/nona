@@ -13,11 +13,11 @@ export function fromUTC(timestamp: number): Date {
 }
 
 export function formatDate(timestamp: number): string {
-	return format(fromUTC(timestamp), "MMM d, yyyy");
+	return format(fromUTC(timestamp), "dd.MM.yy");
 }
 
 export function formatDateTime(timestamp: number): string {
-	return format(fromUTC(timestamp), "MMM d, yyyy h:mm a");
+	return format(fromUTC(timestamp), "dd.MM.yy h:mma");
 }
 
 export function formatRelative(timestamp: number): string {
