@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql, like, desc } from "drizzle-orm";
 import { createDb, role, rolePermission, permission, user } from "../db";
 import {
 	createRoleSchema,
@@ -14,6 +14,8 @@ import {
 	requirePermission,
 	getUserId,
 	logAudit,
+	listResponse,
+	parsePagination,
 	AUDIT_ACTION,
 	AUDIT_RESOURCE,
 	invalidateAllPermissionCache,
@@ -21,22 +23,37 @@ import {
 
 const app = new Hono<{ Bindings: Env }>();
 
-// GET /api/role - List all roles with user count
+// GET /api/role - List roles with search and pagination
 app.get("/", requirePermission(PERMISSION.ROLE_READ), async (c) => {
 	const db = createDb(c.env.DB);
+	const query = c.req.query();
+	const { search } = query;
+	const { offset, limit } = parsePagination(query);
 
-	const roleList = await db
-		.select({
-			id: role.id,
-			name: role.name,
-			description: role.description,
-			createdAt: role.createdAt,
-			userCount: sql<number>`(SELECT COUNT(*) FROM user WHERE role_id = ${role.id} AND deleted_at IS NULL)`,
-		})
-		.from(role)
-		.orderBy(role.name);
+	let whereClause = sql`1=1`;
 
-	return c.json(roleList);
+	if (search) {
+		whereClause = like(role.name, `%${search}%`);
+	}
+
+	const [data, countResult] = await Promise.all([
+		db
+			.select({
+				id: role.id,
+				name: role.name,
+				description: role.description,
+				createdAt: role.createdAt,
+				userCount: sql<number>`(SELECT COUNT(*) FROM user WHERE role_id = ${role.id} AND deleted_at IS NULL)`,
+			})
+			.from(role)
+			.where(whereClause)
+			.limit(limit)
+			.offset(offset)
+			.orderBy(desc(role.createdAt)),
+		db.select({ count: sql<number>`count(*)` }).from(role).where(whereClause),
+	]);
+
+	return listResponse(c, data, countResult[0]?.count ?? 0);
 });
 
 // GET /api/role/:id - Get role with permissions

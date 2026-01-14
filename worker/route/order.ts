@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { eq, isNull, and, sql, inArray, desc } from "drizzle-orm";
+import { eq, isNull, and, sql, inArray, desc, like } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { createDb, order, orderLine, item, user } from "../db";
 import {
@@ -31,14 +31,18 @@ const updater = alias(user, "updater");
 
 const app = new Hono<{ Bindings: Env }>();
 
-// GET /api/order - List (paginated, filterable)
+// GET /api/order - List (paginated, filterable, searchable)
 app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 	const db = createDb(c.env.DB);
 	const query = c.req.query();
-	const { status } = query;
+	const { status, search } = query;
 	const { offset, limit } = parsePagination(query);
 
 	let whereClause = isNull(order.deletedAt);
+
+	if (search) {
+		whereClause = and(whereClause, like(order.publicId, `%${search}%`)) ?? whereClause;
+	}
 
 	if (status) {
 		whereClause = and(whereClause, eq(order.status, status)) ?? whereClause;

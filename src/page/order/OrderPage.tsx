@@ -7,6 +7,7 @@ import {
 	MasterList,
 	MasterListItem,
 	DetailPanel,
+	SearchInput,
 	Button,
 	LoadingBoundary,
 	EmptyState,
@@ -36,6 +37,8 @@ export function OrderPage() {
 		selectedItem,
 		setSelectedId,
 		selectAfterDelete,
+		search,
+		setSearch,
 	} = useMasterDetail<Order>("order");
 
 	const handleCreate = () => {
@@ -69,6 +72,11 @@ export function OrderPage() {
 									New
 								</Button>
 							</div>
+							<SearchInput
+								value={search}
+								onChange={setSearch}
+								placeholder="Search order..."
+							/>
 						</div>
 					}
 				>

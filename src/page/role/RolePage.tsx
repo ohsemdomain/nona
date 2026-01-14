@@ -1,8 +1,10 @@
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useUIStore } from "@/src/store/ui";
 import { useIsMobile } from "@/src/hook/useIsMobile";
+import { useFilter } from "@/src/hook/useFilter";
+import { usePagination } from "@/src/hook/usePagination";
 import {
 	MasterDetail,
 	MasterList,
@@ -16,12 +18,18 @@ import {
 	SkeletonDetailPanel,
 } from "@/src/component";
 import { api } from "@/src/lib/api";
+import { queryKey } from "@/src/lib/queryKey";
 import type { Role, RoleWithPermission } from "@/shared/type";
 import {
 	RoleDetail,
 	RoleFormModal,
 	RoleDeleteDialog,
 } from "@/src/feature/role";
+
+interface ListResponse {
+	data: Role[];
+	total: number;
+}
 
 const MODAL_ID = {
 	create: "role-create",
@@ -33,18 +41,29 @@ export function RolePage() {
 	const { openModal } = useUIStore();
 	const isMobile = useIsMobile();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
-	const [search, setSearch] = useState("");
 
-	// Fetch role list
+	const { search, setSearch, queryParam } = useFilter();
+	const { page, pageSize, reset: resetPagination } = usePagination();
+
+	// Fetch role list with server-side search and pagination
 	const {
-		data: roleList = [],
+		data,
 		isLoading: isListLoading,
 		isError: isListError,
 		refetch: refetchList,
 	} = useQuery({
-		queryKey: ["role"],
-		queryFn: () => api.get<Role[]>("/role"),
+		queryKey: queryKey.role.list({ ...queryParam, page, pageSize }),
+		queryFn: () =>
+			api.get<ListResponse>(
+				`/role?${new URLSearchParams({
+					...queryParam,
+					page: String(page),
+					pageSize: String(pageSize),
+				})}`,
+			),
 	});
+
+	const roleList = data?.data ?? [];
 
 	// Fetch selected role detail
 	const {
@@ -52,23 +71,38 @@ export function RolePage() {
 		isLoading: isDetailLoading,
 		refetch: refetchDetail,
 	} = useQuery({
-		queryKey: ["role", selectedId],
+		queryKey: queryKey.role.detail(selectedId!),
 		queryFn: () => api.get<RoleWithPermission>(`/role/${selectedId}`),
 		enabled: selectedId !== null,
 	});
 
-	// Filter by search
-	const filteredList = roleList.filter((role) =>
-		role.name.toLowerCase().includes(search.toLowerCase()),
-	);
-
 	// Auto-select first item when list loads (desktop only)
-	// On mobile, show list first without auto-selection
-	useEffect(() => {
-		if (!isMobile && selectedId === null && filteredList.length > 0) {
-			setSelectedId(filteredList[0].id);
+	const computedSelectedId = useMemo(() => {
+		// If we have a selection and it exists in the list, keep it
+		if (selectedId !== null) {
+			const exists = roleList.some((role) => role.id === selectedId);
+			if (exists) return selectedId;
 		}
-	}, [filteredList, selectedId, isMobile]);
+
+		// Auto-select first on desktop if no selection
+		if (!isMobile && roleList.length > 0) {
+			return roleList[0].id;
+		}
+
+		return null;
+	}, [selectedId, roleList, isMobile]);
+
+	// Sync computed selection back to state
+	useEffect(() => {
+		if (computedSelectedId !== selectedId) {
+			setSelectedId(computedSelectedId);
+		}
+	}, [computedSelectedId, selectedId]);
+
+	// Reset pagination when search changes
+	useEffect(() => {
+		resetPagination();
+	}, [queryParam, resetPagination]);
 
 	const handleCreate = () => {
 		openModal(MODAL_ID.create);
@@ -86,13 +120,27 @@ export function RolePage() {
 		}
 	};
 
-	const selectAfterCreate = (role: Role) => {
+	const selectAfterCreate = useCallback((role: Role) => {
 		setSelectedId(role.id);
-	};
+	}, []);
 
-	const selectAfterDelete = () => {
-		setSelectedId(null);
-	};
+	const selectAfterDelete = useCallback(() => {
+		// Select next item or null
+		if (roleList.length <= 1) {
+			setSelectedId(null);
+			return;
+		}
+
+		const currentIndex = roleList.findIndex((r) => r.id === selectedId);
+		if (currentIndex === -1) {
+			setSelectedId(roleList[0]?.id ?? null);
+			return;
+		}
+
+		const nextIndex =
+			currentIndex < roleList.length - 1 ? currentIndex + 1 : currentIndex - 1;
+		setSelectedId(roleList[nextIndex]?.id ?? null);
+	}, [roleList, selectedId]);
 
 	return (
 		<>
@@ -123,7 +171,7 @@ export function RolePage() {
 						onRetry={refetchList}
 						loadingFallback={<SkeletonList count={5} variant="simple" />}
 					>
-						{filteredList.length === 0 ? (
+						{roleList.length === 0 ? (
 							<EmptyState
 								title="No role"
 								message="Create your first role to get started."
@@ -135,7 +183,7 @@ export function RolePage() {
 								}
 							/>
 						) : (
-							filteredList.map((role) => (
+							roleList.map((role) => (
 								<MasterListItem
 									key={role.id}
 									isSelected={selectedId === role.id}
