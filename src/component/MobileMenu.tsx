@@ -53,7 +53,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 					<button
 						type="button"
 						onClick={onClose}
-						className="rounded-md p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+						className="rounded-sm p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
 					>
 						<X className="h-5 w-5" />
 						<span className="sr-only">Close menu</span>
@@ -70,7 +70,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 								onClick={handleNavClick}
 								className={({ isActive }) =>
 									clsx(
-										"flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+										"flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors",
 										isActive
 											? "bg-zinc-100 text-zinc-900"
 											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
@@ -87,7 +87,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProp) {
 								onClick={handleNavClick}
 								className={({ isActive }) =>
 									clsx(
-										"flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+										"flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-medium transition-colors",
 										isActive
 											? "bg-zinc-100 text-zinc-900"
 											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",

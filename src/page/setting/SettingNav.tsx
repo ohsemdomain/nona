@@ -43,7 +43,7 @@ export function SettingNav() {
 							<NavLink
 								to={to}
 								className={({ isActive }) =>
-									`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+									`flex items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium transition-colors ${
 										isActive
 											? "bg-zinc-100 text-zinc-900"
 											: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"

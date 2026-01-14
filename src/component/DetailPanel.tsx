@@ -32,7 +32,7 @@ export function DetailPanel({
 					<button
 						type="button"
 						onClick={onBack}
-						className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+						className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						{backLabel}

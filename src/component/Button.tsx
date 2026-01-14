@@ -42,7 +42,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProp>(
 				ref={ref}
 				disabled={disabled || isLoading}
 				className={clsx(
-					"inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors",
+					"inline-flex items-center justify-center gap-2 rounded-sm font-medium transition-colors",
 					"focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2",
 					"disabled:cursor-not-allowed disabled:opacity-50",
 					variantStyleMap[variant],

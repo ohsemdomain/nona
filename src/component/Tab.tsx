@@ -154,7 +154,7 @@ export function TabList({
 
 	const variantStyles: Record<TabVariant, string> = {
 		underline: "border-b border-zinc-200 border-zinc-700",
-		pill: "bg-zinc-100 bg-zinc-800 rounded-lg p-1",
+		pill: "bg-zinc-100 bg-zinc-800 rounded p-1",
 	};
 
 	return (
@@ -211,7 +211,7 @@ export function Tab({ id, children, disabled = false, className }: TabProp) {
 				"border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 text-zinc-400 hover:text-zinc-300 hover:border-zinc-600",
 		},
 		pill: {
-			base: "rounded-md transition-colors",
+			base: "rounded-sm transition-colors",
 			active:
 				"bg-white text-zinc-900 shadow-sm bg-zinc-900 text-zinc-100",
 			inactive:

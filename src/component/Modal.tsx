@@ -78,7 +78,7 @@ export function Modal({
 				<div
 					className={clsx(
 						"flex h-full w-full flex-col bg-white",
-						"lg:h-auto lg:rounded-xl lg:border lg:border-zinc-200",
+						"lg:h-auto lg:rounded-lg lg:border lg:border-zinc-200",
 						sizeStyleMap[size],
 					)}
 					role="dialog"
@@ -96,7 +96,7 @@ export function Modal({
 						<button
 							type="button"
 							onClick={handleClose}
-							className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+							className="rounded-sm p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
 						>
 							<X className="h-5 w-5" />
 							<span className="sr-only">Close</span>

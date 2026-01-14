@@ -5,11 +5,11 @@ export default {
 	theme: {
 		borderRadius: {
 			none: "0px",
-			sm: "4px",
-			DEFAULT: "8px",
-			md: "8px",
-			lg: "12px",
-			xl: "16px",
+			sm: "2px", // Geist: buttons, minimal interactive elements
+			DEFAULT: "4px", // Geist: inputs, cards
+			md: "4px", // Geist: inputs, cards
+			lg: "6px", // Geist: modals, panels
+			xl: "8px",
 			full: "9999px",
 		},
 		extend: {

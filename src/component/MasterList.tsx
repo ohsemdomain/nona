@@ -17,7 +17,7 @@ export function MasterList({
 	return (
 		<div
 			className={clsx(
-				"flex h-full w-full flex-col rounded-xl border border-zinc-200 bg-white lg:w-80 lg:shrink-0",
+				"flex h-full w-full flex-col rounded-lg border border-zinc-200 bg-white lg:w-80 lg:shrink-0",
 				className,
 			)}
 		>

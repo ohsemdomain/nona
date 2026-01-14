@@ -35,7 +35,7 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 				<button
 					type="button"
 					onClick={onMenuOpen}
-					className="rounded-md p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 lg:hidden"
+					className="rounded-sm p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 lg:hidden"
 				>
 					<Menu className="h-5 w-5" />
 					<span className="sr-only">Open menu</span>
@@ -51,7 +51,7 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 							to={to}
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
 									isActive
 										? "bg-zinc-100 text-zinc-900"
 										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
@@ -67,7 +67,7 @@ export function NavBar({ onMenuOpen }: NavBarProp) {
 							to="/setting"
 							className={({ isActive }) =>
 								clsx(
-									"flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+									"flex items-center gap-2 rounded-sm px-3 py-2 text-sm font-medium transition-colors",
 									isActive
 										? "bg-zinc-100 text-zinc-900"
 										: "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900",
