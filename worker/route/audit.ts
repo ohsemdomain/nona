@@ -1,7 +1,15 @@
 import { Hono } from "hono";
 import { eq, and, desc, sql, like, gte, lte } from "drizzle-orm";
 import { createDb, auditLog, user } from "../db";
-import { parsePagination, listResponse, requirePermission } from "../lib";
+import {
+	parsePagination,
+	listResponse,
+	requirePermission,
+	cleanupAuditLog,
+	getAuditLogStats,
+	previewAuditLogCleanup,
+	AUDIT_RETENTION_DAYS,
+} from "../lib";
 import { PERMISSION } from "../../shared/constant/permission";
 import type {
 	AuditLogEntry,
@@ -203,5 +211,88 @@ app.get("/:resource/:resourceId", async (c) => {
 
 	return listResponse(c, entries, countResult[0]?.count ?? 0);
 });
+
+/**
+ * GET /api/audit/admin/stats
+ *
+ * Get audit log statistics for monitoring.
+ * Admin-only (requires USER_READ permission).
+ */
+app.get("/admin/stats", requirePermission(PERMISSION.USER_READ), async (c) => {
+	const db = createDb(c.env.DB);
+
+	const stats = await getAuditLogStats(db);
+
+	return c.json({
+		...stats,
+		retentionPolicy: AUDIT_RETENTION_DAYS,
+		oldestRecordDate: stats.oldestRecord
+			? new Date(stats.oldestRecord).toISOString()
+			: null,
+	});
+});
+
+/**
+ * GET /api/audit/admin/cleanup-preview
+ *
+ * Preview what records would be deleted by cleanup (dry run).
+ * Admin-only (requires USER_READ permission).
+ */
+app.get(
+	"/admin/cleanup-preview",
+	requirePermission(PERMISSION.USER_READ),
+	async (c) => {
+		const db = createDb(c.env.DB);
+
+		const preview = await previewAuditLogCleanup(db);
+
+		// Calculate total
+		const totalToDelete = Object.values(preview).reduce(
+			(sum, r) => sum + r.count,
+			0,
+		);
+
+		return c.json({
+			totalToDelete,
+			byResource: Object.fromEntries(
+				Object.entries(preview).map(([resource, data]) => [
+					resource,
+					{
+						count: data.count,
+						cutoffDate: data.cutoffDate.toISOString(),
+						retentionDays:
+							AUDIT_RETENTION_DAYS[
+								resource as keyof typeof AUDIT_RETENTION_DAYS
+							] ?? AUDIT_RETENTION_DAYS.default,
+					},
+				]),
+			),
+		});
+	},
+);
+
+/**
+ * POST /api/audit/admin/cleanup
+ *
+ * Execute audit log cleanup based on retention policy.
+ * Admin-only (requires USER_READ permission).
+ * This is an administrative action that permanently deletes old records.
+ */
+app.post(
+	"/admin/cleanup",
+	requirePermission(PERMISSION.USER_READ),
+	async (c) => {
+		const db = createDb(c.env.DB);
+
+		const result = await cleanupAuditLog(db);
+
+		return c.json({
+			success: true,
+			deletedCount: result.total,
+			byResource: result.byResource,
+			timestamp: new Date().toISOString(),
+		});
+	},
+);
 
 export { app as auditRoute };

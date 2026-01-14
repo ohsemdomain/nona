@@ -33,13 +33,16 @@ export interface SignedSessionToken {
 function getSecret(env: Env): string {
 	const secret = env.SESSION_TOKEN_SECRET;
 	if (!secret) {
-		// In development, use default secret with warning
+		// In development (localhost), use default secret with warning
 		if (env.TRUSTED_ORIGIN?.includes("localhost")) {
+			console.warn("Using dev secret - DO NOT use in production");
 			return DEV_SECRET;
 		}
-		// In production, this should be set
-		console.warn("SESSION_TOKEN_SECRET not set, using fallback");
-		return DEV_SECRET;
+		// In production, fail fast - secret must be configured
+		throw new Error(
+			"SESSION_TOKEN_SECRET environment variable is required in production. " +
+			"Generate a secure random string (32+ characters) and set it in your environment."
+		);
 	}
 	return secret;
 }

@@ -25,6 +25,7 @@ import {
 	AUDIT_ACTION,
 	AUDIT_RESOURCE,
 	createAuditChanges,
+	revokeAllUserSession,
 } from "../lib";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -259,6 +260,10 @@ app.put(
 						eq(account.providerId, AUTH_PROVIDER.CREDENTIAL),
 					),
 				);
+
+			// Security: Revoke all existing sessions after password change
+			// This forces re-authentication on all devices
+			await revokeAllUserSession(db, existingUser.id);
 		}
 
 		// Log audit with changes
@@ -339,5 +344,55 @@ app.delete("/:id", requirePermission(PERMISSION.USER_DELETE), async (c) => {
 
 	return c.json({ success: true });
 });
+
+// POST /api/user/:id/revoke-session - Force logout user (admin only)
+app.post(
+	"/:id/revoke-session",
+	requirePermission(PERMISSION.USER_UPDATE),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const publicId = c.req.param("id");
+
+		// Get current actor for audit
+		const session = await getSessionFromContext(c);
+		const actorId = session?.user.id ?? "system";
+
+		// Find user by publicId
+		const existing = await db
+			.select({ id: user.id, name: user.name, email: user.email })
+			.from(user)
+			.where(and(eq(user.publicId, publicId), isNull(user.deletedAt)))
+			.limit(1);
+
+		if (existing.length === 0) {
+			return notFound(c, "User not found");
+		}
+
+		const targetUser = existing[0];
+
+		// Revoke all sessions for this user
+		const revokedCount = await revokeAllUserSession(db, targetUser.id);
+
+		// Audit log
+		c.executionCtx.waitUntil(
+			logAudit(db, {
+				actorId,
+				action: AUDIT_ACTION.UPDATE,
+				resource: AUDIT_RESOURCE.USER,
+				resourceId: publicId,
+				metadata: {
+					action: "session_revocation",
+					revokedSessionCount: revokedCount,
+					targetEmail: targetUser.email,
+				},
+			}),
+		);
+
+		return c.json({
+			success: true,
+			revokedSessionCount: revokedCount,
+		});
+	},
+);
 
 export { app as userRoute };
