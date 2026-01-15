@@ -8,6 +8,7 @@ import {
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 import { clsx } from "clsx";
+import { Z_INDEX } from "@/src/lib/zIndex";
 
 // Size context
 type DropdownSize = "sm" | "md" | "lg";
@@ -54,13 +55,13 @@ const DropdownRadioGroup = DropdownMenuPrimitive.RadioGroup;
 const DropdownContent = forwardRef<
 	ElementRef<typeof DropdownMenuPrimitive.Content>,
 	ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
+>(({ className, sideOffset = 4, style, ...props }, ref) => (
 	<DropdownMenuPrimitive.Portal>
 		<DropdownMenuPrimitive.Content
 			ref={ref}
 			sideOffset={sideOffset}
 			className={clsx(
-				"z-50 min-w-[180px] overflow-hidden rounded border border-geist-border bg-geist-bg p-1 shadow-lg",
+				"min-w-[180px] overflow-hidden rounded border border-geist-border bg-geist-bg p-1 shadow-lg",
 				"data-[state=open]:animate-in data-[state=closed]:animate-out",
 				"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 				"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -68,6 +69,7 @@ const DropdownContent = forwardRef<
 				"data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
 				className,
 			)}
+			style={{ zIndex: Z_INDEX.toast, ...style }}
 			{...props}
 		/>
 	</DropdownMenuPrimitive.Portal>
@@ -239,11 +241,11 @@ DropdownSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;
 const DropdownSubContent = forwardRef<
 	ElementRef<typeof DropdownMenuPrimitive.SubContent>,
 	ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
 	<DropdownMenuPrimitive.SubContent
 		ref={ref}
 		className={clsx(
-			"z-50 min-w-[180px] overflow-hidden rounded border border-geist-border bg-geist-bg p-1 shadow-lg",
+			"min-w-[180px] overflow-hidden rounded border border-geist-border bg-geist-bg p-1 shadow-lg",
 			"data-[state=open]:animate-in data-[state=closed]:animate-out",
 			"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 			"data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -251,6 +253,7 @@ const DropdownSubContent = forwardRef<
 			"data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
 			className,
 		)}
+		style={{ zIndex: Z_INDEX.toast, ...style }}
 		{...props}
 	/>
 ));
