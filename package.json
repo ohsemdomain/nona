@@ -15,7 +15,8 @@
 		"db:seed-rbac:prod": "wrangler d1 execute DB --remote --file=scripts/seed-rbac.sql",
 		"db:seed-admin": "bun run scripts/seed-admin.ts",
 		"db:seed-admin:prod": "bun run scripts/seed-admin-prod.ts",
-		"db:reset": "bun run scripts/db-reset.ts"
+		"db:reset": "bun run scripts/db-reset.ts",
+		"db:reset:prod": "wrangler d1 execute DB --remote --file=scripts/db-reset-prod.sql"
 	},
 	"dependencies": {
 		"@hono/zod-validator": "^0.4.1",

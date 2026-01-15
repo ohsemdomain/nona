@@ -126,6 +126,7 @@ curl -X POST https://your-worker.workers.dev/api/auth/sign-in/email \
 | `bun run db:migrate:prod` | Apply migrations to remote D1 |
 | `bun run db:seed-rbac:prod` | Seed permissions to remote |
 | `bun run db:seed-admin:prod` | Create admin user on remote |
+| `bun run db:reset:prod` | Reset remote DB (drop all tables) |
 | `bunx wrangler secret put NAME` | Set a secret |
 | `bunx wrangler secret list` | List all secrets |
 | `bunx wrangler secret delete NAME` | Delete a secret |
@@ -141,11 +142,21 @@ curl -X POST https://your-worker.workers.dev/api/auth/sign-in/email \
 echo "$(openssl rand -base64 32)" | bunx wrangler secret put BETTER_AUTH_SECRET
 ```
 
-### 503 Service Unavailable on Login
+### 503 Service Unavailable / Error 1102 on Login
 
-**Cause**: CPU limit exceeded (password hashing is intensive)
+**Cause**: CPU limit exceeded - bcrypt password hashing is CPU intensive and can exceed Cloudflare Workers free tier limits.
 
-**Fix**: Retry - this is normal on first login. Cloudflare Workers have CPU limits.
+**Symptoms**:
+- Error code 1102
+- "Worker exceeded resource limits"
+- Intermittent failures (some attempts succeed, others fail)
+
+**Solutions**:
+1. **Retry** - It's intermittent, usually works within 2-3 attempts
+2. **Upgrade to Workers Paid** - Higher CPU limits ($5/month)
+3. **Wait for warm worker** - Cold starts are more likely to hit limits
+
+**Note**: This is a known limitation of CPU-intensive password hashing (bcrypt/argon2) on Cloudflare Workers free tier. Once logged in, subsequent requests don't require password hashing and work normally.
 
 ### "TRUSTED_ORIGIN" Error
 
