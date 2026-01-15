@@ -95,7 +95,7 @@ export function OrderPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="sm" className="w-full justify-start">
+									<Button variant="secondary" size="md" className="w-full justify-start">
 										<span className="flex-1 text-left">
 											{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
 										</span>
