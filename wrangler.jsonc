@@ -4,6 +4,9 @@
 	"main": "worker/index.ts",
 	"compatibility_date": "2024-12-18",
 	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"TRUSTED_ORIGIN": "https://nona.weez.workers.dev"
+	},
 	"assets": {
 		"directory": "dist/client",
 		"binding": "ASSETS",
@@ -40,11 +43,6 @@
 		"dev": {
 			"vars": {
 				"TRUSTED_ORIGIN": "http://localhost:5655,http://192.168.2.154:5655"
-			}
-		},
-		"production": {
-			"vars": {
-				"TRUSTED_ORIGIN": "https://nona.weez.workers.dev"
 			}
 		}
 	}
