@@ -21,7 +21,7 @@ export function MasterList({
 				className,
 			)}
 		>
-			{header && <div className="shrink-0 p-5">{header}</div>}
+			{header && <div className="shrink-0">{header}</div>}
 			<div className="flex-1 overflow-y-auto">{children}</div>
 			{footer && <div className="shrink-0 p-5">{footer}</div>}
 		</div>

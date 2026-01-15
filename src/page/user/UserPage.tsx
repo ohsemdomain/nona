@@ -67,7 +67,7 @@ export function UserPage() {
 			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
-						<div className="space-y-3">
+						<div className="space-y-3 border-b border-geist-border px-5 py-5">
 							<div className="flex items-center justify-between">
 								<h1 className="text-lg font-semibold text-geist-fg">
 									User
