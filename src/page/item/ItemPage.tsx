@@ -105,7 +105,7 @@ export function ItemPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="md" className="w-full min-w-[140px] justify-start">
+									<Button variant="secondary" size="md" className="w-full min-w-[200px] justify-start">
 										<span className="flex-1 text-left">
 											{filterMap.categoryId
 												? categoryList.find((c) => String(c.id) === filterMap.categoryId)?.name ?? "Category"
