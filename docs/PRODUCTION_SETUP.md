@@ -152,9 +152,14 @@ echo "$(openssl rand -base64 32)" | bunx wrangler secret put BETTER_AUTH_SECRET
 - Intermittent failures (some attempts succeed, others fail)
 
 **Solutions**:
-1. **Retry** - It's intermittent, usually works within 2-3 attempts
-2. **Upgrade to Workers Paid** - Higher CPU limits ($5/month)
-3. **Wait for warm worker** - Cold starts are more likely to hit limits
+1. **Warm up with curl first** - Run curl login to warm up the worker, then login via browser:
+   ```bash
+   curl -X POST "https://your-worker.workers.dev/api/auth/sign-in/email" \
+     -H "Content-Type: application/json" \
+     -d '{"email":"your@email.com","password":"your-password"}'
+   ```
+2. **Retry** - It's intermittent, usually works within 2-3 attempts
+3. **Upgrade to Workers Paid** - Higher CPU limits ($5/month)
 
 **Note**: This is a known limitation of CPU-intensive password hashing (bcrypt/argon2) on Cloudflare Workers free tier. Once logged in, subsequent requests don't require password hashing and work normally.
 
