@@ -1,11 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+import { ChevronDown } from "lucide-react";
 import {
 	Modal,
 	FormField,
 	Input,
-	Select,
 	Button,
 	ConfirmDialog,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { useFormModal } from "@/src/hook/useFormModal";
 import { api } from "@/src/lib/api";
@@ -170,19 +175,38 @@ export function UserFormModal({ id, onSuccess, onClose }: UserFormModalProp) {
 						htmlFor={`${id}-role`}
 						error={modal.error.roleId}
 					>
-						<Select
-							id={`${id}-role`}
-							value={modal.form.roleId}
-							onChange={(e) => modal.setField("roleId", e.target.value)}
-							disabled={modal.isPending}
-						>
-							<option value="">No role</option>
-							{roleList.map((role) => (
-								<option key={role.id} value={role.id}>
-									{role.name}
-								</option>
-							))}
-						</Select>
+						<Dropdown>
+							<DropdownTrigger asChild>
+								<Button
+									id={`${id}-role`}
+									type="button"
+									variant="secondary"
+									size="md"
+									className="w-full min-w-[200px] justify-start"
+									disabled={modal.isPending}
+								>
+									<span className="flex-1 text-left">
+										{modal.form.roleId
+											? roleList.find((r) => String(r.id) === modal.form.roleId)?.name ?? "No role"
+											: "No role"}
+									</span>
+									<ChevronDown className="h-3 w-3" />
+								</Button>
+							</DropdownTrigger>
+							<DropdownContent align="start" className="min-w-[200px]">
+								<DropdownRadioGroup
+									value={modal.form.roleId}
+									onValueChange={(value) => modal.setField("roleId", value)}
+								>
+									<DropdownRadioItem value="">No role</DropdownRadioItem>
+									{roleList.map((role) => (
+										<DropdownRadioItem key={role.id} value={String(role.id)}>
+											{role.name}
+										</DropdownRadioItem>
+									))}
+								</DropdownRadioGroup>
+							</DropdownContent>
+						</Dropdown>
 					</FormField>
 
 					<div className="flex justify-end gap-3 pt-2">
