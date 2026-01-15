@@ -1,13 +1,17 @@
 import { useMemo } from "react";
-import { FileText, X } from "lucide-react";
+import { FileText, X, ChevronDown } from "lucide-react";
 import {
-	Select,
 	SearchInput,
 	Button,
 	Pagination,
 	EmptyState,
 	PermissionGuard,
 	CompactLogItem,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { useFilter } from "@/src/hook/useFilter";
 import { usePagination } from "@/src/hook/usePagination";
@@ -90,30 +94,46 @@ export function SystemLogPage() {
 						)}
 					</div>
 					<div className="mt-3 flex items-center gap-2">
-						<Select
-							value={filterMap.resource || ""}
-							onChange={(e) => setFilter("resource", e.target.value)}
-							aria-label="Filter by resource"
-							className="w-28"
-						>
-							{RESOURCE_OPTION.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-						</Select>
-						<Select
-							value={filterMap.action || ""}
-							onChange={(e) => setFilter("action", e.target.value)}
-							aria-label="Filter by action"
-							className="w-28"
-						>
-							{ACTION_OPTION.map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-						</Select>
+						<Dropdown>
+							<DropdownTrigger asChild>
+								<Button variant="secondary" size="sm">
+									{RESOURCE_OPTION.find((o) => o.value === filterMap.resource)?.label ?? "All"}
+									<ChevronDown className="h-3 w-3" />
+								</Button>
+							</DropdownTrigger>
+							<DropdownContent>
+								<DropdownRadioGroup
+									value={filterMap.resource || ""}
+									onValueChange={(value) => setFilter("resource", value)}
+								>
+									{RESOURCE_OPTION.map((opt) => (
+										<DropdownRadioItem key={opt.value} value={opt.value}>
+											{opt.label}
+										</DropdownRadioItem>
+									))}
+								</DropdownRadioGroup>
+							</DropdownContent>
+						</Dropdown>
+						<Dropdown>
+							<DropdownTrigger asChild>
+								<Button variant="secondary" size="sm">
+									{ACTION_OPTION.find((o) => o.value === filterMap.action)?.label ?? "All"}
+									<ChevronDown className="h-3 w-3" />
+								</Button>
+							</DropdownTrigger>
+							<DropdownContent>
+								<DropdownRadioGroup
+									value={filterMap.action || ""}
+									onValueChange={(value) => setFilter("action", value)}
+								>
+									{ACTION_OPTION.map((opt) => (
+										<DropdownRadioItem key={opt.value} value={opt.value}>
+											{opt.label}
+										</DropdownRadioItem>
+									))}
+								</DropdownRadioGroup>
+							</DropdownContent>
+						</Dropdown>
 						<div className="w-40">
 							<SearchInput
 								value={search}

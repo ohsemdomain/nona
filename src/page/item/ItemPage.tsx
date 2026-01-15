@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMasterDetail } from "@/src/hook/useMasterDetail";
 import { useUIStore } from "@/src/store/ui";
@@ -8,12 +8,16 @@ import {
 	MasterListItem,
 	DetailPanel,
 	SearchInput,
-	Select,
 	Button,
 	LoadingBoundary,
 	EmptyState,
 	SkeletonList,
 	SkeletonDetailPanel,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
@@ -94,26 +98,34 @@ export function ItemPage() {
 									New
 								</Button>
 							</div>
-							<div className="flex items-center gap-2">
-								<Select
-									value={filterMap.categoryId || ""}
-									onChange={(e) => setFilter("categoryId", e.target.value)}
-									className="w-32"
-									aria-label="Filter by category"
-								>
-									<option value="">All Category</option>
-									{categoryList.map((cat) => (
-										<option key={cat.publicId} value={String(cat.id)}>
-											{cat.name}
-										</option>
-									))}
-								</Select>
-								<SearchInput
-									value={search}
-									onChange={setSearch}
-									placeholder="Search item..."
-								/>
-							</div>
+							<SearchInput
+								value={search}
+								onChange={setSearch}
+								placeholder="Search item..."
+							/>
+							<Dropdown>
+								<DropdownTrigger asChild>
+									<Button variant="secondary" size="sm">
+										{filterMap.categoryId
+											? categoryList.find((c) => String(c.id) === filterMap.categoryId)?.name ?? "Category"
+											: "All Category"}
+										<ChevronDown className="h-3 w-3" />
+									</Button>
+								</DropdownTrigger>
+								<DropdownContent>
+									<DropdownRadioGroup
+										value={filterMap.categoryId || ""}
+										onValueChange={(value) => setFilter("categoryId", value)}
+									>
+										<DropdownRadioItem value="">All Category</DropdownRadioItem>
+										{categoryList.map((cat) => (
+											<DropdownRadioItem key={cat.publicId} value={String(cat.id)}>
+												{cat.name}
+											</DropdownRadioItem>
+										))}
+									</DropdownRadioGroup>
+								</DropdownContent>
+							</Dropdown>
 						</div>
 					}
 				>

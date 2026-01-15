@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMasterDetail } from "@/src/hook/useMasterDetail";
 import { useUIStore } from "@/src/store/ui";
@@ -8,12 +8,16 @@ import {
 	MasterListItem,
 	DetailPanel,
 	SearchInput,
-	Select,
 	Button,
 	LoadingBoundary,
 	EmptyState,
 	SkeletonList,
 	SkeletonOrderDetail,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { formatMoney } from "@/src/lib/format";
 import { formatDate } from "@/src/lib/date";
@@ -84,25 +88,31 @@ export function OrderPage() {
 									New
 								</Button>
 							</div>
-							<div className="flex items-center gap-2">
-								<Select
-									value={filterMap.status || ""}
-									onChange={(e) => setFilter("status", e.target.value)}
-									className="w-32"
-									aria-label="Filter by status"
-								>
-									{STATUS_OPTION.map((opt) => (
-										<option key={opt.value} value={opt.value}>
-											{opt.label}
-										</option>
-									))}
-								</Select>
-								<SearchInput
-									value={search}
-									onChange={setSearch}
-									placeholder="Search order..."
-								/>
-							</div>
+							<SearchInput
+								value={search}
+								onChange={setSearch}
+								placeholder="Search order..."
+							/>
+							<Dropdown>
+								<DropdownTrigger asChild>
+									<Button variant="secondary" size="sm">
+										{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
+										<ChevronDown className="h-3 w-3" />
+									</Button>
+								</DropdownTrigger>
+								<DropdownContent>
+									<DropdownRadioGroup
+										value={filterMap.status || ""}
+										onValueChange={(value) => setFilter("status", value)}
+									>
+										{STATUS_OPTION.map((opt) => (
+											<DropdownRadioItem key={opt.value} value={opt.value}>
+												{opt.label}
+											</DropdownRadioItem>
+										))}
+									</DropdownRadioGroup>
+								</DropdownContent>
+							</Dropdown>
 						</div>
 					}
 				>
