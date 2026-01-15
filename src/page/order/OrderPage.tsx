@@ -95,12 +95,14 @@ export function OrderPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="sm" className="w-full justify-between">
-										{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
+									<Button variant="secondary" size="sm" className="w-full justify-start">
+										<span className="flex-1 text-left">
+											{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
+										</span>
 										<ChevronDown className="h-3 w-3" />
 									</Button>
 								</DropdownTrigger>
-								<DropdownContent>
+								<DropdownContent align="start">
 									<DropdownRadioGroup
 										value={filterMap.status || ""}
 										onValueChange={(value) => setFilter("status", value)}

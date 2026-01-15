@@ -105,14 +105,16 @@ export function ItemPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="sm" className="w-full justify-between">
-										{filterMap.categoryId
-											? categoryList.find((c) => String(c.id) === filterMap.categoryId)?.name ?? "Category"
-											: "All Category"}
+									<Button variant="secondary" size="sm" className="w-full justify-start">
+										<span className="flex-1 text-left">
+											{filterMap.categoryId
+												? categoryList.find((c) => String(c.id) === filterMap.categoryId)?.name ?? "Category"
+												: "All Category"}
+										</span>
 										<ChevronDown className="h-3 w-3" />
 									</Button>
 								</DropdownTrigger>
-								<DropdownContent>
+								<DropdownContent align="start">
 									<DropdownRadioGroup
 										value={filterMap.categoryId || ""}
 										onValueChange={(value) => setFilter("categoryId", value)}
