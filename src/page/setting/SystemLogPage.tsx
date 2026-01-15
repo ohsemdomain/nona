@@ -96,7 +96,7 @@ export function SystemLogPage() {
 					<div className="mt-3 flex items-center gap-2">
 						<Dropdown>
 							<DropdownTrigger asChild>
-								<Button variant="secondary" size="md" className="min-w-[100px] justify-start">
+								<Button variant="secondary" size="md" className="min-w-[120px] justify-start">
 									<span className="flex-1 text-left">
 										{RESOURCE_OPTION.find((o) => o.value === filterMap.resource)?.label ?? "All"}
 									</span>
@@ -118,7 +118,7 @@ export function SystemLogPage() {
 						</Dropdown>
 						<Dropdown>
 							<DropdownTrigger asChild>
-								<Button variant="secondary" size="md" className="min-w-[100px] justify-start">
+								<Button variant="secondary" size="md" className="min-w-[120px] justify-start">
 									<span className="flex-1 text-left">
 										{ACTION_OPTION.find((o) => o.value === filterMap.action)?.label ?? "All"}
 									</span>
