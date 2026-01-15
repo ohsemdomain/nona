@@ -95,7 +95,7 @@ export function OrderPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="sm">
+									<Button variant="secondary" size="sm" className="w-full justify-between">
 										{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
 										<ChevronDown className="h-3 w-3" />
 									</Button>

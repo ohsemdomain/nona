@@ -105,7 +105,7 @@ export function ItemPage() {
 							/>
 							<Dropdown>
 								<DropdownTrigger asChild>
-									<Button variant="secondary" size="sm">
+									<Button variant="secondary" size="sm" className="w-full justify-between">
 										{filterMap.categoryId
 											? categoryList.find((c) => String(c.id) === filterMap.categoryId)?.name ?? "Category"
 											: "All Category"}
