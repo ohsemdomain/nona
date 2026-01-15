@@ -96,12 +96,14 @@ export function SystemLogPage() {
 					<div className="mt-3 flex items-center gap-2">
 						<Dropdown>
 							<DropdownTrigger asChild>
-								<Button variant="secondary" size="sm">
-									{RESOURCE_OPTION.find((o) => o.value === filterMap.resource)?.label ?? "All"}
+								<Button variant="secondary" size="md" className="min-w-[100px] justify-start">
+									<span className="flex-1 text-left">
+										{RESOURCE_OPTION.find((o) => o.value === filterMap.resource)?.label ?? "All"}
+									</span>
 									<ChevronDown className="h-3 w-3" />
 								</Button>
 							</DropdownTrigger>
-							<DropdownContent>
+							<DropdownContent align="start">
 								<DropdownRadioGroup
 									value={filterMap.resource || ""}
 									onValueChange={(value) => setFilter("resource", value)}
@@ -116,12 +118,14 @@ export function SystemLogPage() {
 						</Dropdown>
 						<Dropdown>
 							<DropdownTrigger asChild>
-								<Button variant="secondary" size="sm">
-									{ACTION_OPTION.find((o) => o.value === filterMap.action)?.label ?? "All"}
+								<Button variant="secondary" size="md" className="min-w-[100px] justify-start">
+									<span className="flex-1 text-left">
+										{ACTION_OPTION.find((o) => o.value === filterMap.action)?.label ?? "All"}
+									</span>
 									<ChevronDown className="h-3 w-3" />
 								</Button>
 							</DropdownTrigger>
-							<DropdownContent>
+							<DropdownContent align="start">
 								<DropdownRadioGroup
 									value={filterMap.action || ""}
 									onValueChange={(value) => setFilter("action", value)}
@@ -134,13 +138,12 @@ export function SystemLogPage() {
 								</DropdownRadioGroup>
 							</DropdownContent>
 						</Dropdown>
-						<div className="w-40">
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search actor..."
-							/>
-						</div>
+						<SearchInput
+							value={search}
+							onChange={setSearch}
+							placeholder="Search actor..."
+							className="w-40"
+						/>
 					</div>
 				</div>
 
