@@ -1,13 +1,17 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Plus, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Pencil, ChevronDown } from "lucide-react";
 import {
 	Button,
-	Select,
 	FormField,
 	LoadingState,
 	ConfirmDialog,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { useResource } from "@/src/hook/useResource";
 import { useInlineModal } from "@/src/hook/useInlineModal";
@@ -219,20 +223,37 @@ export function OrderFormPage() {
 						<form onSubmit={handleSubmit} className="space-y-6">
 							{isEdit && (
 								<FormField label="Status" htmlFor="order-status">
-									<Select
-										id="order-status"
-										value={status}
-										onChange={(e) => setStatus(e.target.value as OrderStatus)}
-										disabled={isPending}
-									>
-										{Object.entries(ORDER_STATUS_LABEL).map(
-											([value, label]) => (
-												<option key={value} value={value}>
-													{label}
-												</option>
-											),
-										)}
-									</Select>
+									<Dropdown>
+										<DropdownTrigger asChild>
+											<Button
+												id="order-status"
+												type="button"
+												variant="secondary"
+												size="md"
+												className="w-full min-w-[200px] justify-start"
+												disabled={isPending}
+											>
+												<span className="flex-1 text-left">
+													{ORDER_STATUS_LABEL[status]}
+												</span>
+												<ChevronDown className="h-3 w-3" />
+											</Button>
+										</DropdownTrigger>
+										<DropdownContent align="start" className="min-w-[200px]">
+											<DropdownRadioGroup
+												value={status}
+												onValueChange={(value) => setStatus(value as OrderStatus)}
+											>
+												{Object.entries(ORDER_STATUS_LABEL).map(
+													([value, label]) => (
+														<DropdownRadioItem key={value} value={value}>
+															{label}
+														</DropdownRadioItem>
+													),
+												)}
+											</DropdownRadioGroup>
+										</DropdownContent>
+									</Dropdown>
 								</FormField>
 							)}
 
@@ -281,33 +302,44 @@ export function OrderFormPage() {
 												>
 													<div className="min-w-0 flex-1 space-y-3">
 														<div className="flex gap-2">
-															<div className="flex-1">
-																<Select
-																	value={line.itemId}
-																	onChange={(e) =>
-																		handleLineChange(
-																			line.key,
-																			"itemId",
-																			e.target.value,
-																		)
-																	}
-																	error={!!error[`line-${line.key}-item`]}
-																	disabled={isPending}
-																>
-																	<option value="">Select item...</option>
-																	{itemList.map((item) => (
-																		<option key={item.publicId} value={item.id}>
-																			{item.name} ({formatMoney(item.price)})
-																		</option>
-																	))}
-																</Select>
-															</div>
+															<Dropdown>
+																<DropdownTrigger asChild>
+																	<Button
+																		type="button"
+																		variant="secondary"
+																		size="md"
+																		className="flex-1 min-w-[200px] justify-start"
+																		disabled={isPending}
+																	>
+																		<span className="flex-1 truncate text-left">
+																			{selectedItem
+																				? `${selectedItem.name} (${formatMoney(selectedItem.price)})`
+																				: "Select item..."}
+																		</span>
+																		<ChevronDown className="h-3 w-3 shrink-0" />
+																	</Button>
+																</DropdownTrigger>
+																<DropdownContent align="start" className="min-w-[200px]">
+																	<DropdownRadioGroup
+																		value={line.itemId}
+																		onValueChange={(value) =>
+																			handleLineChange(line.key, "itemId", value)
+																		}
+																	>
+																		{itemList.map((item) => (
+																			<DropdownRadioItem key={item.publicId} value={String(item.id)}>
+																				{item.name} ({formatMoney(item.price)})
+																			</DropdownRadioItem>
+																		))}
+																	</DropdownRadioGroup>
+																</DropdownContent>
+															</Dropdown>
 															{/* Edit selected item */}
 															{selectedItem && (
 																<Button
 																	type="button"
 																	variant="secondary"
-																	size="sm"
+																	size="md"
 																	onClick={() =>
 																		itemModal.openEdit(line.key, selectedItem)
 																	}
@@ -320,7 +352,7 @@ export function OrderFormPage() {
 															<Button
 																type="button"
 																variant="secondary"
-																size="sm"
+																size="md"
 																onClick={() => itemModal.openCreate(line.key)}
 																disabled={isPending}
 															>

@@ -1,12 +1,16 @@
-import { Plus } from "lucide-react";
+import { Plus, ChevronDown } from "lucide-react";
 import { useRef, useCallback } from "react";
 import {
 	Modal,
 	FormField,
 	Input,
-	Select,
 	Button,
 	ConfirmDialog,
+	Dropdown,
+	DropdownTrigger,
+	DropdownContent,
+	DropdownRadioGroup,
+	DropdownRadioItem,
 } from "@/src/component";
 import { useFormModal } from "@/src/hook/useFormModal";
 import { useInlineModal } from "@/src/hook/useInlineModal";
@@ -137,23 +141,41 @@ export function ItemFormModal({ id, onSuccess, onClose }: ItemFormModalProp) {
 						required
 					>
 						<div className="flex gap-2">
-							<Select
-								id={`${id}-category`}
-								value={modal.form.categoryId}
-								onChange={(e) => modal.setField("categoryId", e.target.value)}
-								disabled={modal.isPending}
-							>
-								<option value="">Select category...</option>
-								{categoryList.map((cat) => (
-									<option key={cat.publicId} value={cat.id}>
-										{cat.name}
-									</option>
-								))}
-							</Select>
+							<Dropdown>
+								<DropdownTrigger asChild>
+									<Button
+										id={`${id}-category`}
+										type="button"
+										variant="secondary"
+										size="md"
+										className="flex-1 justify-start"
+										disabled={modal.isPending}
+									>
+										<span className="flex-1 text-left">
+											{modal.form.categoryId
+												? categoryList.find((c) => String(c.id) === modal.form.categoryId)?.name ?? "Select category..."
+												: "Select category..."}
+										</span>
+										<ChevronDown className="h-3 w-3" />
+									</Button>
+								</DropdownTrigger>
+								<DropdownContent align="start" className="min-w-[200px]">
+									<DropdownRadioGroup
+										value={modal.form.categoryId}
+										onValueChange={(value) => modal.setField("categoryId", value)}
+									>
+										{categoryList.map((cat) => (
+											<DropdownRadioItem key={cat.publicId} value={String(cat.id)}>
+												{cat.name}
+											</DropdownRadioItem>
+										))}
+									</DropdownRadioGroup>
+								</DropdownContent>
+							</Dropdown>
 							<Button
 								type="button"
 								variant="secondary"
-								size="sm"
+								size="md"
 								onClick={() => categoryModal.openCreate("category")}
 								disabled={modal.isPending}
 							>
