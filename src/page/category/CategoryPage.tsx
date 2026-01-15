@@ -5,8 +5,8 @@ import {
 	MasterDetail,
 	MasterList,
 	MasterListItem,
+	MasterListHeader,
 	DetailPanel,
-	SearchInput,
 	Button,
 	LoadingBoundary,
 	EmptyState,
@@ -64,22 +64,13 @@ export function CategoryPage() {
 			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
-						<div className="space-y-3 border-b border-geist-border px-5 py-5">
-							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-geist-fg">
-									Category
-								</h1>
-								<Button size="sm" onClick={handleCreate}>
-									<Plus className="h-4 w-4" />
-									New
-								</Button>
-							</div>
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search category..."
-							/>
-						</div>
+						<MasterListHeader
+							title="Category"
+							onCreate={handleCreate}
+							search={search}
+							onSearchChange={setSearch}
+							searchPlaceholder="Search category..."
+						/>
 					}
 				>
 					<LoadingBoundary

@@ -15,6 +15,7 @@ export { SearchInput } from "./SearchInput";
 export { Pagination } from "./Pagination";
 export { MasterDetail } from "./MasterDetail";
 export { MasterList, MasterListItem } from "./MasterList";
+export { MasterListHeader } from "./MasterListHeader";
 export { DetailPanel, DetailPanelHeader } from "./DetailPanel";
 export { DataTable } from "./DataTable";
 export { NavBar } from "./NavBar";

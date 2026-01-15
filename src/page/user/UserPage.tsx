@@ -5,8 +5,8 @@ import {
 	MasterDetail,
 	MasterList,
 	MasterListItem,
+	MasterListHeader,
 	DetailPanel,
-	SearchInput,
 	Button,
 	LoadingBoundary,
 	EmptyState,
@@ -67,24 +67,14 @@ export function UserPage() {
 			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
-						<div className="space-y-3 border-b border-geist-border px-5 py-5">
-							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-geist-fg">
-									User
-								</h1>
-								<PermissionGuard permission={PERMISSION.USER_CREATE}>
-									<Button size="sm" onClick={handleCreate}>
-										<Plus className="h-4 w-4" />
-										New
-									</Button>
-								</PermissionGuard>
-							</div>
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search user..."
-							/>
-						</div>
+						<MasterListHeader
+							title="User"
+							onCreate={handleCreate}
+							search={search}
+							onSearchChange={setSearch}
+							searchPlaceholder="Search user..."
+							createPermission={PERMISSION.USER_CREATE}
+						/>
 					}
 				>
 					<LoadingBoundary

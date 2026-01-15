@@ -6,8 +6,8 @@ import {
 	MasterDetail,
 	MasterList,
 	MasterListItem,
+	MasterListHeader,
 	DetailPanel,
-	SearchInput,
 	Button,
 	LoadingBoundary,
 	EmptyState,
@@ -78,44 +78,37 @@ export function OrderPage() {
 			<MasterDetail selectedId={selectedId}>
 				<MasterList
 					header={
-						<div className="space-y-3 border-b border-geist-border px-5 py-5">
-							<div className="flex items-center justify-between">
-								<h1 className="text-lg font-semibold text-geist-fg">
-									Order
-								</h1>
-								<Button size="sm" onClick={handleCreate}>
-									<Plus className="h-4 w-4" />
-									New
-								</Button>
-							</div>
-							<SearchInput
-								value={search}
-								onChange={setSearch}
-								placeholder="Search order..."
-							/>
-							<Dropdown>
-								<DropdownTrigger asChild>
-									<Button variant="secondary" size="md" className="w-full min-w-[200px] justify-start">
-										<span className="flex-1 text-left">
-											{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
-										</span>
-										<ChevronDown className="h-3 w-3" />
-									</Button>
-								</DropdownTrigger>
-								<DropdownContent align="start">
-									<DropdownRadioGroup
-										value={filterMap.status || ""}
-										onValueChange={(value) => setFilter("status", value)}
-									>
-										{STATUS_OPTION.map((opt) => (
-											<DropdownRadioItem key={opt.value} value={opt.value}>
-												{opt.label}
-											</DropdownRadioItem>
-										))}
-									</DropdownRadioGroup>
-								</DropdownContent>
-							</Dropdown>
-						</div>
+						<MasterListHeader
+							title="Order"
+							onCreate={handleCreate}
+							search={search}
+							onSearchChange={setSearch}
+							searchPlaceholder="Search order..."
+							filter={
+								<Dropdown>
+									<DropdownTrigger asChild>
+										<Button variant="secondary" size="md" className="w-full min-w-[200px] justify-start">
+											<span className="flex-1 text-left">
+												{STATUS_OPTION.find((o) => o.value === filterMap.status)?.label ?? "All Status"}
+											</span>
+											<ChevronDown className="h-3 w-3" />
+										</Button>
+									</DropdownTrigger>
+									<DropdownContent align="start">
+										<DropdownRadioGroup
+											value={filterMap.status || ""}
+											onValueChange={(value) => setFilter("status", value)}
+										>
+											{STATUS_OPTION.map((opt) => (
+												<DropdownRadioItem key={opt.value} value={opt.value}>
+													{opt.label}
+												</DropdownRadioItem>
+											))}
+										</DropdownRadioGroup>
+									</DropdownContent>
+								</Dropdown>
+							}
+						/>
 					}
 				>
 					<LoadingBoundary
