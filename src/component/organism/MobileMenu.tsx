@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import { useAuth } from "@/src/lib/AuthProvider";
 import { usePermission } from "@/src/hook/usePermission";
 import { PERMISSION } from "@/shared/constant/permission";
-import { Button } from "./Button";
+import { Button } from "../atom/Button";
 import toast from "react-hot-toast";
 
 const navItemList = [

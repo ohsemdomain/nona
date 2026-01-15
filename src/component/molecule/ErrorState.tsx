@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { clsx } from "clsx";
-import { Button } from "./Button";
+import { Button } from "../atom/Button";
 
 interface ErrorStateProp {
 	title?: string;

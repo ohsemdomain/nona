@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { NavBar } from "./NavBar";
-import { MobileMenu } from "./MobileMenu";
+import { NavBar } from "../organism/NavBar";
+import { MobileMenu } from "../organism/MobileMenu";
 
 export function Layout() {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

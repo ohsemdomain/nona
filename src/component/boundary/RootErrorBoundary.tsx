@@ -1,6 +1,6 @@
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { ReactNode } from "react";
-import { ErrorState } from "./ErrorState";
+import { ErrorState } from "../molecule/ErrorState";
 
 function RootFallback({ error, resetErrorBoundary }: FallbackProps) {
 	return (

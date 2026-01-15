@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, LoadingBoundary, SkeletonList, PermissionMatrix } from "@/src/component";
+import { Button, LoadingBoundary, SkeletonList } from "@/src/component";
+import { PermissionMatrix } from "@/src/feature/role/component";
 import { api, handleApiError } from "@/src/lib/api";
 import { TOAST } from "@/src/lib/toast";
 import type { PermissionGroup } from "@/shared/type";

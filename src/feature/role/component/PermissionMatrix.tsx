@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { clsx } from "clsx";
-import { Checkbox } from "./Checkbox";
+import { Checkbox } from "@/src/component";
 import type { PermissionGroup } from "@/shared/type";
 
 interface PermissionMatrixProp {

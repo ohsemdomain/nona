@@ -6,13 +6,13 @@ import {
 	Pagination,
 	EmptyState,
 	PermissionGuard,
-	CompactLogItem,
 	Dropdown,
 	DropdownTrigger,
 	DropdownContent,
 	DropdownRadioGroup,
 	DropdownRadioItem,
 } from "@/src/component";
+import { CompactLogItem } from "@/src/feature/audit/component";
 import { useFilter } from "@/src/hook/useFilter";
 import { usePagination } from "@/src/hook/usePagination";
 import {

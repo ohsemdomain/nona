@@ -1,5 +1,5 @@
 import { useRouteError, isRouteErrorResponse, useNavigate } from "react-router-dom";
-import { ErrorState } from "./ErrorState";
+import { ErrorState } from "../molecule/ErrorState";
 
 export function RouteErrorBoundary() {
 	const error = useRouteError();

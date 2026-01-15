@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { clsx } from "clsx";
-import { Button } from "./Button";
+import { Button } from "../atom/Button";
 
 interface LoadingBoundaryProp {
 	isLoading: boolean;

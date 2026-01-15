@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { History } from "lucide-react";
 import { useAuditLog } from "@/src/hook/useAuditLog";
-import { EmptyState } from "./EmptyState";
-import { Pagination } from "./Pagination";
+import { EmptyState, Pagination, SkeletonHistoryLog } from "@/src/component";
 import { HistoryLogList } from "./HistoryLogList";
-import { SkeletonHistoryLog } from "./skeleton";
 import type { AuditResource } from "@/shared/type";
 
 interface HistoryLogPanelProp {

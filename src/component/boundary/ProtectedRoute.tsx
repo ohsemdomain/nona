@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/src/lib/AuthProvider";
-import { LoadingState } from "./LoadingState";
+import { LoadingState } from "../atom/LoadingState";
 
 interface ProtectedRouteProp {
 	children: React.ReactNode;

@@ -9,13 +9,13 @@ import {
 	Tab,
 	TabPanels,
 	TabPanel,
-	HistoryLogPanel,
 	Dropdown,
 	DropdownTrigger,
 	DropdownContent,
 	DropdownItem,
 	DropdownSeparator,
 } from "@/src/component";
+import { HistoryLogPanel } from "@/src/feature/audit/component";
 import { formatDateTime } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
 import { api } from "@/src/lib/api";
