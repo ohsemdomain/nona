@@ -6,6 +6,7 @@ export function createAuth(env: Env) {
 	const db = createDb(env.DB);
 
 	return betterAuth({
+		secret: env.BETTER_AUTH_SECRET,
 		database: drizzleAdapter(db, {
 			provider: "sqlite",
 		}),

@@ -6,4 +6,5 @@ interface Env {
 	R2: R2Bucket;
 	TRUSTED_ORIGIN?: string;
 	SESSION_TOKEN_SECRET?: string;
+	BETTER_AUTH_SECRET?: string;
 }
