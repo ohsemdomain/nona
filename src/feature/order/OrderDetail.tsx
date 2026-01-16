@@ -1,5 +1,6 @@
-import { Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Pencil, Trash2, MoreHorizontal, Copy, ExternalLink } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import {
 	Button,
 	DetailPanelHeader,
@@ -16,7 +17,7 @@ import {
 	DropdownSeparator,
 } from "@/src/component";
 import { HistoryLogPanel } from "@/src/feature/audit/component";
-import { formatDateTime } from "@/src/lib/date";
+import { formatDateTime, formatDate } from "@/src/lib/date";
 import { formatMoney } from "@/src/lib/format";
 import { api } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
@@ -44,6 +45,71 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 
 	const orderData = fullOrder ?? order;
 	const lineList = orderData.lineList ?? [];
+	const shareLink = orderData.shareLink;
+
+	const getShareUrl = () => {
+		if (!shareLink) return null;
+		return `${window.location.origin}/share/${shareLink.linkId}`;
+	};
+
+	const handleCopyLink = () => {
+		const url = getShareUrl();
+		if (!url) {
+			toast.error("No share link available");
+			return;
+		}
+
+		// Delay to allow dropdown to close and focus to return to document
+		setTimeout(async () => {
+			// Try modern clipboard API first (only works in secure contexts)
+			if (navigator.clipboard?.writeText) {
+				try {
+					await navigator.clipboard.writeText(url);
+					toast.success("Link copied to clipboard");
+					return;
+				} catch {
+					// Fall through to fallback
+				}
+			}
+
+			// Fallback using textarea and execCommand
+			const textArea = document.createElement("textarea");
+			textArea.value = url;
+			textArea.style.position = "absolute";
+			textArea.style.left = "-9999px";
+			textArea.style.top = `${window.scrollY}px`;
+			textArea.style.fontSize = "16px";
+			
+			document.body.appendChild(textArea);
+			textArea.focus();
+			textArea.select();
+			textArea.setSelectionRange(0, url.length);
+
+			let success = false;
+			try {
+				success = document.execCommand("copy");
+			} catch {
+				success = false;
+			}
+
+			document.body.removeChild(textArea);
+
+			if (success) {
+				toast.success("Link copied to clipboard");
+			} else {
+				toast.error("Failed to copy link");
+			}
+		}, 100);
+	};
+
+	const handleShowAsCustomer = () => {
+		const url = getShareUrl();
+		if (!url) {
+			toast.error("No share link available");
+			return;
+		}
+		window.open(url, "_blank");
+	};
 
 	return (
 		<div className="space-y-6">
@@ -60,6 +126,15 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 							<DropdownItem onSelect={onEdit}>
 								<Pencil className="h-4 w-4" />
 								Edit
+							</DropdownItem>
+							<DropdownSeparator />
+							<DropdownItem onSelect={handleCopyLink} disabled={!shareLink}>
+								<Copy className="h-4 w-4" />
+								Copy Link
+							</DropdownItem>
+							<DropdownItem onSelect={handleShowAsCustomer} disabled={!shareLink}>
+								<ExternalLink className="h-4 w-4" />
+								Show as Customer
 							</DropdownItem>
 							<DropdownSeparator />
 							<DropdownItem variant="danger" onSelect={onDelete}>
@@ -130,6 +205,20 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 									)}
 								</dd>
 							</div>
+
+							{shareLink && (
+								<div>
+									<dt className="text-sm font-medium text-geist-fg-muted ">
+										Share Link Expires
+									</dt>
+									<dd className="mt-1 text-geist-fg ">
+										{formatDate(shareLink.expiresAt)}
+										{shareLink.expiresAt < Date.now() && (
+											<span className="ml-2 text-sm text-red-500">(Expired)</span>
+										)}
+									</dd>
+								</div>
+							)}
 
 							<div className="border-t border-geist-border pt-4 ">
 								<h3 className="mb-3 text-sm font-medium text-geist-fg ">

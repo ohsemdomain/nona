@@ -1,5 +1,7 @@
 -- Drop all application tables (order matters due to foreign keys)
 DROP TABLE IF EXISTS audit_log;
+DROP TABLE IF EXISTS public_link;
+DROP TABLE IF EXISTS app_setting;
 DROP TABLE IF EXISTS order_line;
 DROP TABLE IF EXISTS session;
 DROP TABLE IF EXISTS account;

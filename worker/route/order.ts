@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq, isNull, and, sql, inArray, desc, like } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
-import { createDb, order, orderLine, item, user } from "../db";
+import { createDb, order, orderLine, item, user, publicLink, appSetting } from "../db";
 import {
 	createOrderSchema,
 	updateOrderSchema,
@@ -10,6 +10,7 @@ import {
 import { PERMISSION } from "../../shared/constant/permission";
 import {
 	generatePublicId,
+	generateLinkId,
 	timestamps,
 	updatedTimestamp,
 	listResponse,
@@ -24,6 +25,25 @@ import {
 	AUDIT_ACTION,
 	AUDIT_RESOURCE,
 } from "../lib";
+
+// Default expiry in days if no setting exists
+const DEFAULT_LINK_EXPIRY_DAY = 30;
+
+// Helper to get link expiry setting
+async function getLinkExpiryDay(db: ReturnType<typeof createDb>): Promise<number> {
+	const result = await db
+		.select()
+		.from(appSetting)
+		.where(eq(appSetting.key, "public_link_expiry_day:order"))
+		.limit(1);
+
+	if (result.length === 0) {
+		return DEFAULT_LINK_EXPIRY_DAY;
+	}
+
+	const value = Number.parseInt(result[0].value, 10);
+	return Number.isNaN(value) ? DEFAULT_LINK_EXPIRY_DAY : value;
+}
 
 // Aliases for creator/updater joins
 const creator = alias(user, "creator");
@@ -128,7 +148,24 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 			and(eq(orderLine.orderId, orderData.id), isNull(orderLine.deletedAt)),
 		);
 
-	return c.json({ ...orderData, lineList });
+	// Fetch share link for this order
+	const shareLinkResult = await db
+		.select({
+			linkId: publicLink.linkId,
+			expiresAt: publicLink.expiresAt,
+		})
+		.from(publicLink)
+		.where(
+			and(
+				eq(publicLink.resourceType, "order"),
+				eq(publicLink.resourceId, publicId),
+			),
+		)
+		.limit(1);
+
+	const shareLink = shareLinkResult.length > 0 ? shareLinkResult[0] : null;
+
+	return c.json({ ...orderData, lineList, shareLink });
 });
 
 // POST /api/order - Create
@@ -191,6 +228,23 @@ app.post(
 			);
 		}
 
+		// Auto-create public share link
+		const expiryDay = await getLinkExpiryDay(db);
+		const expiresAt = Date.now() + expiryDay * 24 * 60 * 60 * 1000;
+		const shareLinkResult = await db
+			.insert(publicLink)
+			.values({
+				linkId: generateLinkId(),
+				resourceType: "order",
+				resourceId: created.publicId,
+				expiresAt,
+				createdAt: Date.now(),
+				createdBy: userId,
+			})
+			.returning();
+
+		const shareLink = shareLinkResult[0];
+
 		// Fetch lines for response
 		const lineList = await db
 			.select()
@@ -208,7 +262,7 @@ app.post(
 			metadata: { status: created.status, total: created.total, lineCount: lineList.length },
 		}));
 
-		return c.json({ ...created, lineList }, 201);
+		return c.json({ ...created, lineList, shareLink: { linkId: shareLink.linkId, expiresAt: shareLink.expiresAt } }, 201);
 	},
 );
 

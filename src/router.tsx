@@ -5,7 +5,7 @@ import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
 import { UserPage } from "@/src/page/user";
 import { RolePage } from "@/src/page/role";
-import { SettingPage, SystemLogPage } from "@/src/page/setting";
+import { GeneralSettingPage, SettingPage, SystemLogPage } from "@/src/page/setting";
 import { LoginPage } from "@/src/page/auth";
 
 export const router = createBrowserRouter([
@@ -61,7 +61,12 @@ export const router = createBrowserRouter([
 				children: [
 					{
 						index: true,
-						element: <Navigate to="/setting/user" replace />,
+						element: <Navigate to="/setting/general" replace />,
+					},
+					{
+						path: "general",
+						element: <GeneralSettingPage />,
+						errorElement: <RouteErrorBoundary />,
 					},
 					{
 						path: "user",

@@ -7,9 +7,11 @@ import {
 	meRoute,
 	orderRoute,
 	permissionRoute,
+	publicShareRoute,
 	roleRoute,
-	userRoute,
+	settingRoute,
 	sessionTokenRoute,
+	userRoute,
 } from "./route";
 import { requireAuth, authRateLimit, apiRateLimit } from "./lib";
 
@@ -72,10 +74,20 @@ app.use("/api/role/*", apiRateLimit);
 app.use("/api/role/*", requireAuth);
 app.route("/api/role", roleRoute);
 
+// Setting routes (system admin only - permission check in route handlers)
+app.use("/api/setting", apiRateLimit);
+app.use("/api/setting", requireAuth);
+app.use("/api/setting/*", apiRateLimit);
+app.use("/api/setting/*", requireAuth);
+app.route("/api/setting", settingRoute);
+
 // API 404 handler - must be before static asset catch-all
 app.all("/api/*", (c) => {
 	return c.json({ error: "Not found" }, 404);
 });
+
+// Public share routes (SSR, no auth required)
+app.route("/share", publicShareRoute);
 
 // Serve static assets
 app.all("*", (c) => {

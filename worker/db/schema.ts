@@ -187,6 +187,37 @@ export const orderLineRelation = relations(orderLine, ({ one }) => ({
 	}),
 }));
 
+// ============================================
+// Public Link Tables
+// ============================================
+
+// PublicLink table - centralized shareable links for any resource
+export const publicLink = sqliteTable(
+	"public_link",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		linkId: text("link_id").notNull().unique(), // 9-char nanoid
+		resourceType: text("resource_type").notNull(), // "order", "item", etc.
+		resourceId: text("resource_id").notNull(), // publicId of the linked resource
+		expiresAt: integer("expires_at").notNull(),
+		createdAt: integer("created_at").notNull(),
+		createdBy: text("created_by").references(() => user.id),
+	},
+	(table) => [
+		index("public_link_link_id_idx").on(table.linkId),
+		index("public_link_resource_idx").on(table.resourceType, table.resourceId),
+	],
+);
+
+// AppSetting table - global application settings
+export const appSetting = sqliteTable("app_setting", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	key: text("key").notNull().unique(), // e.g., "public_link_expiry_day:order"
+	value: text("value").notNull(), // JSON or simple value
+	updatedAt: integer("updated_at").notNull(),
+	updatedBy: text("updated_by").references(() => user.id),
+});
+
 // Types
 export type Category = typeof category.$inferSelect;
 export type NewCategory = typeof category.$inferInsert;
@@ -199,3 +230,9 @@ export type NewOrder = typeof order.$inferInsert;
 
 export type OrderLine = typeof orderLine.$inferSelect;
 export type NewOrderLine = typeof orderLine.$inferInsert;
+
+export type PublicLink = typeof publicLink.$inferSelect;
+export type NewPublicLink = typeof publicLink.$inferInsert;
+
+export type AppSetting = typeof appSetting.$inferSelect;
+export type NewAppSetting = typeof appSetting.$inferInsert;

@@ -22,6 +22,11 @@ export interface OrderLine {
 	item: OrderLineItem | null;
 }
 
+export interface ShareLink {
+	linkId: string;
+	expiresAt: number;
+}
+
 export interface Order {
 	id: number;
 	publicId: string;
@@ -35,6 +40,7 @@ export interface Order {
 	createdByName: string | null;
 	updatedByName: string | null;
 	lineList?: OrderLine[];
+	shareLink?: ShareLink | null;
 }
 
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {

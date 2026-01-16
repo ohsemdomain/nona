@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
-import { Users, FileText, Shield } from "lucide-react";
+import { Users, FileText, Shield, Settings } from "lucide-react";
 
 const navItemList = [
+	{ to: "/setting/general", label: "General", icon: Settings },
 	{ to: "/setting/user", label: "User", icon: Users },
 	{ to: "/setting/log", label: "Log", icon: FileText },
 	{ to: "/setting/role", label: "Role", icon: Shield },
