@@ -39,4 +39,7 @@ export const queryKey = {
 		list: () => ["setting", "list"] as const,
 		detail: (key: string) => ["setting", "detail", key] as const,
 	},
+	numberFormat: {
+		detail: (entityType: string) => ["setting", "number-format", entityType] as const,
+	},
 };

@@ -10,6 +10,7 @@ import {
 import { api, handleApiError } from "@/src/lib/api";
 import { queryKey } from "@/src/lib/queryKey";
 import { PERMISSION } from "@/shared/constant/permission";
+import { NumberFormatSetting } from "./NumberFormatSetting";
 
 interface AppSetting {
 	id: number;
@@ -124,6 +125,11 @@ export function GeneralSettingPage() {
 								>
 									{mutation.isPending ? "Saving..." : "Save"}
 								</Button>
+							</div>
+
+							<div className="border-t border-geist-border pt-6">
+								<h2 className="text-lg font-semibold text-geist-fg mb-4">Number Format</h2>
+								<NumberFormatSetting entityType="order" label="Order Number Format" />
 							</div>
 						</div>
 					)}
