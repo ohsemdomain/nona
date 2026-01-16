@@ -114,7 +114,7 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 	return (
 		<div className="space-y-6">
 			<DetailPanelHeader
-				title={`Order #${orderData.publicId}`}
+				title={orderData.orderNumber ? `Order ${orderData.orderNumber}` : `Order #${orderData.publicId}`}
 				action={
 					<Dropdown>
 						<DropdownTrigger asChild>
