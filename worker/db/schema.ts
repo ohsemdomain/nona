@@ -135,6 +135,7 @@ export const order = sqliteTable(
 	{
 		id: integer("id").primaryKey({ autoIncrement: true }),
 		publicId: text("public_id").notNull().unique(),
+		orderNumber: text("order_number").unique(), // Human-readable formatted order number
 		status: text("status").notNull().default("draft"), // draft, pending, confirmed, completed, cancelled
 		total: integer("total").notNull().default(0), // cents
 		createdAt: integer("created_at").notNull(),
