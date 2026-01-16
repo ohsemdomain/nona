@@ -88,7 +88,13 @@ async function getNextSequence(
 ): Promise<number> {
 	const now = Date.now();
 
-	// Try to increment existing sequence
+	// Insert with 0 if not exists (race-safe)
+	await db
+		.insert(appSetting)
+		.values({ key: sequenceKey, value: "0", updatedAt: now })
+		.onConflictDoNothing();
+
+	// Now increment and return (guaranteed to exist)
 	const updated = await db
 		.update(appSetting)
 		.set({
@@ -98,17 +104,7 @@ async function getNextSequence(
 		.where(eq(appSetting.key, sequenceKey))
 		.returning({ value: appSetting.value });
 
-	if (updated.length > 0) {
-		return parseInt(updated[0].value);
-	}
-
-	// First of this period, insert new row
-	await db.insert(appSetting).values({
-		key: sequenceKey,
-		value: "1",
-		updatedAt: now,
-	});
-	return 1;
+	return parseInt(updated[0].value);
 }
 
 // Generate preview without incrementing sequence
