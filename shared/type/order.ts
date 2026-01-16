@@ -30,6 +30,7 @@ export interface ShareLink {
 export interface Order {
 	id: number;
 	publicId: string;
+	orderNumber: string | null;
 	status: OrderStatus;
 	total: number;
 	createdAt: number;

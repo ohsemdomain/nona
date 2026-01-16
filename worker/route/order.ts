@@ -25,6 +25,7 @@ import {
 	AUDIT_ACTION,
 	AUDIT_RESOURCE,
 } from "../lib";
+import { generateFormattedNumber } from "../lib/number-format";
 
 // Default expiry in days if no setting exists
 const DEFAULT_LINK_EXPIRY_DAY = 30;
@@ -73,6 +74,7 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 			.select({
 				id: order.id,
 				publicId: order.publicId,
+				orderNumber: order.orderNumber,
 				status: order.status,
 				total: order.total,
 				createdAt: order.createdAt,
@@ -105,6 +107,7 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 		.select({
 			id: order.id,
 			publicId: order.publicId,
+			orderNumber: order.orderNumber,
 			status: order.status,
 			total: order.total,
 			createdAt: order.createdAt,
@@ -205,11 +208,15 @@ app.post(
 			};
 		});
 
+		// Generate order number
+		const orderNumber = await generateFormattedNumber(db, "order");
+
 		// Create order
 		const orderResult = await db
 			.insert(order)
 			.values({
 				publicId: generatePublicId(),
+				orderNumber: orderNumber,
 				status: "draft",
 				total: orderTotal,
 				...timestamps(userId),
