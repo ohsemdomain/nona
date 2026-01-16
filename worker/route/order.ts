@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { eq, isNull, and, sql, inArray, desc, like } from "drizzle-orm";
+import { eq, isNull, and, or, sql, inArray, desc, like } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { createDb, order, orderLine, item, user, publicLink, appSetting } from "../db";
 import {
@@ -62,7 +62,13 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 	let whereClause = isNull(order.deletedAt);
 
 	if (search) {
-		whereClause = and(whereClause, like(order.publicId, `%${search}%`)) ?? whereClause;
+		whereClause = and(
+			whereClause,
+			or(
+				like(order.publicId, `%${search}%`),
+				like(order.orderNumber, `%${search}%`)
+			)
+		) ?? whereClause;
 	}
 
 	if (status) {
