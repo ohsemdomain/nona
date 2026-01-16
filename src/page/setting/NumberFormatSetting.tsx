@@ -83,8 +83,9 @@ export function NumberFormatSetting({ entityType, label }: NumberFormatSettingPr
 	return (
 		<div className="space-y-4">
 			<div>
-				<label className="block text-sm font-medium text-geist-fg mb-1">{label}</label>
+				<label htmlFor="number-format-pattern" className="block text-sm font-medium text-geist-fg mb-1">{label}</label>
 				<Input
+					id="number-format-pattern"
 					value={pattern}
 					onChange={(e) => setPattern(e.target.value)}
 					placeholder="e.g., ORD[YY][MM][4DIGIT]"
@@ -110,6 +111,7 @@ export function NumberFormatSetting({ entityType, label }: NumberFormatSettingPr
 							key={p}
 							type="button"
 							onClick={() => insertPlaceholder(p)}
+							aria-label={`Insert ${p} placeholder`}
 							className="px-2 py-1 text-xs font-mono bg-geist-bg-muted hover:bg-geist-bg-hover rounded border border-geist-border"
 						>
 							{p}
@@ -124,6 +126,7 @@ export function NumberFormatSetting({ entityType, label }: NumberFormatSettingPr
 							key={p}
 							type="button"
 							onClick={() => insertPlaceholder(p)}
+							aria-label={`Insert ${p} placeholder`}
 							className="px-2 py-1 text-xs font-mono bg-geist-bg-muted hover:bg-geist-bg-hover rounded border border-geist-border"
 						>
 							{p}
