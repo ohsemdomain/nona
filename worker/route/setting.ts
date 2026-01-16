@@ -8,6 +8,12 @@ import {
 	requirePermission,
 	getUserId,
 } from "../lib";
+import {
+	validatePattern,
+	getFormatPattern,
+	saveFormatPattern,
+	generatePreview,
+} from "../lib/number-format";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -86,6 +92,60 @@ app.put(
 			.returning();
 
 		return c.json(result[0]);
+	},
+);
+
+// GET /api/setting/number-format/:entityType
+app.get(
+	"/number-format/:entityType",
+	requirePermission(PERMISSION.SYSTEM_ADMIN),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const entityType = c.req.param("entityType");
+
+		const pattern = await getFormatPattern(db, entityType);
+		return c.json({ pattern });
+	},
+);
+
+// POST /api/setting/number-format/:entityType
+app.post(
+	"/number-format/:entityType",
+	requirePermission(PERMISSION.SYSTEM_ADMIN),
+	async (c) => {
+		const db = createDb(c.env.DB);
+		const entityType = c.req.param("entityType");
+		const userId = getUserId(c);
+		const { pattern } = await c.req.json<{ pattern: string }>();
+
+		const validation = validatePattern(pattern);
+		if (!validation.valid) {
+			return c.json({ error: validation.error }, 400);
+		}
+
+		await saveFormatPattern(db, entityType, pattern, userId);
+		return c.json({ success: true });
+	},
+);
+
+// GET /api/setting/number-format/:entityType/preview
+app.get(
+	"/number-format/:entityType/preview",
+	requirePermission(PERMISSION.SYSTEM_ADMIN),
+	async (c) => {
+		const pattern = c.req.query("pattern");
+
+		if (!pattern) {
+			return c.json({ error: "Pattern required" }, 400);
+		}
+
+		const validation = validatePattern(pattern);
+		if (!validation.valid) {
+			return c.json({ error: validation.error }, 400);
+		}
+
+		const preview = generatePreview(pattern);
+		return c.json({ preview });
 	},
 );
 
