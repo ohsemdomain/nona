@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Users, FileText, Shield, Settings } from "lucide-react";
+import { Users, FileText, Shield, Settings, Hash } from "lucide-react";
 
 const navItemList = [
 	{ to: "/setting/general", label: "General", icon: Settings },
+	{ to: "/setting/number-format", label: "Number Format", icon: Hash },
 	{ to: "/setting/user", label: "User", icon: Users },
-	{ to: "/setting/log", label: "Log", icon: FileText },
 	{ to: "/setting/role", label: "Role", icon: Shield },
+	{ to: "/setting/log", label: "Log", icon: FileText },
 ];
 
 export function SettingNav() {

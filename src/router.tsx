@@ -5,7 +5,7 @@ import { ItemPage } from "@/src/page/item";
 import { OrderPage, OrderFormPage } from "@/src/page/order";
 import { UserPage } from "@/src/page/user";
 import { RolePage } from "@/src/page/role";
-import { GeneralSettingPage, SettingPage, SystemLogPage } from "@/src/page/setting";
+import { GeneralSettingPage, NumberFormatPage, SettingPage, SystemLogPage } from "@/src/page/setting";
 import { LoginPage } from "@/src/page/auth";
 
 export const router = createBrowserRouter([
@@ -69,18 +69,23 @@ export const router = createBrowserRouter([
 						errorElement: <RouteErrorBoundary />,
 					},
 					{
+						path: "number-format",
+						element: <NumberFormatPage />,
+						errorElement: <RouteErrorBoundary />,
+					},
+					{
 						path: "user",
 						element: <UserPage />,
 						errorElement: <RouteErrorBoundary />,
 					},
 					{
-						path: "log",
-						element: <SystemLogPage />,
+						path: "role",
+						element: <RolePage />,
 						errorElement: <RouteErrorBoundary />,
 					},
 					{
-						path: "role",
-						element: <RolePage />,
+						path: "log",
+						element: <SystemLogPage />,
 						errorElement: <RouteErrorBoundary />,
 					},
 				],

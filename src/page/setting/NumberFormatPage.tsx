@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { Link } from "lucide-react";
+import { FileText } from "lucide-react";
 import {
 	MasterDetail,
 	MasterList,
@@ -8,17 +8,17 @@ import {
 	PermissionGuard,
 } from "@/src/component";
 import { PERMISSION } from "@/shared/constant/permission";
-import { PublicLinkSetting } from "./PublicLinkSetting";
+import { NumberFormatSetting } from "./NumberFormatSetting";
 
 const CATEGORY_LIST = [
-	{ id: "public-link", label: "Public Link", icon: Link },
+	{ id: "order", label: "Order", icon: FileText },
 ] as const;
 
 type CategoryId = (typeof CATEGORY_LIST)[number]["id"];
 
-export function GeneralSettingPage() {
+export function NumberFormatPage() {
 	const [searchParam, setSearchParam] = useSearchParams();
-	const selectedTab = (searchParam.get("tab") as CategoryId) || "public-link";
+	const selectedTab = (searchParam.get("tab") as CategoryId) || "order";
 
 	const handleSelectTab = (tabId: CategoryId) => {
 		setSearchParam({ tab: tabId }, { replace: true });
@@ -26,8 +26,8 @@ export function GeneralSettingPage() {
 
 	const renderDetailContent = () => {
 		switch (selectedTab) {
-			case "public-link":
-				return <PublicLinkSetting />;
+			case "order":
+				return <NumberFormatSetting entityType="order" label="Order Number Format" />;
 			default:
 				return null;
 		}
@@ -49,7 +49,7 @@ export function GeneralSettingPage() {
 				<MasterList
 					header={
 						<div className="border-b border-geist-border px-5 py-5">
-							<h1 className="text-lg font-semibold text-geist-fg">General</h1>
+							<h1 className="text-lg font-semibold text-geist-fg">Number Format</h1>
 						</div>
 					}
 				>
