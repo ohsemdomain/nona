@@ -140,7 +140,7 @@ export function SystemLogPage() {
 			<MasterDetail selectedId={dummySelectedId}>
 				<MasterList
 					header={
-						<div className="px-5 py-5">
+						<div className="border-b border-geist-border px-5 py-5">
 							<h1 className="text-lg font-semibold text-geist-fg">Filter</h1>
 						</div>
 					}
