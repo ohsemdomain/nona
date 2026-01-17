@@ -46,7 +46,7 @@ interface UseFormModalReturn<TEntity, TForm> {
 }
 
 export function useFormModal<
-	TEntity extends { id: number },
+	TEntity extends { id: number | string },
 	TForm,
 	TCreate,
 	TUpdate,

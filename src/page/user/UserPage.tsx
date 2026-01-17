@@ -44,7 +44,7 @@ export function UserPage() {
 		setSearch,
 		selectAfterCreate,
 		selectAfterDelete,
-	} = useMasterDetail<User>("user");
+	} = useMasterDetail<User, string>("user", { idType: "string" });
 
 	const handleCreate = () => {
 		openModal(MODAL_ID.create);
@@ -99,9 +99,9 @@ export function UserPage() {
 						) : (
 							list.map((user) => (
 								<MasterListItem
-									key={user.publicId}
-									isSelected={selectedId === user.publicId}
-									onClick={() => setSelectedId(user.publicId)}
+									key={user.id}
+									isSelected={selectedId === user.id}
+									onClick={() => setSelectedId(user.id)}
 								>
 									<div className="flex items-center justify-between gap-2">
 										<div className="min-w-0 flex-1">
@@ -144,7 +144,7 @@ export function UserPage() {
 
 			<UserFormModal
 				id={MODAL_ID.create}
-				onSuccess={(user) => selectAfterCreate(user.publicId)}
+				onSuccess={(user) => selectAfterCreate(user.id)}
 			/>
 			<UserFormModal id={MODAL_ID.edit} />
 			<UserDeleteDialog

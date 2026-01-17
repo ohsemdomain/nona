@@ -10,34 +10,34 @@ export const queryKey = {
 		all: ["category"] as const,
 		list: (param?: Record<string, unknown>) =>
 			["category", "list", param] as const,
-		detail: (id: number) => ["category", "detail", id] as const,
+		detail: (id: number | string) => ["category", "detail", id] as const,
 	},
 	item: {
 		all: ["item"] as const,
 		list: (param?: Record<string, unknown>) => ["item", "list", param] as const,
-		detail: (id: number) => ["item", "detail", id] as const,
+		detail: (id: number | string) => ["item", "detail", id] as const,
 	},
 	order: {
 		all: ["order"] as const,
 		list: (param?: Record<string, unknown>) =>
 			["order", "list", param] as const,
-		detail: (id: number) => ["order", "detail", id] as const,
+		detail: (id: number | string) => ["order", "detail", id] as const,
 	},
 	role: {
 		all: ["role"] as const,
 		list: (param?: Record<string, unknown>) =>
 			["role", "list", param] as const,
-		detail: (id: number) => ["role", "detail", id] as const,
+		detail: (id: number | string) => ["role", "detail", id] as const,
 	},
 	user: {
 		all: ["user"] as const,
 		list: (param?: Record<string, unknown>) => ["user", "list", param] as const,
-		detail: (id: string) => ["user", "detail", id] as const,
+		detail: (id: number | string) => ["user", "detail", id] as const,
 	},
 	setting: {
 		all: ["setting"] as const,
 		list: () => ["setting", "list"] as const,
-		detail: (key: string) => ["setting", "detail", key] as const,
+		detail: (key: number | string) => ["setting", "detail", key] as const,
 	},
 	numberFormat: {
 		detail: (entityType: string) => ["setting", "number-format", entityType] as const,

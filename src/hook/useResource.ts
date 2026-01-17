@@ -17,7 +17,7 @@ interface UseResourceReturn<T, CreateInput, UpdateInput> {
 		isLoading: boolean;
 		isError: boolean;
 	};
-	detail: (id: number) => {
+	detail: (id: number | string) => {
 		data: T | undefined;
 		isLoading: boolean;
 		isError: boolean;
@@ -28,13 +28,13 @@ interface UseResourceReturn<T, CreateInput, UpdateInput> {
 		isPending: boolean;
 	};
 	update: {
-		mutate: (arg: { id: number; data: UpdateInput }) => void;
-		mutateAsync: (arg: { id: number; data: UpdateInput }) => Promise<T>;
+		mutate: (arg: { id: number | string; data: UpdateInput }) => void;
+		mutateAsync: (arg: { id: number | string; data: UpdateInput }) => Promise<T>;
 		isPending: boolean;
 	};
 	remove: {
-		mutate: (id: number) => void;
-		mutateAsync: (id: number) => Promise<void>;
+		mutate: (id: number | string) => void;
+		mutateAsync: (id: number | string) => Promise<void>;
 		isPending: boolean;
 	};
 }
@@ -76,7 +76,7 @@ export function useResource<
 		};
 	};
 
-	const detail = (id: number) => {
+	const detail = (id: number | string) => {
 		const { data, isLoading, isError } = useQuery({
 			queryKey: queryKey[entity].detail(id),
 			queryFn: () => api.get<T>(`/${entity}/${id}`),
@@ -107,7 +107,7 @@ export function useResource<
 	});
 
 	const updateMutation = useMutation({
-		mutationFn: ({ id, data }: { id: number; data: UpdateInput }) =>
+		mutationFn: ({ id, data }: { id: number | string; data: UpdateInput }) =>
 			api.put<T>(`/${entity}/${id}`, data),
 		onSuccess: (updatedEntity) => {
 			// Optimistically update in all list caches
@@ -118,8 +118,8 @@ export function useResource<
 					return {
 						...old,
 						data: old.data.map((item) =>
-							(item as { id?: number }).id ===
-							(updatedEntity as { id?: number }).id
+							(item as { id?: number | string }).id ===
+							(updatedEntity as { id?: number | string }).id
 								? updatedEntity
 								: item,
 						),
@@ -133,7 +133,7 @@ export function useResource<
 	});
 
 	const removeMutation = useMutation({
-		mutationFn: (id: number) => api.delete<void>(`/${entity}/${id}`),
+		mutationFn: (id: number | string) => api.delete<void>(`/${entity}/${id}`),
 		onSuccess: () => {
 			invalidateRelated(queryClient, entity);
 			TOAST.deleted(entityLabel);

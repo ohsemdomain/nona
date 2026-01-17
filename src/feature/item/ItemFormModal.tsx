@@ -165,7 +165,7 @@ export function ItemFormModal({ id, onSuccess, onClose }: ItemFormModalProp) {
 										onValueChange={(value) => modal.setField("categoryId", value)}
 									>
 										{categoryList.map((cat) => (
-											<DropdownRadioItem key={cat.publicId} value={String(cat.id)}>
+											<DropdownRadioItem key={cat.id} value={String(cat.id)}>
 												{cat.name}
 											</DropdownRadioItem>
 										))}

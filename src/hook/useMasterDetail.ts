@@ -14,24 +14,25 @@ interface ListResponse<T> {
 }
 
 interface HasId {
-	id: number;
+	id: number | string;
 }
 
 interface UseMasterDetailOption {
 	autoSelectFirst?: boolean;
+	idType?: "number" | "string"; // Default: "number"
 }
 
-interface UseMasterDetailReturn<T> {
+interface UseMasterDetailReturn<T, TId extends number | string = number> {
 	list: T[];
 	total: number;
 	isLoading: boolean;
 	isError: boolean;
 	refetch: () => void;
-	selectedId: number | null;
+	selectedId: TId | null;
 	selectedItem: T | undefined;
-	setSelectedId: (id: number | null) => void;
+	setSelectedId: (id: TId | null) => void;
 	selectFirst: () => void;
-	selectAfterCreate: (id: number) => void;
+	selectAfterCreate: (id: TId) => void;
 	selectAfterDelete: () => void;
 	search: string;
 	setSearch: (value: string) => void;
@@ -43,11 +44,11 @@ interface UseMasterDetailReturn<T> {
 	setPage: (page: number) => void;
 }
 
-export function useMasterDetail<T extends HasId>(
+export function useMasterDetail<T extends HasId, TId extends number | string = number>(
 	entity: Entity,
 	option: UseMasterDetailOption = {},
-): UseMasterDetailReturn<T> {
-	const { autoSelectFirst = true } = option;
+): UseMasterDetailReturn<T, TId> {
+	const { autoSelectFirst = true, idType = "number" } = option;
 	const isMobile = useIsMobile();
 	const [searchParam, setSearchParam] = useSearchParams();
 
@@ -71,24 +72,26 @@ export function useMasterDetail<T extends HasId>(
 	const list = data?.data ?? [];
 	const total = data?.total ?? 0;
 
-	// Read URL selection - parse as number or null
+	// Read URL selection - parse based on idType
 	const urlSelectedIdStr = searchParam.get("selected");
-	const urlSelectedId = urlSelectedIdStr ? Number(urlSelectedIdStr) : null;
+	const urlSelectedId = urlSelectedIdStr
+		? (idType === "number" ? Number(urlSelectedIdStr) : urlSelectedIdStr) as TId | null
+		: null;
 
 	// Compute effective selection DURING RENDER (not in effect)
 	// This ensures UI shows correct selection immediately
-	const computedSelectedId = useMemo(() => {
+	const computedSelectedId = useMemo((): TId | null => {
 		// Case 1: URL has selection - validate it exists in list
 		if (urlSelectedId !== null) {
 			const exists = list.length === 0 || list.some((item) => item.id === urlSelectedId);
-			if (exists) return urlSelectedId;
+			if (exists) return urlSelectedId as TId;
 			// Invalid selection - fall through to auto-select
 		}
 
 		// Case 2: No selection or invalid - auto-select first if enabled (desktop only)
 		// On mobile, we want to show the list first, not auto-select
 		if (autoSelectFirst && !isMobile && list.length > 0) {
-			return list[0].id;
+			return list[0].id as TId;
 		}
 
 		// Case 3: No auto-select, mobile, or empty list
@@ -115,7 +118,7 @@ export function useMasterDetail<T extends HasId>(
 	}, [computedSelectedId, urlSelectedId, searchParam, setSearchParam]);
 
 	const setSelectedId = useCallback(
-		(id: number | null) => {
+		(id: TId | null) => {
 			const newParam = new URLSearchParams(searchParam);
 			if (id !== null) {
 				newParam.set("selected", String(id));
@@ -129,14 +132,14 @@ export function useMasterDetail<T extends HasId>(
 
 	const selectFirst = useCallback(() => {
 		if (list.length > 0) {
-			setSelectedId(list[0].id);
+			setSelectedId(list[0].id as TId);
 		} else {
 			setSelectedId(null);
 		}
 	}, [list, setSelectedId]);
 
 	const selectAfterCreate = useCallback(
-		(id: number) => {
+		(id: TId) => {
 			setSelectedId(id);
 		},
 		[setSelectedId],
@@ -162,7 +165,7 @@ export function useMasterDetail<T extends HasId>(
 
 		const nextIndex =
 			currentIndex < list.length - 1 ? currentIndex + 1 : currentIndex - 1;
-		setSelectedId(list[nextIndex].id);
+		setSelectedId(list[nextIndex].id as TId);
 	}, [computedSelectedId, list, setSelectedId, selectFirst]);
 
 	useEffect(() => {
