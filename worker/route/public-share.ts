@@ -125,7 +125,8 @@ function renderNotFoundPage(baseUrl: string): string {
 }
 
 interface OrderData {
-	publicId: string;
+	id: number;
+	orderNumber: string | null;
 	status: string;
 	total: number;
 	lineList: {
@@ -165,8 +166,8 @@ function renderOrderPage(
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="noindex, nofollow">
-	<title>Order #${escapeHtml(orderData.publicId)}</title>
-	<meta property="og:title" content="Order #${escapeHtml(orderData.publicId)}">
+	<title>Order ${orderData.orderNumber || '#' + orderData.id}</title>
+	<meta property="og:title" content="Order ${orderData.orderNumber || '#' + orderData.id}">
 	<meta property="og:description" content="Expires: ${expiresDate}">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="${baseUrl}">
@@ -281,7 +282,7 @@ function renderOrderPage(
 <body>
 	<div class="container">
 		<div class="header">
-			<div class="order-id">Order #${escapeHtml(orderData.publicId)}</div>
+			<div class="order-id">Order ${escapeHtml(orderData.orderNumber || '#' + String(orderData.id))}</div>
 			<div class="meta-row">
 				<div class="meta-item">
 					<div class="meta-label">Status</div>
@@ -346,12 +347,12 @@ app.get("/:linkId", async (c) => {
 		const orderResult = await db
 			.select({
 				id: order.id,
-				publicId: order.publicId,
+				orderNumber: order.orderNumber,
 				status: order.status,
 				total: order.total,
 			})
 			.from(order)
-			.where(and(eq(order.publicId, link.resourceId), isNull(order.deletedAt)))
+			.where(and(eq(order.id, Number(link.resourceId)), isNull(order.deletedAt)))
 			.limit(1);
 
 		if (orderResult.length === 0) {
@@ -378,7 +379,8 @@ app.get("/:linkId", async (c) => {
 		return c.html(
 			renderOrderPage(
 				{
-					publicId: orderData.publicId,
+					id: orderData.id,
+					orderNumber: orderData.orderNumber,
 					status: orderData.status,
 					total: orderData.total,
 					lineList,
