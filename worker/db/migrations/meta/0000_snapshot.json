@@ -1,9 +1,76 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8bae0f07-c9d4-4659-ac7f-76c8124cd9f7",
+  "id": "b2f289a8-de49-4077-86e9-b318b80e2d4e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "app_setting": {
+      "name": "app_setting",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "value": {
+          "name": "value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "app_setting_key_unique": {
+          "name": "app_setting_key_unique",
+          "columns": [
+            "key"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "app_setting_updated_by_user_id_fk": {
+          "name": "app_setting_updated_by_user_id_fk",
+          "tableFrom": "app_setting",
+          "tableTo": "user",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "category": {
       "name": "category",
       "columns": {
@@ -13,13 +80,6 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "public_id": {
-          "name": "public_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -65,13 +125,6 @@
         }
       },
       "indexes": {
-        "category_public_id_unique": {
-          "name": "category_public_id_unique",
-          "columns": [
-            "public_id"
-          ],
-          "isUnique": true
-        },
         "category_created_by_idx": {
           "name": "category_created_by_idx",
           "columns": [
@@ -128,13 +181,6 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "public_id": {
-          "name": "public_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -194,13 +240,6 @@
         }
       },
       "indexes": {
-        "item_public_id_unique": {
-          "name": "item_public_id_unique",
-          "columns": [
-            "public_id"
-          ],
-          "isUnique": true
-        },
         "item_category_id_idx": {
           "name": "item_category_id_idx",
           "columns": [
@@ -278,11 +317,11 @@
           "notNull": true,
           "autoincrement": true
         },
-        "public_id": {
-          "name": "public_id",
+        "order_number": {
+          "name": "order_number",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "status": {
@@ -338,10 +377,10 @@
         }
       },
       "indexes": {
-        "order_public_id_unique": {
-          "name": "order_public_id_unique",
+        "order_order_number_unique": {
+          "name": "order_order_number_unique",
           "columns": [
-            "public_id"
+            "order_number"
           ],
           "isUnique": true
         },
@@ -549,6 +588,102 @@
         }
       },
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "public_link": {
+      "name": "public_link",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "link_id": {
+          "name": "link_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resource_type": {
+          "name": "resource_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resource_id": {
+          "name": "resource_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "public_link_link_id_unique": {
+          "name": "public_link_link_id_unique",
+          "columns": [
+            "link_id"
+          ],
+          "isUnique": true
+        },
+        "public_link_link_id_idx": {
+          "name": "public_link_link_id_idx",
+          "columns": [
+            "link_id"
+          ],
+          "isUnique": false
+        },
+        "public_link_resource_idx": {
+          "name": "public_link_resource_idx",
+          "columns": [
+            "resource_type",
+            "resource_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "public_link_created_by_user_id_fk": {
+          "name": "public_link_created_by_user_id_fk",
+          "tableFrom": "public_link",
+          "tableTo": "user",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

@@ -79,7 +79,6 @@ export const category = sqliteTable(
 	"category",
 	{
 		id: integer("id").primaryKey({ autoIncrement: true }),
-		publicId: text("public_id").notNull().unique(),
 		name: text("name").notNull(),
 		createdAt: integer("created_at").notNull(),
 		updatedAt: integer("updated_at").notNull(),
@@ -102,7 +101,6 @@ export const item = sqliteTable(
 	"item",
 	{
 		id: integer("id").primaryKey({ autoIncrement: true }),
-		publicId: text("public_id").notNull().unique(),
 		name: text("name").notNull(),
 		categoryId: integer("category_id")
 			.notNull()
@@ -134,7 +132,6 @@ export const order = sqliteTable(
 	"order",
 	{
 		id: integer("id").primaryKey({ autoIncrement: true }),
-		publicId: text("public_id").notNull().unique(),
 		orderNumber: text("order_number").unique(), // Human-readable formatted order number
 		status: text("status").notNull().default("draft"), // draft, pending, confirmed, completed, cancelled
 		total: integer("total").notNull().default(0), // cents
@@ -199,7 +196,7 @@ export const publicLink = sqliteTable(
 		id: integer("id").primaryKey({ autoIncrement: true }),
 		linkId: text("link_id").notNull().unique(), // 9-char nanoid
 		resourceType: text("resource_type").notNull(), // "order", "item", etc.
-		resourceId: text("resource_id").notNull(), // publicId of the linked resource
+		resourceId: text("resource_id").notNull(), // String(id) of the linked resource
 		expiresAt: integer("expires_at").notNull(),
 		createdAt: integer("created_at").notNull(),
 		createdBy: text("created_by").references(() => user.id),

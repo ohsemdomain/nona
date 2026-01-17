@@ -9,7 +9,6 @@ import {
 } from "../../shared/schema/category";
 import { PERMISSION } from "../../shared/constant/permission";
 import {
-	generatePublicId,
 	timestamps,
 	updatedTimestamp,
 	listResponse,
@@ -47,7 +46,6 @@ app.get("/", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 		db
 			.select({
 				id: category.id,
-				publicId: category.publicId,
 				name: category.name,
 				createdAt: category.createdAt,
 				updatedAt: category.updatedAt,
@@ -76,12 +74,11 @@ app.get("/", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 // GET /api/category/:id - Detail
 app.get("/:id", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+	const id = Number(c.req.param("id"));
 
 	const result = await db
 		.select({
 			id: category.id,
-			publicId: category.publicId,
 			name: category.name,
 			createdAt: category.createdAt,
 			updatedAt: category.updatedAt,
@@ -94,7 +91,7 @@ app.get("/:id", requirePermission(PERMISSION.CATEGORY_READ), async (c) => {
 		.from(category)
 		.leftJoin(creator, eq(category.createdBy, creator.id))
 		.leftJoin(updater, eq(category.updatedBy, updater.id))
-		.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+		.where(and(eq(category.id, id), isNull(category.deletedAt)))
 		.limit(1);
 
 	if (result.length === 0) {
@@ -117,7 +114,6 @@ app.post(
 		const result = await db
 			.insert(category)
 			.values({
-				publicId: generatePublicId(),
 				name: input.name,
 				...timestamps(userId),
 			})
@@ -130,7 +126,7 @@ app.post(
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.CATEGORY,
-			resourceId: created.publicId,
+			resourceId: String(created.id),
 			metadata: { name: created.name },
 		}));
 
@@ -145,7 +141,7 @@ app.put(
 	zValidator("json", updateCategorySchema),
 	async (c) => {
 		const db = createDb(c.env.DB);
-		const publicId = c.req.param("id");
+		const id = Number(c.req.param("id"));
 		const input = c.req.valid("json");
 		const userId = getUserId(c);
 
@@ -153,7 +149,7 @@ app.put(
 		const existing = await db
 			.select({ name: category.name })
 			.from(category)
-			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+			.where(and(eq(category.id, id), isNull(category.deletedAt)))
 			.limit(1);
 
 		if (existing.length === 0) {
@@ -171,7 +167,7 @@ app.put(
 			})
 			.where(
 				and(
-					eq(category.publicId, publicId),
+					eq(category.id, id),
 					isNull(category.deletedAt),
 					eq(category.updatedAt, input.updatedAt),
 				),
@@ -200,7 +196,7 @@ app.put(
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.CATEGORY,
-			resourceId: publicId,
+			resourceId: String(id),
 			changes,
 			metadata: { name: updated.name },
 		}));
@@ -215,13 +211,13 @@ app.delete(
 	requirePermission(PERMISSION.CATEGORY_DELETE),
 	async (c) => {
 		const db = createDb(c.env.DB);
-		const publicId = c.req.param("id");
+		const id = Number(c.req.param("id"));
 		const userId = getUserId(c);
 
 		const existing = await db
 			.select({ id: category.id, name: category.name })
 			.from(category)
-			.where(and(eq(category.publicId, publicId), isNull(category.deletedAt)))
+			.where(and(eq(category.id, id), isNull(category.deletedAt)))
 			.limit(1);
 
 		if (existing.length === 0) {
@@ -248,14 +244,14 @@ app.delete(
 				deletedAt: Date.now(),
 				...updatedTimestamp(userId),
 			})
-			.where(eq(category.publicId, publicId));
+			.where(eq(category.id, id));
 
 		// Non-blocking audit log
 		c.executionCtx.waitUntil(logAudit(db, {
 			actorId: userId,
 			action: AUDIT_ACTION.DELETE,
 			resource: AUDIT_RESOURCE.CATEGORY,
-			resourceId: publicId,
+			resourceId: String(id),
 			metadata: { name: toDelete.name },
 		}));
 

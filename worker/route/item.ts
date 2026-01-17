@@ -6,7 +6,6 @@ import { createDb, item, category, user } from "../db";
 import { createItemSchema, updateItemSchema } from "../../shared/schema/item";
 import { PERMISSION } from "../../shared/constant/permission";
 import {
-	generatePublicId,
 	timestamps,
 	updatedTimestamp,
 	listResponse,
@@ -54,7 +53,6 @@ app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 		db
 			.select({
 				id: item.id,
-				publicId: item.publicId,
 				name: item.name,
 				categoryId: item.categoryId,
 				price: item.price,
@@ -67,7 +65,6 @@ app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 				updatedByName: updater.name,
 				category: {
 					id: category.id,
-					publicId: category.publicId,
 					name: category.name,
 				},
 			})
@@ -88,12 +85,11 @@ app.get("/", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 // GET /api/item/:id - Detail
 app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+	const id = Number(c.req.param("id"));
 
 	const result = await db
 		.select({
 			id: item.id,
-			publicId: item.publicId,
 			name: item.name,
 			categoryId: item.categoryId,
 			price: item.price,
@@ -106,7 +102,6 @@ app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 			updatedByName: updater.name,
 			category: {
 				id: category.id,
-				publicId: category.publicId,
 				name: category.name,
 			},
 		})
@@ -114,7 +109,7 @@ app.get("/:id", requirePermission(PERMISSION.ITEM_READ), async (c) => {
 		.leftJoin(category, eq(item.categoryId, category.id))
 		.leftJoin(creator, eq(item.createdBy, creator.id))
 		.leftJoin(updater, eq(item.updatedBy, updater.id))
-		.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+		.where(and(eq(item.id, id), isNull(item.deletedAt)))
 		.limit(1);
 
 	if (result.length === 0) {
@@ -150,7 +145,6 @@ app.post(
 		const result = await db
 			.insert(item)
 			.values({
-				publicId: generatePublicId(),
 				name: input.name,
 				categoryId: input.categoryId,
 				price: input.price,
@@ -165,7 +159,7 @@ app.post(
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.ITEM,
-			resourceId: created.publicId,
+			resourceId: String(created.id),
 			metadata: { name: created.name, price: created.price },
 		}));
 
@@ -180,7 +174,7 @@ app.put(
 	zValidator("json", updateItemSchema),
 	async (c) => {
 		const db = createDb(c.env.DB);
-		const publicId = c.req.param("id");
+		const id = Number(c.req.param("id"));
 		const input = c.req.valid("json");
 		const userId = getUserId(c);
 
@@ -188,7 +182,7 @@ app.put(
 		const existing = await db
 			.select({ name: item.name, categoryId: item.categoryId, price: item.price })
 			.from(item)
-			.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+			.where(and(eq(item.id, id), isNull(item.deletedAt)))
 			.limit(1);
 
 		if (existing.length === 0) {
@@ -222,7 +216,7 @@ app.put(
 			})
 			.where(
 				and(
-					eq(item.publicId, publicId),
+					eq(item.id, id),
 					isNull(item.deletedAt),
 					eq(item.updatedAt, updatedAt),
 				),
@@ -248,7 +242,7 @@ app.put(
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.ITEM,
-			resourceId: publicId,
+			resourceId: String(id),
 			changes,
 			metadata: { name: updated.name },
 		}));
@@ -260,13 +254,13 @@ app.put(
 // DELETE /api/item/:id - Soft delete with TOCTOU protection
 app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+	const id = Number(c.req.param("id"));
 	const userId = getUserId(c);
 
 	const existing = await db
 		.select({ id: item.id, name: item.name })
 		.from(item)
-		.where(and(eq(item.publicId, publicId), isNull(item.deletedAt)))
+		.where(and(eq(item.id, id), isNull(item.deletedAt)))
 		.limit(1);
 
 	if (existing.length === 0) {
@@ -293,14 +287,14 @@ app.delete("/:id", requirePermission(PERMISSION.ITEM_DELETE), async (c) => {
 			deletedAt: Date.now(),
 			...updatedTimestamp(userId),
 		})
-		.where(eq(item.publicId, publicId));
+		.where(eq(item.id, id));
 
 	// Non-blocking audit log
 	c.executionCtx.waitUntil(logAudit(db, {
 		actorId: userId,
 		action: AUDIT_ACTION.DELETE,
 		resource: AUDIT_RESOURCE.ITEM,
-		resourceId: publicId,
+		resourceId: String(id),
 		metadata: { name: toDelete.name },
 	}));
 

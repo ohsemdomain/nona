@@ -1,6 +1,15 @@
+CREATE TABLE `app_setting` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`key` text NOT NULL,
+	`value` text NOT NULL,
+	`updated_at` integer NOT NULL,
+	`updated_by` text,
+	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `app_setting_key_unique` ON `app_setting` (`key`);--> statement-breakpoint
 CREATE TABLE `category` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`public_id` text NOT NULL,
 	`name` text NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
@@ -11,12 +20,10 @@ CREATE TABLE `category` (
 	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `category_public_id_unique` ON `category` (`public_id`);--> statement-breakpoint
 CREATE INDEX `category_created_by_idx` ON `category` (`created_by`);--> statement-breakpoint
 CREATE INDEX `category_updated_by_idx` ON `category` (`updated_by`);--> statement-breakpoint
 CREATE TABLE `item` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`public_id` text NOT NULL,
 	`name` text NOT NULL,
 	`category_id` integer NOT NULL,
 	`price` integer NOT NULL,
@@ -30,13 +37,12 @@ CREATE TABLE `item` (
 	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `item_public_id_unique` ON `item` (`public_id`);--> statement-breakpoint
 CREATE INDEX `item_category_id_idx` ON `item` (`category_id`);--> statement-breakpoint
 CREATE INDEX `item_created_by_idx` ON `item` (`created_by`);--> statement-breakpoint
 CREATE INDEX `item_updated_by_idx` ON `item` (`updated_by`);--> statement-breakpoint
 CREATE TABLE `order` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`public_id` text NOT NULL,
+	`order_number` text,
 	`status` text DEFAULT 'draft' NOT NULL,
 	`total` integer DEFAULT 0 NOT NULL,
 	`created_at` integer NOT NULL,
@@ -48,7 +54,7 @@ CREATE TABLE `order` (
 	FOREIGN KEY (`updated_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `order_public_id_unique` ON `order` (`public_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `order_order_number_unique` ON `order` (`order_number`);--> statement-breakpoint
 CREATE INDEX `order_status_idx` ON `order` (`status`);--> statement-breakpoint
 CREATE INDEX `order_created_by_idx` ON `order` (`created_by`);--> statement-breakpoint
 CREATE INDEX `order_updated_by_idx` ON `order` (`updated_by`);--> statement-breakpoint
@@ -75,6 +81,20 @@ CREATE TABLE `permission` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `permission_name_unique` ON `permission` (`name`);--> statement-breakpoint
+CREATE TABLE `public_link` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`link_id` text NOT NULL,
+	`resource_type` text NOT NULL,
+	`resource_id` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer NOT NULL,
+	`created_by` text,
+	FOREIGN KEY (`created_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `public_link_link_id_unique` ON `public_link` (`link_id`);--> statement-breakpoint
+CREATE INDEX `public_link_link_id_idx` ON `public_link` (`link_id`);--> statement-breakpoint
+CREATE INDEX `public_link_resource_idx` ON `public_link` (`resource_type`,`resource_id`);--> statement-breakpoint
 CREATE TABLE `role` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { eq, isNull, and, or, sql, inArray, desc, like } from "drizzle-orm";
+import { eq, isNull, and, sql, inArray, desc, like } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 import { createDb, order, orderLine, item, user, publicLink, appSetting } from "../db";
 import {
@@ -9,7 +9,6 @@ import {
 } from "../../shared/schema/order";
 import { PERMISSION } from "../../shared/constant/permission";
 import {
-	generatePublicId,
 	generateLinkId,
 	timestamps,
 	updatedTimestamp,
@@ -64,10 +63,7 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 	if (search) {
 		whereClause = and(
 			whereClause,
-			or(
-				like(order.publicId, `%${search}%`),
-				like(order.orderNumber, `%${search}%`)
-			)
+			like(order.orderNumber, `%${search}%`)
 		) ?? whereClause;
 	}
 
@@ -79,7 +75,6 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 		db
 			.select({
 				id: order.id,
-				publicId: order.publicId,
 				orderNumber: order.orderNumber,
 				status: order.status,
 				total: order.total,
@@ -107,12 +102,11 @@ app.get("/", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 // GET /api/order/:id - Detail with lines
 app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+	const id = Number(c.req.param("id"));
 
 	const orderResult = await db
 		.select({
 			id: order.id,
-			publicId: order.publicId,
 			orderNumber: order.orderNumber,
 			status: order.status,
 			total: order.total,
@@ -127,7 +121,7 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 		.from(order)
 		.leftJoin(creator, eq(order.createdBy, creator.id))
 		.leftJoin(updater, eq(order.updatedBy, updater.id))
-		.where(and(eq(order.publicId, publicId), isNull(order.deletedAt)))
+		.where(and(eq(order.id, id), isNull(order.deletedAt)))
 		.limit(1);
 
 	if (orderResult.length === 0) {
@@ -146,7 +140,6 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 			lineTotal: orderLine.lineTotal,
 			item: {
 				id: item.id,
-				publicId: item.publicId,
 				name: item.name,
 				price: item.price,
 			},
@@ -167,7 +160,7 @@ app.get("/:id", requirePermission(PERMISSION.ORDER_READ), async (c) => {
 		.where(
 			and(
 				eq(publicLink.resourceType, "order"),
-				eq(publicLink.resourceId, publicId),
+				eq(publicLink.resourceId, String(orderData.id)),
 			),
 		)
 		.limit(1);
@@ -221,7 +214,6 @@ app.post(
 		const orderResult = await db
 			.insert(order)
 			.values({
-				publicId: generatePublicId(),
 				orderNumber: orderNumber,
 				status: "draft",
 				total: orderTotal,
@@ -249,7 +241,7 @@ app.post(
 			.values({
 				linkId: generateLinkId(),
 				resourceType: "order",
-				resourceId: created.publicId,
+				resourceId: String(created.id),
 				expiresAt,
 				createdAt: Date.now(),
 				createdBy: userId,
@@ -271,7 +263,7 @@ app.post(
 			actorId: userId,
 			action: AUDIT_ACTION.CREATE,
 			resource: AUDIT_RESOURCE.ORDER,
-			resourceId: created.publicId,
+			resourceId: String(created.id),
 			metadata: { status: created.status, total: created.total, lineCount: lineList.length },
 		}));
 
@@ -286,14 +278,14 @@ app.put(
 	zValidator("json", updateOrderSchema),
 	async (c) => {
 		const db = createDb(c.env.DB);
-		const publicId = c.req.param("id");
+		const id = Number(c.req.param("id"));
 		const input = c.req.valid("json");
 		const userId = getUserId(c);
 
 		const existing = await db
 			.select()
 			.from(order)
-			.where(and(eq(order.publicId, publicId), isNull(order.deletedAt)))
+			.where(and(eq(order.id, id), isNull(order.deletedAt)))
 			.limit(1);
 
 		if (existing.length === 0) {
@@ -348,7 +340,7 @@ app.put(
 				...updatedTimestamp(userId),
 			})
 			.where(
-				and(eq(order.publicId, publicId), eq(order.updatedAt, input.updatedAt)),
+				and(eq(order.id, id), eq(order.updatedAt, input.updatedAt)),
 			)
 			.returning();
 
@@ -400,7 +392,7 @@ app.put(
 			actorId: userId,
 			action: AUDIT_ACTION.UPDATE,
 			resource: AUDIT_RESOURCE.ORDER,
-			resourceId: publicId,
+			resourceId: String(id),
 			changes,
 			metadata: {
 				status: updated.status,
@@ -416,13 +408,13 @@ app.put(
 // DELETE /api/order/:id - Soft delete (cascades to order lines)
 app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 	const db = createDb(c.env.DB);
-	const publicId = c.req.param("id");
+	const id = Number(c.req.param("id"));
 	const userId = getUserId(c);
 
 	const existing = await db
 		.select({ id: order.id, status: order.status, total: order.total })
 		.from(order)
-		.where(and(eq(order.publicId, publicId), isNull(order.deletedAt)))
+		.where(and(eq(order.id, id), isNull(order.deletedAt)))
 		.limit(1);
 
 	if (existing.length === 0) {
@@ -449,14 +441,14 @@ app.delete("/:id", requirePermission(PERMISSION.ORDER_DELETE), async (c) => {
 			deletedAt: now,
 			...updatedTimestamp(userId),
 		})
-		.where(eq(order.publicId, publicId));
+		.where(eq(order.id, id));
 
 	// Non-blocking audit log - don't wait for it to complete
 	c.executionCtx.waitUntil(logAudit(db, {
 		actorId: userId,
 		action: AUDIT_ACTION.DELETE,
 		resource: AUDIT_RESOURCE.ORDER,
-		resourceId: publicId,
+		resourceId: String(id),
 		metadata: { status: toDelete.status, total: toDelete.total },
 	}));
 
