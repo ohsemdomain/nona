@@ -135,12 +135,14 @@ export function NumberFormatSetting({ entityType, label }: NumberFormatSettingPr
 				</div>
 			</div>
 
-			<Button
-				onClick={() => saveMutation.mutate(pattern)}
-				disabled={saveMutation.isPending || !!previewError || !pattern}
-			>
-				{saveMutation.isPending ? "Saving..." : "Save"}
-			</Button>
+			<div className="flex justify-end border-t border-geist-border pt-4">
+				<Button
+					onClick={() => saveMutation.mutate(pattern)}
+					disabled={saveMutation.isPending || !!previewError || !pattern}
+				>
+					{saveMutation.isPending ? "Saving..." : "Save"}
+				</Button>
+			</div>
 		</div>
 	);
 }
