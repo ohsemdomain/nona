@@ -13,8 +13,8 @@ interface ListResponse<T> {
 	total: number;
 }
 
-interface HasPublicId {
-	publicId: string;
+interface HasId {
+	id: number;
 }
 
 interface UseMasterDetailOption {
@@ -27,11 +27,11 @@ interface UseMasterDetailReturn<T> {
 	isLoading: boolean;
 	isError: boolean;
 	refetch: () => void;
-	selectedId: string | null;
+	selectedId: number | null;
 	selectedItem: T | undefined;
-	setSelectedId: (id: string | null) => void;
+	setSelectedId: (id: number | null) => void;
 	selectFirst: () => void;
-	selectAfterCreate: (id: string) => void;
+	selectAfterCreate: (id: number) => void;
 	selectAfterDelete: () => void;
 	search: string;
 	setSearch: (value: string) => void;
@@ -43,7 +43,7 @@ interface UseMasterDetailReturn<T> {
 	setPage: (page: number) => void;
 }
 
-export function useMasterDetail<T extends HasPublicId>(
+export function useMasterDetail<T extends HasId>(
 	entity: Entity,
 	option: UseMasterDetailOption = {},
 ): UseMasterDetailReturn<T> {
@@ -71,15 +71,16 @@ export function useMasterDetail<T extends HasPublicId>(
 	const list = data?.data ?? [];
 	const total = data?.total ?? 0;
 
-	// Read URL selection
-	const urlSelectedId = searchParam.get("selected");
+	// Read URL selection - parse as number or null
+	const urlSelectedIdStr = searchParam.get("selected");
+	const urlSelectedId = urlSelectedIdStr ? Number(urlSelectedIdStr) : null;
 
 	// Compute effective selection DURING RENDER (not in effect)
 	// This ensures UI shows correct selection immediately
 	const computedSelectedId = useMemo(() => {
 		// Case 1: URL has selection - validate it exists in list
-		if (urlSelectedId) {
-			const exists = list.length === 0 || list.some((item) => item.publicId === urlSelectedId);
+		if (urlSelectedId !== null) {
+			const exists = list.length === 0 || list.some((item) => item.id === urlSelectedId);
 			if (exists) return urlSelectedId;
 			// Invalid selection - fall through to auto-select
 		}
@@ -87,7 +88,7 @@ export function useMasterDetail<T extends HasPublicId>(
 		// Case 2: No selection or invalid - auto-select first if enabled (desktop only)
 		// On mobile, we want to show the list first, not auto-select
 		if (autoSelectFirst && !isMobile && list.length > 0) {
-			return list[0].publicId;
+			return list[0].id;
 		}
 
 		// Case 3: No auto-select, mobile, or empty list
@@ -95,7 +96,7 @@ export function useMasterDetail<T extends HasPublicId>(
 	}, [urlSelectedId, list, autoSelectFirst, isMobile]);
 
 	const selectedItem = useMemo(
-		() => list.find((item) => item.publicId === computedSelectedId),
+		() => list.find((item) => item.id === computedSelectedId),
 		[list, computedSelectedId],
 	);
 
@@ -104,8 +105,8 @@ export function useMasterDetail<T extends HasPublicId>(
 	useEffect(() => {
 		if (computedSelectedId !== urlSelectedId) {
 			const newParam = new URLSearchParams(searchParam);
-			if (computedSelectedId) {
-				newParam.set("selected", computedSelectedId);
+			if (computedSelectedId !== null) {
+				newParam.set("selected", String(computedSelectedId));
 			} else {
 				newParam.delete("selected");
 			}
@@ -114,10 +115,10 @@ export function useMasterDetail<T extends HasPublicId>(
 	}, [computedSelectedId, urlSelectedId, searchParam, setSearchParam]);
 
 	const setSelectedId = useCallback(
-		(id: string | null) => {
+		(id: number | null) => {
 			const newParam = new URLSearchParams(searchParam);
-			if (id) {
-				newParam.set("selected", id);
+			if (id !== null) {
+				newParam.set("selected", String(id));
 			} else {
 				newParam.delete("selected");
 			}
@@ -128,26 +129,26 @@ export function useMasterDetail<T extends HasPublicId>(
 
 	const selectFirst = useCallback(() => {
 		if (list.length > 0) {
-			setSelectedId(list[0].publicId);
+			setSelectedId(list[0].id);
 		} else {
 			setSelectedId(null);
 		}
 	}, [list, setSelectedId]);
 
 	const selectAfterCreate = useCallback(
-		(id: string) => {
+		(id: number) => {
 			setSelectedId(id);
 		},
 		[setSelectedId],
 	);
 
 	const selectAfterDelete = useCallback(() => {
-		if (!computedSelectedId || list.length === 0) {
+		if (computedSelectedId === null || list.length === 0) {
 			setSelectedId(null);
 			return;
 		}
 
-		const currentIndex = list.findIndex((item) => item.publicId === computedSelectedId);
+		const currentIndex = list.findIndex((item) => item.id === computedSelectedId);
 
 		if (currentIndex === -1) {
 			selectFirst();
@@ -161,7 +162,7 @@ export function useMasterDetail<T extends HasPublicId>(
 
 		const nextIndex =
 			currentIndex < list.length - 1 ? currentIndex + 1 : currentIndex - 1;
-		setSelectedId(list[nextIndex].publicId);
+		setSelectedId(list[nextIndex].id);
 	}, [computedSelectedId, list, setSelectedId, selectFirst]);
 
 	useEffect(() => {
