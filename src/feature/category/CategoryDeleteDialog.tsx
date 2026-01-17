@@ -18,7 +18,7 @@ export function CategoryDeleteDialog({ id, onSuccess }: CategoryDeleteDialogProp
 		if (!category) return;
 
 		try {
-			await remove.mutateAsync(category.publicId);
+			await remove.mutateAsync(category.id);
 			closeModal(id);
 			onSuccess?.();
 		} catch {

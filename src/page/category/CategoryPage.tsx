@@ -93,9 +93,9 @@ export function CategoryPage() {
 						) : (
 							list.map((category) => (
 								<MasterListItem
-									key={category.publicId}
-									isSelected={selectedId === category.publicId}
-									onClick={() => setSelectedId(category.publicId)}
+									key={category.id}
+									isSelected={selectedId === category.id}
+									onClick={() => setSelectedId(category.id)}
 								>
 									<p className="font-medium text-geist-fg">
 										{category.name}
@@ -126,7 +126,7 @@ export function CategoryPage() {
 
 			<CategoryFormModal
 				id={MODAL_ID.create}
-				onSuccess={(category) => selectAfterCreate(category.publicId)}
+				onSuccess={(category) => selectAfterCreate(category.id)}
 			/>
 			<CategoryFormModal id={MODAL_ID.edit} />
 			<CategoryDeleteDialog

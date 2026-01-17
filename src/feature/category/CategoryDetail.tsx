@@ -105,7 +105,7 @@ export function CategoryDetail({
 					<TabPanel id="history">
 						<HistoryLogPanel
 							resourceType="category"
-							resourceId={category.publicId}
+							resourceId={String(category.id)}
 							resourceName={category.name}
 						/>
 					</TabPanel>
