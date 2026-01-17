@@ -52,7 +52,7 @@ export function OrderFormPage() {
 	const { data: itemList = [] } = itemResource.list();
 
 	const { data: existingOrder, isLoading: isLoadingOrder } = useQuery({
-		queryKey: queryKey.order.detail(id ?? ""),
+		queryKey: queryKey.order.detail(Number(id)),
 		queryFn: () => api.get<Order>(`/order/${id}`),
 		enabled: isEdit,
 	});
@@ -174,7 +174,7 @@ export function OrderFormPage() {
 		try {
 			if (isEdit && id && existingOrder) {
 				await update.mutateAsync({
-					id,
+					id: Number(id),
 					data: {
 						status,
 						lineList: lineData,
@@ -327,7 +327,7 @@ export function OrderFormPage() {
 																		}
 																	>
 																		{itemList.map((item) => (
-																			<DropdownRadioItem key={item.publicId} value={String(item.id)}>
+																			<DropdownRadioItem key={item.id} value={String(item.id)}>
 																				{item.name} ({formatMoney(item.price)})
 																			</DropdownRadioItem>
 																		))}

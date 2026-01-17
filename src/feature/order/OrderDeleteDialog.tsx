@@ -18,7 +18,7 @@ export function OrderDeleteDialog({ id, onSuccess }: OrderDeleteDialogProp) {
 		if (!order) return;
 
 		try {
-			await remove.mutateAsync(order.publicId);
+			await remove.mutateAsync(order.id);
 			closeModal(id);
 			onSuccess?.();
 		} catch {
@@ -30,7 +30,7 @@ export function OrderDeleteDialog({ id, onSuccess }: OrderDeleteDialogProp) {
 		<ConfirmDialog
 			id={id}
 			title="Delete Order"
-			message={`Are you sure you want to delete order #${order?.publicId ?? ""}? This action cannot be undone.`}
+			message={`Are you sure you want to delete order ${order?.orderNumber || `#${order?.id}`}? This action cannot be undone.`}
 			confirmLabel="Delete"
 			variant="danger"
 			onConfirm={handleConfirm}

@@ -63,7 +63,7 @@ export function OrderPage() {
 
 	const handleEdit = () => {
 		if (selectedItem) {
-			navigate(`/order/${selectedItem.publicId}/edit`);
+			navigate(`/order/${selectedItem.id}/edit`);
 		}
 	};
 
@@ -131,14 +131,14 @@ export function OrderPage() {
 						) : (
 							list.map((order) => (
 								<MasterListItem
-									key={order.publicId}
-									isSelected={selectedId === order.publicId}
-									onClick={() => setSelectedId(order.publicId)}
+									key={order.id}
+									isSelected={selectedId === order.id}
+									onClick={() => setSelectedId(order.id)}
 								>
 									<div className="flex items-center justify-between gap-2">
 										<div className="min-w-0 flex-1">
 											<p className="font-medium text-geist-fg">
-												#{order.publicId}
+												{order.orderNumber || `#${order.id}`}
 											</p>
 											<p className="text-sm text-geist-fg-muted">
 												{formatDate(order.createdAt)}

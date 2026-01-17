@@ -34,8 +34,8 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 	// Only fetch full details if lineList is not already present (list endpoint doesn't include lines)
 	const needsFetch = !order.lineList;
 	const { data: fullOrder, isLoading } = useQuery({
-		queryKey: queryKey.order.detail(order.publicId),
-		queryFn: () => api.get<Order>(`/order/${order.publicId}`),
+		queryKey: queryKey.order.detail(order.id),
+		queryFn: () => api.get<Order>(`/order/${order.id}`),
 		enabled: needsFetch,
 	});
 
@@ -114,7 +114,7 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 	return (
 		<div className="space-y-6">
 			<DetailPanelHeader
-				title={orderData.orderNumber ? `Order ${orderData.orderNumber}` : `Order #${orderData.publicId}`}
+				title={orderData.orderNumber ? `Order ${orderData.orderNumber}` : `Order #${orderData.id}`}
 				action={
 					<Dropdown>
 						<DropdownTrigger asChild>
@@ -257,7 +257,7 @@ export function OrderDetail({ order, onEdit, onDelete }: OrderDetailProp) {
 					<TabPanel id="history">
 						<HistoryLogPanel
 							resourceType="order"
-							resourceId={orderData.publicId}
+							resourceId={String(orderData.id)}
 						/>
 					</TabPanel>
 				</TabPanels>
