@@ -84,7 +84,7 @@ export function PublicLinkSetting() {
 				</div>
 			</div>
 
-			<div className="flex justify-end border-t border-geist-border pt-4">
+			<div className="flex justify-end pt-4">
 				<Button
 					onClick={handleSave}
 					disabled={!isDirty || mutation.isPending}
