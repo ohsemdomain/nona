@@ -53,7 +53,7 @@ export function CompactLogItem({ entry, resourceType }: CompactLogItemProp) {
 	const isAuthAction = entry.action === "LOGIN" || entry.action === "LOGOUT";
 
 	return (
-		<div className="px-3 py-0.5 text-xs text-geist-fg-secondary hover:bg-geist-bg-secondary">
+		<div className="py-0.5 text-xs text-geist-fg-secondary">
 			<span className={clsx("font-medium", color)}>{verb}</span>
 			{!isAuthAction && ` ${resourceLabel}`}
 			{displayName && ` '${displayName}'`}
