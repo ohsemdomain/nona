@@ -46,7 +46,7 @@ interface UseFormModalReturn<TEntity, TForm> {
 }
 
 export function useFormModal<
-	TEntity extends { publicId: string },
+	TEntity extends { id: number },
 	TForm,
 	TCreate,
 	TUpdate,
@@ -142,7 +142,7 @@ export function useFormModal<
 				let result: TEntity;
 				if (isEdit && entity) {
 					result = await update.mutateAsync({
-						id: entity.publicId,
+						id: entity.id,
 						data: toUpdateInput(form, entity), // Pass entity for optimistic locking
 					});
 				} else {
