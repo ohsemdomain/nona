@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { FileText, X, Filter } from "lucide-react";
 import {
+	MasterDetail,
+	MasterList,
 	Button,
 	Pagination,
 	EmptyState,
@@ -57,7 +59,7 @@ export function SystemLogPage() {
 	}, [filterMap.resource, filterMap.action, search]);
 
 	const FilterContent = () => (
-		<div className="space-y-4">
+		<div className="space-y-4 p-5">
 			<div>
 				<label htmlFor="filter-resource" className="block text-xs font-medium text-geist-fg-muted mb-2">
 					Resource
@@ -122,6 +124,9 @@ export function SystemLogPage() {
 		</div>
 	);
 
+	// Use a dummy selectedId to keep sidebar visible on desktop
+	const dummySelectedId = "log";
+
 	return (
 		<PermissionGuard
 			permission={PERMISSION.USER_READ}
@@ -132,26 +137,25 @@ export function SystemLogPage() {
 				/>
 			}
 		>
-			<div className="flex h-full">
-				{/* Filter Sidebar - hidden on mobile */}
-				<div className="hidden w-60 shrink-0 border-r border-geist-border bg-geist-bg lg:block">
-					<div className="p-4">
-						<h2 className="px-2 pb-3 text-xs font-semibold uppercase tracking-wider text-geist-fg-muted">
-							Filters
-						</h2>
-						<FilterContent />
-					</div>
-				</div>
+			<MasterDetail selectedId={dummySelectedId}>
+				<MasterList
+					header={
+						<div className="border-b border-geist-border px-5 py-5">
+							<h1 className="text-lg font-semibold text-geist-fg">Filter</h1>
+						</div>
+					}
+				>
+					<FilterContent />
+				</MasterList>
 
-				{/* Log Panel */}
-				<div className="flex flex-1 flex-col overflow-hidden">
+				<div className="flex h-full flex-1 flex-col rounded-lg border border-geist-border bg-geist-bg">
 					{/* Header */}
-					<div className="shrink-0 border-b border-geist-border bg-geist-bg px-4 py-3">
+					<div className="shrink-0 border-b border-geist-border px-5 py-5">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-3">
-								<h1 className="text-lg font-semibold text-geist-fg">
+								<h2 className="text-base font-semibold text-geist-fg">
 									System Log
-								</h1>
+								</h2>
 								{total > 0 && (
 									<span className="text-sm text-geist-fg-muted">
 										{total} entries
@@ -182,7 +186,7 @@ export function SystemLogPage() {
 					</div>
 
 					{/* Log List */}
-					<div className="flex-1 overflow-auto bg-geist-bg py-1">
+					<div className="flex-1 overflow-auto py-1">
 						{isLoading ? (
 							<div className="space-y-0.5 px-3">
 								{Array.from({ length: 20 }).map((_, i) => (
@@ -220,7 +224,7 @@ export function SystemLogPage() {
 
 					{/* Pagination */}
 					{total > pageSize && (
-						<div className="shrink-0 border-t border-geist-border bg-geist-bg px-4 py-2">
+						<div className="shrink-0 border-t border-geist-border px-4 py-2">
 							<Pagination
 								page={page}
 								pageSize={pageSize}
@@ -230,7 +234,7 @@ export function SystemLogPage() {
 						</div>
 					)}
 				</div>
-			</div>
+			</MasterDetail>
 		</PermissionGuard>
 	);
 }

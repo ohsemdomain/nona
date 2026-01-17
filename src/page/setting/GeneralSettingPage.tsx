@@ -1,6 +1,12 @@
 import { useSearchParams } from "react-router-dom";
 import { Link, Hash } from "lucide-react";
-import { EmptyState, PermissionGuard } from "@/src/component";
+import {
+	MasterDetail,
+	MasterList,
+	MasterListItem,
+	EmptyState,
+	PermissionGuard,
+} from "@/src/component";
 import { PERMISSION } from "@/shared/constant/permission";
 import { PublicLinkSetting } from "./PublicLinkSetting";
 import { NumberFormatSetting } from "./NumberFormatSetting";
@@ -43,66 +49,44 @@ export function GeneralSettingPage() {
 				/>
 			}
 		>
-			<div className="flex h-full">
-				{/* Sidebar - hidden on mobile */}
-				<div className="hidden w-60 shrink-0 border-r border-geist-border bg-geist-bg lg:block">
-					<div className="p-4">
-						<h2 className="px-2 pb-3 text-xs font-semibold uppercase tracking-wider text-geist-fg-muted">
-							General
-						</h2>
-						<ul className="space-y-1">
-							{CATEGORY_LIST.map(({ id, label, icon: Icon }) => (
-								<li key={id}>
-									<button
-										type="button"
-										onClick={() => handleSelectTab(id)}
-										className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-											selectedTab === id
-												? "bg-geist-bg-secondary text-geist-fg"
-												: "text-geist-fg-secondary hover:bg-geist-bg-secondary hover:text-geist-fg"
-										}`}
-									>
-										<Icon className="h-4 w-4" />
-										{label}
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-				</div>
-
-				{/* Detail Panel */}
-				<div className="flex flex-1 flex-col overflow-hidden">
-					{/* Mobile: Tab selector */}
-					<div className="shrink-0 border-b border-geist-border bg-geist-bg px-4 py-3 lg:hidden">
-						<select
-							value={selectedTab}
-							onChange={(e) => handleSelectTab(e.target.value as CategoryId)}
-							className="w-full rounded border border-geist-border bg-geist-bg px-3 py-2 text-sm text-geist-fg"
+			<MasterDetail selectedId={selectedTab}>
+				<MasterList
+					header={
+						<div className="border-b border-geist-border px-5 py-5">
+							<h1 className="text-lg font-semibold text-geist-fg">General</h1>
+						</div>
+					}
+				>
+					{CATEGORY_LIST.map(({ id, label, icon: Icon }) => (
+						<MasterListItem
+							key={id}
+							isSelected={selectedTab === id}
+							onClick={() => handleSelectTab(id)}
 						>
-							{CATEGORY_LIST.map(({ id, label }) => (
-								<option key={id} value={id}>
-									{label}
-								</option>
-							))}
-						</select>
-					</div>
+							<div className="flex items-center gap-3">
+								<Icon className="h-4 w-4 text-geist-fg-muted" />
+								<span>{label}</span>
+							</div>
+						</MasterListItem>
+					))}
+				</MasterList>
 
+				<div className="flex h-full flex-1 flex-col rounded-lg border border-geist-border bg-geist-bg">
 					{/* Header */}
-					<div className="shrink-0 border-b border-geist-border bg-geist-bg px-6 py-4">
-						<h1 className="text-lg font-semibold text-geist-fg">
+					<div className="shrink-0 border-b border-geist-border px-6 py-5">
+						<h2 className="text-base font-semibold text-geist-fg">
 							{selectedCategory?.label}
-						</h1>
+						</h2>
 					</div>
 
 					{/* Content */}
-					<div className="flex-1 overflow-auto bg-geist-bg p-6">
+					<div className="flex-1 overflow-auto p-6">
 						<div className="max-w-lg">
 							{renderDetailContent()}
 						</div>
 					</div>
 				</div>
-			</div>
+			</MasterDetail>
 		</PermissionGuard>
 	);
 }
