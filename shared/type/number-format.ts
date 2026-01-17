@@ -13,7 +13,7 @@ export type DatePlaceholder = (typeof DATE_PLACEHOLDER)[number];
 export type DigitPlaceholder = (typeof DIGIT_PLACEHOLDER)[number];
 
 export const DEFAULT_FORMAT: Record<string, string> = {
-	order: "[MM][4DIGIT][YY][DD]",
+	order: "ORD[YY][3DIGIT][MM][DD]",
 	invoice: "[MM][4DIGIT][YY][DD]",
 	quote: "[MM][4DIGIT][YY][DD]",
 };
