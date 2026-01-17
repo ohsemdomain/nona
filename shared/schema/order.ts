@@ -19,7 +19,6 @@ export const orderLineSchema = z.object({
 
 export const orderSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	status: orderStatus,
 	total: z.number().min(0),
 	createdAt: z.number(),

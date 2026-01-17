@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const categorySchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	name: z.string().min(1, "Name is required"),
 	createdAt: z.number(),
 	updatedAt: z.number(),

@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const itemSchema = z.object({
 	id: z.number(),
-	publicId: z.string(),
 	name: z.string().min(1, "Name is required"),
 	categoryId: z.number(),
 	price: z.number().min(0, "Price must be positive"),
