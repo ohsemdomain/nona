@@ -148,9 +148,9 @@ export function SystemLogPage() {
 					<FilterContent />
 				</MasterList>
 
-				<div className="flex h-full flex-1 flex-col bg-geist-bg">
+				<div className="flex h-full flex-1 flex-col bg-geist-bg p-6">
 					{/* Header */}
-					<div className="shrink-0 border-b border-geist-border px-5 py-5">
+					<div className="shrink-0 mb-4">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-3">
 								<h2 className="text-base font-semibold text-geist-fg">
@@ -186,9 +186,9 @@ export function SystemLogPage() {
 					</div>
 
 					{/* Log List */}
-					<div className="flex-1 overflow-auto py-1">
+					<div className="flex-1 overflow-auto">
 						{isLoading ? (
-							<div className="space-y-0.5 px-3">
+							<div className="space-y-1">
 								{Array.from({ length: 20 }).map((_, i) => (
 									<div
 										key={i}
@@ -224,7 +224,7 @@ export function SystemLogPage() {
 
 					{/* Pagination */}
 					{total > pageSize && (
-						<div className="shrink-0 border-t border-geist-border px-4 py-2">
+						<div className="shrink-0 pt-4">
 							<Pagination
 								page={page}
 								pageSize={pageSize}
