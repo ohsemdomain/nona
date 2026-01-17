@@ -148,7 +148,7 @@ export function SystemLogPage() {
 					<FilterContent />
 				</MasterList>
 
-				<div className="flex h-full flex-1 flex-col rounded-lg border border-geist-border bg-geist-bg">
+				<div className="flex h-full flex-1 flex-col bg-geist-bg">
 					{/* Header */}
 					<div className="shrink-0 border-b border-geist-border px-5 py-5">
 						<div className="flex items-center justify-between">

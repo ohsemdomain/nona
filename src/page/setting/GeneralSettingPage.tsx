@@ -71,7 +71,7 @@ export function GeneralSettingPage() {
 					))}
 				</MasterList>
 
-				<div className="flex h-full flex-1 flex-col rounded-lg border border-geist-border bg-geist-bg">
+				<div className="flex h-full flex-1 flex-col bg-geist-bg">
 					{/* Header */}
 					<div className="shrink-0 border-b border-geist-border px-6 py-5">
 						<h2 className="text-base font-semibold text-geist-fg">
