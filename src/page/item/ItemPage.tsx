@@ -113,7 +113,7 @@ export function ItemPage() {
 										>
 											<DropdownRadioItem value="">All Category</DropdownRadioItem>
 											{categoryList.map((cat) => (
-												<DropdownRadioItem key={cat.publicId} value={String(cat.id)}>
+												<DropdownRadioItem key={cat.id} value={String(cat.id)}>
 													{cat.name}
 												</DropdownRadioItem>
 											))}
@@ -144,9 +144,9 @@ export function ItemPage() {
 						) : (
 							list.map((item) => (
 								<MasterListItem
-									key={item.publicId}
-									isSelected={selectedId === item.publicId}
-									onClick={() => setSelectedId(item.publicId)}
+									key={item.id}
+									isSelected={selectedId === item.id}
+									onClick={() => setSelectedId(item.id)}
 								>
 									<div className="flex items-center justify-between gap-2">
 										<div className="min-w-0 flex-1">
@@ -187,7 +187,7 @@ export function ItemPage() {
 
 			<ItemFormModal
 				id={MODAL_ID.create}
-				onSuccess={(item) => selectAfterCreate(item.publicId)}
+				onSuccess={(item) => selectAfterCreate(item.id)}
 			/>
 			<ItemFormModal id={MODAL_ID.edit} />
 			<ItemDeleteDialog

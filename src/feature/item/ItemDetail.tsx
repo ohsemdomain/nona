@@ -118,7 +118,7 @@ export function ItemDetail({ item, onEdit, onDelete }: ItemDetailProp) {
 					<TabPanel id="history">
 						<HistoryLogPanel
 							resourceType="item"
-							resourceId={item.publicId}
+							resourceId={String(item.id)}
 							resourceName={item.name}
 						/>
 					</TabPanel>

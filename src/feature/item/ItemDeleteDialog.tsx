@@ -18,7 +18,7 @@ export function ItemDeleteDialog({ id, onSuccess }: ItemDeleteDialogProp) {
 		if (!item) return;
 
 		try {
-			await remove.mutateAsync(item.publicId);
+			await remove.mutateAsync(item.id);
 			closeModal(id);
 			onSuccess?.();
 		} catch {
